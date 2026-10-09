@@ -2,10 +2,10 @@
 /* Shared plumbing: config, database, JSON responses, sessions, rate limiting. */
 if (!defined('BATTY')) { http_response_code(403); exit; }
 
-const BATTY_GAMES = ['bunky', 'olympus', 'fishing', 'plachinko', 'moonshot', 'roulette', 'ultraheist', 'batjack', 'bonanza', 'starwing', 'circus', 'crypt', 'nighttrain', 'gummy', 'bookofbats', 'derby'];
+const BATTY_GAMES = ['bunky', 'olympus', 'fishing', 'plachinko', 'moonshot', 'roulette', 'ultraheist', 'batjack', 'bonanza', 'starwing', 'circus', 'crypt', 'nighttrain', 'gummy', 'bookofbats', 'derby', 'bonkers', 'vault', 'baccarat', 'royale'];
 /* Games on the server but not in the lobby (Bat Signal Roulette is retired from the floor). */
 const BATTY_HIDDEN_GAMES = ['roulette'];
-const BATTY_GAME_NAMES = ['bunky' => 'Bunky Time', 'olympus' => 'Raging Cocks of Olympus 2', 'fishing' => 'Fishing Frenzy', 'plachinko' => 'Plachinko', 'moonshot' => "Batty's Moonshot", 'roulette' => 'Bat Signal Roulette', 'ultraheist' => 'Bat Bandits UltraNudge', 'batjack' => 'Bat Jack', 'bonanza' => 'Sugar Fang Bonanza', 'starwing' => 'Starwing', 'circus' => 'Batty Circus', 'crypt' => "Count Batula's Crypt", 'nighttrain' => 'Night Train', 'gummy' => 'Gummy Bats', 'bookofbats' => 'Book of Bats', 'derby' => 'Bat Derby'];
+const BATTY_GAME_NAMES = ['bunky' => 'Bunky Time', 'olympus' => 'Raging Cocks of Olympus 2', 'fishing' => 'Fishing Frenzy', 'plachinko' => 'Plachinko', 'moonshot' => "Batty's Moonshot", 'roulette' => 'Bat Signal Roulette', 'ultraheist' => 'Bat Bandits UltraNudge', 'batjack' => 'Bat Jack', 'bonanza' => 'Sugar Fang Bonanza', 'starwing' => 'Starwing', 'circus' => 'Batty Circus', 'crypt' => "Count Batula's Crypt", 'nighttrain' => 'Night Train', 'gummy' => 'Gummy Bats', 'bookofbats' => 'Book of Bats', 'derby' => 'Bat Derby', 'bonkers' => 'Bonkers Time', 'vault' => 'Crimson Vault', 'baccarat' => 'Velvet Baccarat', 'royale' => 'Roulette Royale'];
 
 class ApiError extends Exception {
     public $status;
