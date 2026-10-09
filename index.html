@@ -817,7 +817,13 @@ window.Batty = (function () {
             fx.burst({ x: innerWidth / 2, y: innerHeight * 0.42, kind: t >= 1 ? 'confetti' : 'coin', count: 30 + t * 18, power: 1 + t * 0.25 });
           }
         };
-        const amountAt = (k) => o.amount * (k < 1 ? 1 - Math.pow(1 - k, 2.2) : 1);
+        /* each tier gets an equal slice of the show, so the climb through Big, Mega and on is felt, not skipped */
+        const marks = [0].concat(TIERS.slice(1, top + 1).map((x) => x[0] * o.bet), [o.amount]);
+        const amountAt = (k) => {
+          if (k >= 1) return o.amount;
+          const seg = k * (marks.length - 1), i = Math.floor(seg), f = seg - i, e = i === marks.length - 2 ? 1 - Math.pow(1 - f, 2) : f;
+          return marks[i] + (marks[i + 1] - marks[i]) * e;
+        };
         const t0 = performance.now();
         const step = (t) => {
           if (done) return;
