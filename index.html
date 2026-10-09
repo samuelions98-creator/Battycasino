@@ -428,6 +428,11 @@ button:disabled { cursor: not-allowed; }
 <link rel="stylesheet" href="games/batjack/style.css?v=20261009b">
 <link rel="stylesheet" href="games/bonanza/style.css?v=20261009b">
 <link rel="stylesheet" href="games/starwing/style.css?v=20261009b">
+<link rel="stylesheet" href="games/crypt/style.css?v=20261009b">
+<link rel="stylesheet" href="games/nighttrain/style.css?v=20261009b">
+<link rel="stylesheet" href="games/gummy/style.css?v=20261009b">
+<link rel="stylesheet" href="games/bookofbats/style.css?v=20261009b">
+<link rel="stylesheet" href="games/derby/style.css?v=20261009b">
 <div id="batty-app"></div>
 <script>
 /* Batty Casino core: wallet, RNG, audio, effects, shell and lobby. Games register themselves with Batty.registerGame(). */
@@ -860,7 +865,7 @@ window.Batty = (function () {
   }
 
   /* ---------- registry, shell, lobby ---------- */
-  const ORDER = ['circus', 'bunky', 'olympus', 'fishing', 'plachinko', 'moonshot', 'ultraheist', 'batjack', 'bonanza', 'starwing'];
+  const ORDER = ['circus', 'crypt', 'nighttrain', 'gummy', 'bookofbats', 'derby', 'bunky', 'olympus', 'fishing', 'plachinko', 'moonshot', 'ultraheist', 'batjack', 'bonanza', 'starwing'];
   const games = {}, pages = {};
   let app, bar, stage, current = null, curPage = null, balEl, lvlEl, booted = false;
   const ext = {}; // filled in by online.js: authCard, lobbyTop, lobbyBottom
@@ -1078,8 +1083,8 @@ window.Batty = (function () {
 (function () {
   'use strict';
   const B = Batty, h = B.h, fmt = B.fmt;
-  const GN = { bunky: 'Bunky Time', olympus: 'Raging Cocks of Olympus 2', fishing: 'Fishing Frenzy', plachinko: 'Plachinko', moonshot: "Batty's Moonshot", ultraheist: 'Bat Bandits UltraNudge', batjack: 'Bat Jack', bonanza: 'Sugar Fang Bonanza', starwing: 'Starwing', circus: 'Batty Circus' };
-  const GS = { bunky: 'Bunky Time', olympus: 'Raging Cocks', fishing: 'Fishing Frenzy', plachinko: 'Plachinko', moonshot: 'Moonshot', ultraheist: 'Bat Bandits', batjack: 'Bat Jack', bonanza: 'Sugar Fang', starwing: 'Starwing', circus: 'Batty Circus' };
+  const GN = { bunky: 'Bunky Time', olympus: 'Raging Cocks of Olympus 2', fishing: 'Fishing Frenzy', plachinko: 'Plachinko', moonshot: "Batty's Moonshot", ultraheist: 'Bat Bandits UltraNudge', batjack: 'Bat Jack', bonanza: 'Sugar Fang Bonanza', starwing: 'Starwing', circus: 'Batty Circus', crypt: "Count Batula's Crypt", nighttrain: 'Night Train', gummy: 'Gummy Bats', bookofbats: 'Book of Bats', derby: 'Bat Derby' };
+  const GS = { bunky: 'Bunky Time', olympus: 'Raging Cocks', fishing: 'Fishing Frenzy', plachinko: 'Plachinko', moonshot: 'Moonshot', ultraheist: 'Bat Bandits', batjack: 'Bat Jack', bonanza: 'Sugar Fang', starwing: 'Starwing', circus: 'Batty Circus', crypt: "Batula's Crypt", nighttrain: 'Night Train', gummy: 'Gummy Bats', bookofbats: 'Book of Bats', derby: 'Bat Derby' };
   const xs = (x) => (x >= 100 ? fmt(x) : (Math.round(x * 100) / 100).toFixed(x >= 10 ? 1 : 2)) + '×';
   const ago = (t) => { const s = Math.max(0, Math.round(Date.now() / 1000 - t)); return s < 60 ? 'just now' : s < 3600 ? Math.floor(s / 60) + ' min ago' : s < 86400 ? Math.floor(s / 3600) + ' h ago' : Math.floor(s / 86400) + ' d ago'; };
   const date = (t) => new Date(t * 1000).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -1440,6 +1445,11 @@ window.Batty = (function () {
 <script src="games/batjack/game.js?v=20261009b"></script>
 <script src="games/bonanza/game.js?v=20261009b"></script>
 <script src="games/starwing/game.js?v=20261009b"></script>
+<script src="games/crypt/game.js?v=20261009b"></script>
+<script src="games/nighttrain/game.js?v=20261009b"></script>
+<script src="games/gummy/game.js?v=20261009b"></script>
+<script src="games/bookofbats/game.js?v=20261009b"></script>
+<script src="games/derby/game.js?v=20261009b"></script>
 <script src="circus/math.js?v=20261009-showcase"></script>
 <script src="circus/art.js?v=20261009-showcase"></script>
 <script src="circus/game.js?v=20261009-showcase"></script>

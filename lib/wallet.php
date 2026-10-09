@@ -234,7 +234,8 @@ function achievements_check(array &$u, string $game, float $x, array $f): void {
     if (!empty($f['bonus'])) $want[] = 'bonus1';
     if ($x >= 50) $want[] = 'x50';
     if ($x >= 250) $want[] = 'x250';
-    if ($u['games_mask'] === (1 << count(BATTY_GAMES)) - 1) $want[] = 'allgames';
+    $floor = 0; foreach (BATTY_GAMES as $i => $g) if (!in_array($g, BATTY_HIDDEN_GAMES, true)) $floor |= 1 << $i;
+    if (($u['games_mask'] & $floor) === $floor) $want[] = 'allgames';
     if ($u['level'] >= 10) $want[] = 'lvl10';
     if ($u['level'] >= 25) $want[] = 'lvl25';
     if ($u['wagered'] >= 1000000) $want[] = 'roller';
