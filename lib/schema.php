@@ -1,0 +1,199 @@
+<?php
+/* Database tables. install.php runs these; every statement is safe to run twice. */
+if (!defined('BATTY')) { http_response_code(403); exit; }
+
+return [
+"CREATE TABLE IF NOT EXISTS users (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(16) NOT NULL,
+  name_lc VARCHAR(16) NOT NULL,
+  pass_hash VARCHAR(255) NOT NULL,
+  pass_ver INT NOT NULL DEFAULT 1,
+  balance BIGINT NOT NULL DEFAULT 0,
+  ver BIGINT NOT NULL DEFAULT 0,
+  wagered BIGINT NOT NULL DEFAULT 0,
+  won BIGINT NOT NULL DEFAULT 0,
+  rounds INT NOT NULL DEFAULT 0,
+  level INT NOT NULL DEFAULT 1,
+  best_win BIGINT NOT NULL DEFAULT 0,
+  best_x DECIMAL(14,2) NOT NULL DEFAULT 0,
+  best_game VARCHAR(12) NULL,
+  is_admin TINYINT NOT NULL DEFAULT 0,
+  banned TINYINT NOT NULL DEFAULT 0,
+  avatar VARCHAR(12) NOT NULL DEFAULT '0-0',
+  motto VARCHAR(80) NOT NULL DEFAULT '',
+  moon_card TEXT NULL,
+  last_claim DATETIME NULL,
+  last_rescue DATETIME NULL,
+  streak INT NOT NULL DEFAULT 0,
+  streak_day DATE NULL,
+  games_mask INT NOT NULL DEFAULT 0,
+  created_at DATETIME NOT NULL,
+  last_seen DATETIME NOT NULL,
+  UNIQUE KEY u_name (name_lc),
+  KEY k_balance (balance),
+  KEY k_best (best_win)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+"CREATE TABLE IF NOT EXISTS rounds (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  user_id INT UNSIGNED NOT NULL,
+  game VARCHAR(12) NOT NULL,
+  stake BIGINT NOT NULL,
+  win BIGINT NOT NULL DEFAULT 0,
+  x DECIMAL(14,2) NOT NULL DEFAULT 0,
+  balls INT NOT NULL DEFAULT 1,
+  state VARCHAR(6) NOT NULL DEFAULT 'done',
+  data MEDIUMTEXT NULL,
+  created_at DATETIME(3) NOT NULL,
+  settled_at DATETIME(3) NULL,
+  KEY k_user_state (user_id, state),
+  KEY k_user_time (user_id, created_at),
+  KEY k_time (created_at),
+  KEY k_game_time (game, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+"CREATE TABLE IF NOT EXISTS ledger (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  user_id INT UNSIGNED NOT NULL,
+  kind VARCHAR(10) NOT NULL,
+  game VARCHAR(12) NULL,
+  amount BIGINT NOT NULL,
+  balance BIGINT NOT NULL,
+  round_id BIGINT UNSIGNED NULL,
+  note VARCHAR(120) NOT NULL DEFAULT '',
+  created_at DATETIME(3) NOT NULL,
+  KEY k_user (user_id, id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+"CREATE TABLE IF NOT EXISTS user_games (
+  user_id INT UNSIGNED NOT NULL,
+  game VARCHAR(12) NOT NULL,
+  rounds INT NOT NULL DEFAULT 0,
+  wagered BIGINT NOT NULL DEFAULT 0,
+  won BIGINT NOT NULL DEFAULT 0,
+  best_win BIGINT NOT NULL DEFAULT 0,
+  best_x DECIMAL(14,2) NOT NULL DEFAULT 0,
+  PRIMARY KEY (user_id, game)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+"CREATE TABLE IF NOT EXISTS feed (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  user_id INT UNSIGNED NOT NULL,
+  game VARCHAR(12) NOT NULL,
+  amount BIGINT NOT NULL,
+  x DECIMAL(14,2) NOT NULL,
+  label VARCHAR(60) NOT NULL DEFAULT '',
+  created_at DATETIME NOT NULL,
+  KEY k_time (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+"CREATE TABLE IF NOT EXISTS missions (
+  user_id INT UNSIGNED NOT NULL,
+  day DATE NOT NULL,
+  slot TINYINT NOT NULL,
+  mission VARCHAR(24) NOT NULL,
+  target BIGINT NOT NULL,
+  progress BIGINT NOT NULL DEFAULT 0,
+  meta VARCHAR(40) NOT NULL DEFAULT '',
+  reward INT NOT NULL,
+  claimed TINYINT NOT NULL DEFAULT 0,
+  PRIMARY KEY (user_id, day, slot)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+"CREATE TABLE IF NOT EXISTS achievements (
+  user_id INT UNSIGNED NOT NULL,
+  ach VARCHAR(24) NOT NULL,
+  unlocked_at DATETIME NOT NULL,
+  PRIMARY KEY (user_id, ach)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+"CREATE TABLE IF NOT EXISTS attempts (
+  ip VARCHAR(45) NOT NULL,
+  bucket VARCHAR(12) NOT NULL,
+  at DATETIME NOT NULL,
+  KEY k_ip (ip, bucket, at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+"CREATE TABLE IF NOT EXISTS moon_flights (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  crash_c INT NOT NULL,
+  blood TINYINT NOT NULL DEFAULT 0,
+  open_at DOUBLE NOT NULL,
+  close_at DOUBLE NOT NULL,
+  start_at DOUBLE NOT NULL,
+  crash_at DOUBLE NOT NULL,
+  KEY k_crash (crash_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+"CREATE TABLE IF NOT EXISTS moon_bets (
+  flight_id BIGINT UNSIGNED NOT NULL,
+  user_id INT UNSIGNED NOT NULL,
+  slot CHAR(1) NOT NULL,
+  stake BIGINT NOT NULL,
+  target INT NOT NULL DEFAULT 0,
+  free TINYINT NOT NULL DEFAULT 0,
+  cash_c INT NOT NULL DEFAULT 0,
+  paid BIGINT NOT NULL DEFAULT 0,
+  PRIMARY KEY (flight_id, user_id, slot)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+"CREATE TABLE IF NOT EXISTS rl_spins (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  number INT NOT NULL,
+  pocket INT NOT NULL,
+  lucky VARCHAR(255) NOT NULL,
+  open_at DOUBLE NOT NULL,
+  close_at DOUBLE NOT NULL,
+  result_at DOUBLE NOT NULL,
+  KEY k_result (result_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+"CREATE TABLE IF NOT EXISTS rl_bets (
+  spin_id BIGINT UNSIGNED NOT NULL,
+  user_id INT UNSIGNED NOT NULL,
+  total BIGINT NOT NULL,
+  win BIGINT NOT NULL DEFAULT -1,
+  PRIMARY KEY (spin_id, user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+"CREATE TABLE IF NOT EXISTS rtp_games (
+  game VARCHAR(16) NOT NULL PRIMARY KEY,
+  w_stake DOUBLE NOT NULL DEFAULT 0,
+  w_win DOUBLE NOT NULL DEFAULT 0,
+  life_stake BIGINT NOT NULL DEFAULT 0,
+  life_win BIGINT NOT NULL DEFAULT 0,
+  rounds BIGINT NOT NULL DEFAULT 0,
+  rerolls BIGINT NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+"CREATE TABLE IF NOT EXISTS bj_rounds (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  seed BIGINT NOT NULL,
+  open_at DOUBLE NOT NULL,
+  close_at DOUBLE NOT NULL,
+  peek_at DOUBLE NULL,
+  decide_end DOUBLE NULL,
+  dealer_at DOUBLE NULL,
+  result_at DOUBLE NULL,
+  shoe TEXT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+"CREATE TABLE IF NOT EXISTS bj_bets (
+  round_id BIGINT UNSIGNED NOT NULL,
+  user_id INT UNSIGNED NOT NULL,
+  seat INT NOT NULL,
+  main INT NOT NULL,
+  pp INT NOT NULL DEFAULT 0,
+  t3 INT NOT NULL DEFAULT 0,
+  done TINYINT NOT NULL DEFAULT 0,
+  hands TEXT NULL,
+  win BIGINT NOT NULL DEFAULT -1,
+  PRIMARY KEY (round_id, user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+"CREATE TABLE IF NOT EXISTS settings (
+  k VARCHAR(32) NOT NULL PRIMARY KEY,
+  v TEXT NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+];
