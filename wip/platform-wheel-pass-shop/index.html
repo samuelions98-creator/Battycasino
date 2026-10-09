@@ -1,0 +1,1482 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="batty-build" content="circus-20261009-showcase">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#100a1c">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Batty">
+<style>:root{color-scheme:dark;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<link rel="stylesheet" href="circus/style.css?v=20261009-showcase">
+</head>
+<body>
+<title>Batty Casino</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Titan+One&family=Figtree:wght@400;500;600;700;800&family=Chakra+Petch:wght@500;600;700&family=Monoton&family=Bungee&family=Cinzel:wght@600;800;900&family=Cinzel+Decorative:wght@700;900&family=Lilita+One&family=Dela+Gothic+One&family=Audiowide&family=Bowlby+One&family=Bebas+Neue&display=swap">
+<style>
+/* Layout concept: a night sky that never changes behind a slim casino bar; the lobby is a shelf of tall
+   cabinet marquees under a giant moon, and each game takes over the whole stage with its own world. */
+:root {
+  color-scheme: dark;
+  --night: #100a1c;
+  --dusk: #1d1033;
+  --plum: #34195c;
+  --violet: #6b3fd1;
+  --moon: #ffd76a;
+  --moon-deep: #f5a623;
+  --fang: #ff3d81;
+  --ecto: #58f0c8;
+  --ink: #f7f0ff;
+  --mute: #ab98c9;
+  --line: rgba(255, 255, 255, .1);
+  --glass: rgba(255, 255, 255, .06);
+  --f-display: 'Titan One', 'Bowlby One', 'Arial Black', Impact, sans-serif;
+  --f-body: 'Figtree', 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+  --f-num: 'Chakra Petch', 'Figtree', 'Segoe UI', system-ui, sans-serif;
+  --bar-h: 56px;
+}
+html, body { height: 100%; }
+body {
+  background: var(--night);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 15px;
+  line-height: 1.45;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+*, *::before, *::after { box-sizing: border-box; }
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; padding: 0; touch-action: manipulation; }
+button:disabled { cursor: not-allowed; }
+:focus-visible { outline: 2px solid var(--moon); outline-offset: 2px; border-radius: 6px; }
+#batty-app { min-height: 100%; display: flex; flex-direction: column; position: relative; }
+
+/* ---------- top bar ---------- */
+.bc-bar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 50;
+  height: var(--bar-h); flex: none;
+  display: flex; align-items: center; gap: 10px;
+  padding-inline: 12px;
+  background: linear-gradient(180deg, rgba(16, 10, 28, .96), rgba(16, 10, 28, .86));
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(10px);
+}
+.bc-brand { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1; }
+.bc-brand svg { width: 38px; height: 20px; flex: none; fill: var(--moon); filter: drop-shadow(0 0 8px rgba(255, 215, 106, .5)); }
+.bc-brand b {
+  font-family: var(--f-display); font-weight: 400; font-size: 18px; letter-spacing: .02em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.bc-back {
+  display: flex; align-items: center; gap: 6px; height: 36px; padding-inline: 10px 12px; flex: none;
+  border-radius: 999px; background: var(--glass); border: 1px solid var(--line);
+  font-weight: 700; font-size: 13px;
+}
+.bc-back:hover { background: rgba(255, 255, 255, .12); }
+.bc-back svg { width: 14px; height: 14px; }
+.bc-bal {
+  display: flex; align-items: center; gap: 7px; height: 38px; padding-inline: 6px 12px; flex: none;
+  border-radius: 999px; background: linear-gradient(180deg, #2b1650, #1a0d33);
+  border: 1px solid rgba(255, 215, 106, .45);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .4) inset, 0 0 18px rgba(255, 215, 106, .12);
+  font-family: var(--f-num); font-weight: 700; font-size: 16px; font-variant-numeric: tabular-nums;
+  color: var(--moon);
+}
+.bc-bal.bump { animation: bc-bump .35s ease; }
+@keyframes bc-bump { 40% { transform: scale(1.08); box-shadow: 0 0 26px rgba(255, 215, 106, .55); } }
+.bc-coin {
+  width: 26px; height: 26px; border-radius: 50%; flex: none; display: grid; place-items: center;
+  background: radial-gradient(circle at 35% 30%, #fff3bd, var(--moon) 45%, var(--moon-deep) 100%);
+  box-shadow: 0 0 0 2px #b9770e inset, 0 1px 3px rgba(0, 0, 0, .5);
+}
+.bc-coin svg { width: 17px; height: 9px; fill: #7a4a00; }
+.bc-icon {
+  width: 38px; height: 38px; flex: none; border-radius: 50%; display: grid; place-items: center;
+  background: var(--glass); border: 1px solid var(--line);
+}
+.bc-icon:hover { background: rgba(255, 255, 255, .12); }
+.bc-icon svg { width: 18px; height: 18px; fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.bc-lvl {
+  flex: none; height: 38px; padding-inline: 10px; border-radius: 999px; display: flex; align-items: center; gap: 6px;
+  background: var(--glass); border: 1px solid var(--line); font-family: var(--f-num); font-weight: 700; font-size: 13px;
+}
+.bc-lvl i { display: block; width: 44px; height: 5px; border-radius: 3px; background: rgba(255, 255, 255, .14); overflow: hidden; }
+.bc-lvl i::after { content: ''; display: block; height: 100%; width: var(--p, 0%); background: var(--ecto); border-radius: 3px; transition: width .4s; }
+@media (max-width: 560px) { .bc-lvl, .bc-brand b.long { display: none; } .bc-bar { gap: 7px; padding-inline: 10px; } .bc-back span { display: none; } .bc-back { padding-inline: 10px; } }
+
+/* ---------- stage (a game owns everything in here) ---------- */
+.bc-stage { flex: 1; display: flex; flex-direction: column; min-height: 0; position: relative; }
+.bc-stage > * { flex: 1; }
+
+/* ---------- lobby ---------- */
+.bc-lobby {
+  flex: 1; position: relative; overflow: hidden;
+  background:
+    radial-gradient(1200px 520px at 78% -140px, rgba(107, 63, 209, .55), transparent 70%),
+    radial-gradient(700px 380px at 8% 0, rgba(255, 61, 129, .18), transparent 70%),
+    linear-gradient(180deg, #170c2c 0, var(--night) 520px);
+}
+.bc-wrap { max-width: 1180px; margin-inline: auto; padding-inline: 16px; padding-block: 0 48px; position: relative; }
+.bc-stars { position: absolute; inset: 0 0 auto 0; height: 520px; pointer-events: none; opacity: .9; }
+.bc-hero { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: center; padding-block: 34px 30px; }
+.bc-hero h1 {
+  margin: 0; font-family: var(--f-display); font-weight: 400; line-height: .88; letter-spacing: .01em;
+  font-size: clamp(54px, 11vw, 124px); text-wrap: balance;
+  color: var(--moon);
+  text-shadow: 0 2px 0 #c9860f, 0 5px 0 #8a4f06, 0 6px 0 #4a2703, 0 14px 30px rgba(0, 0, 0, .55), 0 0 60px rgba(255, 215, 106, .25);
+}
+.bc-hero h1 span { display: block; color: var(--ink); font-size: .46em; letter-spacing: .28em; margin-left: .08em; margin-top: .22em;
+  text-shadow: 0 2px 0 #7b2a9c, 0 4px 0 #3d145c, 0 10px 22px rgba(0, 0, 0, .6); }
+.bc-hero p { margin: 18px 0 0; max-width: 46ch; color: var(--mute); font-size: 16px; }
+.bc-hero p b { color: var(--ink); }
+.bc-moon {
+  width: clamp(120px, 24vw, 250px); aspect-ratio: 1; max-width: 100%; border-radius: 50%; position: relative;
+  background:
+    radial-gradient(circle at 68% 30%, rgba(190, 130, 40, .35) 0 9%, transparent 10%),
+    radial-gradient(circle at 32% 62%, rgba(190, 130, 40, .3) 0 13%, transparent 14%),
+    radial-gradient(circle at 60% 72%, rgba(190, 130, 40, .25) 0 6%, transparent 7%),
+    radial-gradient(circle at 38% 32%, #fff6cf, #ffe18a 45%, #f3b33c 100%);
+  box-shadow: 0 0 80px 20px rgba(255, 215, 106, .28), 0 0 200px 60px rgba(255, 180, 60, .14);
+}
+.bc-moon svg { position: absolute; fill: #1a0b2e; }
+.bc-moon svg:nth-child(1) { width: 62%; left: 19%; top: 34%; animation: bc-flap 3.2s ease-in-out infinite; }
+.bc-moon svg:nth-child(2) { width: 24%; left: -22%; top: 10%; fill: #2b1650; animation: bc-flap 2.6s ease-in-out -.8s infinite; }
+.bc-moon svg:nth-child(3) { width: 17%; left: 88%; top: 78%; fill: #2b1650; animation: bc-flap 2.2s ease-in-out -1.4s infinite; }
+@keyframes bc-flap { 50% { transform: translateY(-7%) scaleY(.82); } }
+
+.bc-claim {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; margin-top: 22px;
+}
+.bc-btn {
+  height: 50px; padding-inline: 22px; border-radius: 14px;
+  font-family: var(--f-display); font-size: 17px; letter-spacing: .03em; color: #3b1d00;
+  background: linear-gradient(180deg, #fff0a8, var(--moon) 40%, var(--moon-deep));
+  box-shadow: 0 4px 0 #9a5a07, 0 10px 22px rgba(0, 0, 0, .45);
+  transition: transform .08s, box-shadow .08s, filter .15s;
+}
+.bc-btn:hover { filter: brightness(1.08); }
+.bc-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #9a5a07, 0 4px 10px rgba(0, 0, 0, .45); }
+.bc-btn:disabled { filter: grayscale(.9) brightness(.6); transform: none; }
+.bc-btn.ghost { background: var(--glass); color: var(--ink); box-shadow: 0 0 0 1px var(--line) inset; }
+.bc-claim small { color: var(--mute); font-size: 13px; }
+.bc-claim small b { color: var(--ecto); font-family: var(--f-num); }
+
+.bc-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; margin-block: 4px 30px;
+  border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--line); }
+.bc-strip div { background: rgba(22, 12, 40, .9); padding: 12px 14px; min-width: 0; }
+.bc-strip dt { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--mute); font-weight: 700; }
+.bc-strip dd { margin: 2px 0 0; font-family: var(--f-num); font-weight: 700; font-size: 20px; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 640px) { .bc-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); } .bc-hero { grid-template-columns: minmax(0, 1fr); padding-block: 24px 22px; } .bc-moon { position: absolute; right: -8px; top: 14px; width: 112px; opacity: .92; z-index: 0; } .bc-hero > div:first-child { position: relative; z-index: 1; } }
+
+.bc-h2 { display: flex; align-items: baseline; gap: 12px; margin: 0 0 14px; font-family: var(--f-display); font-weight: 400; font-size: 26px; letter-spacing: .02em; }
+.bc-h2 small { font-family: var(--f-body); font-size: 13px; color: var(--mute); font-weight: 600; }
+.bc-shelf { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 1040px) { .bc-shelf { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .bc-shelf { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; } }
+.bc-card {
+  display: flex; flex-direction: column; text-align: left; min-width: 0; position: relative;
+  border-radius: 18px; overflow: hidden; background: #150b28;
+  box-shadow: 0 0 0 1px var(--line), 0 14px 30px rgba(0, 0, 0, .45);
+  transition: transform .18s cubic-bezier(.2, .9, .3, 1.4), box-shadow .18s;
+}
+.bc-card:hover, .bc-card:focus-visible { transform: translateY(-6px) scale(1.015); box-shadow: 0 0 0 2px var(--moon), 0 22px 44px rgba(0, 0, 0, .6), 0 0 40px rgba(255, 215, 106, .18); }
+.bc-card .art { aspect-ratio: 4 / 5; width: 100%; display: block; position: relative; overflow: hidden; }
+.bc-card .art svg { width: 100%; height: 100%; display: block; }
+.bc-card .art::after { content: ''; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 40%, rgba(255, 255, 255, .22) 50%, transparent 60%); transform: translateX(-120%); }
+.bc-card:hover .art::after { transform: translateX(120%); transition: transform .7s; }
+.bc-card .meta { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.bc-card .meta b { font-family: var(--f-display); font-weight: 400; font-size: 16px; letter-spacing: .02em; line-height: 1.15; }
+.bc-card .meta span { font-size: 12.5px; color: var(--mute); line-height: 1.3; }
+.bc-card .meta em { font-style: normal; font-family: var(--f-num); font-size: 12px; color: var(--ecto); margin-top: 4px; }
+.bc-tag { position: absolute; left: 10px; top: 10px; z-index: 2; padding: 3px 9px; border-radius: 999px; font-size: 10.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; background: rgba(10, 5, 20, .78); border: 1px solid var(--line); color: var(--moon); }
+.bc-foot { margin-top: 34px; color: var(--mute); font-size: 12.5px; max-width: 70ch; }
+.bc-foot b { color: var(--ink); }
+
+/* ---------- shared widgets ---------- */
+.bc-stake { display: inline-flex; align-items: center; gap: 6px; }
+.bc-stake button { width: 38px; height: 38px; border-radius: 50%; background: var(--glass); border: 1px solid var(--line); font-weight: 800; font-size: 20px; line-height: 1; }
+.bc-stake button:hover:not(:disabled) { background: rgba(255, 255, 255, .14); }
+.bc-stake button:disabled { opacity: .35; }
+.bc-stake output { min-width: 92px; text-align: center; font-family: var(--f-num); font-weight: 700; font-size: 17px; font-variant-numeric: tabular-nums; line-height: 1.05; }
+.bc-stake output small { display: block; font-family: var(--f-body); font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--mute); font-weight: 700; }
+
+.bc-toasts { position: fixed; left: 0; right: 0; top: calc(var(--bar-h) + env(safe-area-inset-top, 0px) + 10px); z-index: 90; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; padding-inline: 16px; }
+.bc-toast { padding: 10px 16px; border-radius: 12px; background: #2a1550; border: 1px solid rgba(255, 215, 106, .5); box-shadow: 0 10px 30px rgba(0, 0, 0, .5); font-weight: 700; font-size: 14px; animation: bc-toast-in .3s cubic-bezier(.2, .9, .3, 1.4); max-width: 100%; }
+.bc-toast.out { opacity: 0; transform: translateY(-8px); transition: .3s; }
+@keyframes bc-toast-in { from { opacity: 0; transform: translateY(-14px) scale(.9); } }
+
+.bc-fx { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 80; }
+
+.bc-veil { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; padding: 16px; background: rgba(8, 4, 16, .78); backdrop-filter: blur(4px); animation: bc-fade .2s; }
+@keyframes bc-fade { from { opacity: 0; } }
+.bc-modal { width: min(680px, 100%); max-height: min(86%, 760px); display: flex; flex-direction: column; border-radius: 20px; background: linear-gradient(180deg, #25123f, #170c2b); border: 1px solid rgba(255, 215, 106, .35); box-shadow: 0 30px 80px rgba(0, 0, 0, .7); overflow: hidden; }
+.bc-modal header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px 12px 20px; border-bottom: 1px solid var(--line); }
+.bc-modal header h2 { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: 22px; color: var(--moon); }
+.bc-modal .body { padding: 16px 20px 22px; overflow-y: auto; min-width: 0; }
+.bc-modal .body h3 { font-family: var(--f-display); font-weight: 400; font-size: 16px; margin: 18px 0 6px; color: var(--ink); letter-spacing: .02em; }
+.bc-modal .body h3:first-child { margin-top: 0; }
+.bc-modal .body p, .bc-modal .body li { color: #d9cdee; font-size: 14px; }
+.bc-modal .body p { margin: 0 0 8px; }
+.bc-modal .body ul { margin: 0 0 8px; padding-left: 18px; }
+.bc-modal .body table { width: 100%; border-collapse: collapse; font-size: 13.5px; font-variant-numeric: tabular-nums; margin-bottom: 8px; }
+.bc-modal .body th, .bc-modal .body td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--line); }
+.bc-modal .body th { color: var(--mute); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+.bc-modal .body .rtp { margin-top: 14px; padding: 10px 12px; border-radius: 10px; background: rgba(88, 240, 200, .08); border: 1px solid rgba(88, 240, 200, .3); color: var(--ecto); font-size: 13px; }
+
+.bc-win { position: fixed; inset: 0; z-index: 75; display: grid; place-items: center; background: radial-gradient(circle at 50% 45%, rgba(107, 63, 209, .55), rgba(8, 4, 16, .9) 65%); animation: bc-fade .25s; cursor: pointer; padding: 16px; text-align: center; overflow: hidden; }
+.bc-win::before { content: ''; position: absolute; width: 180vmax; height: 180vmax; left: 50%; top: 45%; translate: -50% -50%; background: repeating-conic-gradient(rgba(255, 215, 106, .13) 0 9deg, transparent 9deg 18deg); animation: bc-rays 18s linear infinite; }
+@keyframes bc-rays { to { rotate: 360deg; } }
+.bc-win > div { position: relative; }
+.bc-win h2 { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: clamp(40px, 11vw, 110px); line-height: .95; color: var(--moon); text-wrap: balance;
+  text-shadow: 0 3px 0 #c9860f, 0 7px 0 #8a4f06, 0 9px 0 #4a2703, 0 18px 40px rgba(0, 0, 0, .6), 0 0 70px rgba(255, 215, 106, .5);
+  animation: bc-slam .55s cubic-bezier(.2, 1.5, .4, 1); }
+@keyframes bc-slam { from { transform: scale(3); opacity: 0; } }
+.bc-win output { display: block; margin-top: 14px; font-family: var(--f-num); font-weight: 700; font-size: clamp(34px, 8vw, 76px); font-variant-numeric: tabular-nums; color: #fff; text-shadow: 0 4px 0 rgba(0, 0, 0, .5), 0 0 30px rgba(255, 255, 255, .4); }
+.bc-win p { margin: 8px 0 0; color: var(--mute); font-weight: 700; letter-spacing: .12em; text-transform: uppercase; font-size: 13px; }
+@media (prefers-reduced-motion: reduce) { .bc-win::before, .bc-moon svg { animation: none; } }
+
+/* ---------- install as an app ---------- */
+.bc-getapp { display: flex; align-items: center; gap: 14px; margin: 0 0 22px; padding: 14px 16px; border-radius: 18px;
+  background: linear-gradient(110deg, rgba(255, 215, 106, .16), rgba(107, 63, 209, .22)); border: 1px solid rgba(255, 215, 106, .35);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .08); }
+.bc-getapp .ic { flex: none; width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center;
+  background: radial-gradient(circle at 45% 40%, #fff2bd, #ffd76a 55%, #f5a623); }
+.bc-getapp .ic svg { width: 34px; fill: #130a22; }
+.bc-getapp div { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.bc-getapp div b { font-family: var(--f-display); font-weight: 400; font-size: 17px; letter-spacing: .02em; color: var(--moon); }
+.bc-getapp div span { font-size: 13.5px; color: var(--mute); }
+.bc-getapp .bc-btn { flex: none; }
+.bc-getapp .x { flex: none; width: 32px; height: 32px; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .08); cursor: pointer; display: grid; place-items: center; }
+.bc-getapp .x svg { width: 16px; stroke: var(--ink); stroke-width: 2.4; fill: none; stroke-linecap: round; }
+.bc-inst-btn svg { stroke: var(--moon) !important; }
+.bc-inst ol { padding-left: 1.3em; line-height: 1.7; }
+@media (max-width: 560px) { .bc-getapp { flex-wrap: wrap; } .bc-getapp div { flex-basis: calc(100% - 110px); } .bc-getapp .bc-btn { flex: 1; } }
+
+/* ---------- online: shared bits ---------- */
+.bc-loading { flex: 1; display: grid; place-items: center; align-content: center; gap: 10px; min-height: 60vh; color: var(--mute); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 13px; text-align: center; padding-inline: 16px; }
+.bc-loading span svg { width: 70px; height: 34px; fill: var(--moon); animation: bc-flap 1.2s ease-in-out infinite; }
+.bc-loading.err b { color: var(--fang); font-size: 18px; text-transform: none; letter-spacing: 0; }
+.bc-loading.err span { text-transform: none; letter-spacing: 0; font-weight: 500; max-width: 50ch; }
+.bc-me { width: 40px; height: 40px; flex: none; border-radius: 50%; padding: 0; display: grid; place-items: center; box-shadow: 0 0 0 2px var(--moon); }
+.bc-me svg { display: block; border-radius: 50%; }
+.bc-btn.busy { opacity: .7; cursor: progress; }
+.ol-name { color: var(--ink); font-weight: 800; text-decoration: none; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ol-name:hover { color: var(--moon); text-decoration: underline; }
+.ol-empty { color: var(--mute); font-size: 14px; margin: 6px 0; }
+.ol-err { color: #ff7aa8; font-size: 13.5px; font-weight: 600; margin: 0; min-height: 0; }
+.ol-err:empty { display: none; }
+.bc-lobby input, .pg input, .ol-select { font: inherit; color: var(--ink); background: rgba(10, 5, 20, .7); border: 1px solid rgba(255, 255, 255, .18); border-radius: 12px; padding: 11px 13px; min-width: 0; width: 100%; }
+.bc-lobby input:focus, .pg input:focus, .ol-select:focus { outline: 2px solid var(--moon); outline-offset: 1px; border-color: transparent; }
+.ol-select { width: auto; padding: 8px 10px; }
+.ol-panel { padding: 16px; border-radius: 18px; background: rgba(22, 12, 40, .85); border: 1px solid var(--line); min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.ol-panel > header { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.ol-panel h2 { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: 22px; letter-spacing: .02em; }
+.ol-panel header small { color: var(--mute); font-size: 12.5px; }
+.ol-panel hr { border: 0; border-top: 1px solid var(--line); margin: 6px 0; width: 100%; }
+.ol-panel label { font-weight: 700; font-size: 13px; color: var(--mute); }
+.ol-more { color: var(--moon); font-weight: 700; font-size: 13.5px; }
+
+/* ---------- auth card ---------- */
+.ol-auth { margin-top: 20px; max-width: 420px; display: grid; gap: 8px; padding: 16px; border-radius: 18px; background: rgba(22, 12, 40, .88); border: 1px solid rgba(255, 215, 106, .4); box-shadow: 0 18px 40px rgba(0, 0, 0, .45); position: relative; z-index: 2; }
+.ol-auth label { font-weight: 700; font-size: 13px; color: var(--mute); margin-top: 4px; }
+.ol-auth .bc-btn { margin-top: 6px; }
+.ol-hint { color: var(--mute); font-size: 12px; }
+.ol-hint:empty { display: none; }
+.ol-tabs, .ol-seg { display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: rgba(0, 0, 0, .35); flex-wrap: wrap; }
+.ol-tabs button, .ol-seg button { flex: 1; padding: 8px 10px; border-radius: 9px; font-weight: 800; font-size: 13.5px; color: var(--mute); white-space: nowrap; }
+.ol-tabs button.on, .ol-seg button.on { background: var(--moon); color: #3b1d00; }
+.ol-seg.small button { font-size: 12.5px; padding: 6px 8px; }
+
+/* ---------- announcement + feed ---------- */
+.ol-announce { display: flex; gap: 10px; align-items: baseline; padding: 10px 14px; margin-bottom: 14px; border-radius: 14px; background: rgba(255, 61, 129, .14); border: 1px solid rgba(255, 61, 129, .45); }
+.ol-announce b { color: var(--fang); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; flex: none; }
+.ol-feed { margin-bottom: 24px; border-radius: 16px; border: 1px solid var(--line); background: rgba(22, 12, 40, .85); overflow: hidden; }
+.ol-feed > header { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.ol-feed > header b { font-family: var(--f-display); font-weight: 400; font-size: 17px; letter-spacing: .03em; color: var(--moon); }
+.ol-online { color: var(--ecto); font-size: 12.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+.ol-online::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--ecto); box-shadow: 0 0 8px var(--ecto); animation: ol-pulse 1.6s ease-in-out infinite; }
+@keyframes ol-pulse { 50% { opacity: .35; } }
+.ol-feed-track { overflow-x: auto; scrollbar-width: thin; }
+.ol-feed-list { list-style: none; margin: 0; padding: 8px; display: flex; gap: 8px; }
+.ol-feed-list li { flex: none; display: grid; grid-template-columns: auto auto auto; grid-template-areas: "av n x" "av amt amt" "av g g" "av t t"; column-gap: 8px; align-items: center; padding: 8px 12px 8px 8px; border-radius: 12px; background: rgba(255, 255, 255, .05); border: 1px solid var(--line); min-width: 190px; font-size: 13px; }
+.ol-feed-list li.hot { border-color: rgba(255, 215, 106, .6); background: linear-gradient(135deg, rgba(255, 215, 106, .14), rgba(255, 61, 129, .1)); }
+.ol-feed-list li.ol-empty { display: block; min-width: 0; border: 0; background: none; }
+.ol-feed-list .av { grid-area: av; align-self: start; }
+.ol-feed-list .ol-name { grid-area: n; }
+.ol-feed-list .won { display: none; }
+.ol-feed-list b { grid-area: amt; font-family: var(--f-num); font-size: 17px; color: var(--moon); font-variant-numeric: tabular-nums; }
+.ol-feed-list .x { grid-area: x; justify-self: end; font-family: var(--f-num); font-weight: 700; color: var(--ecto); }
+.ol-feed-list .g { grid-area: g; color: var(--mute); font-size: 12px; white-space: nowrap; }
+.ol-feed-list time { grid-area: t; color: var(--mute); font-size: 11px; opacity: .8; }
+.bc-av { display: block; flex: none; }
+
+/* ---------- missions + leaderboard ---------- */
+.ol-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 16px; margin-top: 30px; }
+@media (max-width: 820px) { .ol-cols { grid-template-columns: minmax(0, 1fr); } }
+.ol-mlist { display: grid; gap: 10px; }
+.ol-m { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "t c" "b c"; gap: 6px 12px; align-items: center; padding: 12px; border-radius: 14px; background: rgba(255, 255, 255, .04); border: 1px solid var(--line); }
+.ol-m.done { border-color: rgba(88, 240, 200, .55); background: rgba(88, 240, 200, .07); }
+.ol-m.claimed { opacity: .55; }
+.ol-m.link .ol-mtext { cursor: pointer; }
+.ol-mtext { grid-area: t; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; min-width: 0; }
+.ol-mtext b { font-size: 14px; }
+.ol-mtext span { color: var(--mute); font-family: var(--f-num); font-size: 13px; font-variant-numeric: tabular-nums; }
+.ol-bar { grid-area: b; height: 8px; border-radius: 4px; background: rgba(255, 255, 255, .1); overflow: hidden; }
+.ol-bar i { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--violet), var(--ecto)); transition: width .5s; }
+.ol-mclaim { grid-area: c; min-width: 96px; height: 40px; padding-inline: 12px; border-radius: 11px; font-weight: 800; font-size: 13px; background: rgba(255, 255, 255, .06); color: var(--mute); font-family: var(--f-num); }
+.ol-m.done .ol-mclaim:not(:disabled) { background: linear-gradient(180deg, #fff0a8, var(--moon) 40%, var(--moon-deep)); color: #3b1d00; box-shadow: 0 3px 0 #9a5a07; animation: ol-pulse 1.4s ease-in-out infinite; }
+.ol-lbw { display: grid; gap: 10px; min-width: 0; }
+.ol-lbctl { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+.ol-lbctl .ol-seg { flex: 1; min-width: 220px; }
+.ol-lb { display: grid; gap: 4px; min-height: 120px; transition: opacity .2s; }
+.ol-lb.loading { opacity: .45; }
+.ol-row { display: grid; grid-template-columns: 30px 30px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 7px 10px; border-radius: 12px; background: rgba(255, 255, 255, .03); }
+.ol-row .rk { font-family: var(--f-num); font-weight: 700; color: var(--mute); text-align: center; font-variant-numeric: tabular-nums; }
+.ol-row.top1 .rk { color: #ffd76a; } .ol-row.top2 .rk { color: #d9d4ff; } .ol-row.top3 .rk { color: #e3a46a; }
+.ol-row.top1 { background: linear-gradient(90deg, rgba(255, 215, 106, .16), rgba(255, 255, 255, .03)); }
+.ol-row.me { box-shadow: inset 0 0 0 1.5px var(--ecto); }
+.ol-row .who { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
+.ol-row .who small { color: var(--mute); font-size: 11.5px; }
+.ol-row .v { font-family: var(--f-num); font-size: 15px; color: var(--moon); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ol-lbnote { color: var(--mute); font-size: 12.5px; margin: 0; }
+.ol-lbnote:empty { display: none; }
+
+/* ---------- pages ---------- */
+.pg { flex: 1; background: radial-gradient(900px 400px at 80% -120px, rgba(107, 63, 209, .45), transparent 70%), var(--night); }
+.pg-wrap { max-width: 980px; margin-inline: auto; padding-inline: 16px; padding-block: 24px 60px; display: flex; flex-direction: column; gap: 14px; }
+.pg-h1 { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: clamp(30px, 6vw, 46px); color: var(--moon); line-height: 1; letter-spacing: .01em; overflow-wrap: anywhere; }
+.pg-sub { color: var(--mute); margin: 0; font-size: 13.5px; }
+.pg .bc-h2 { margin: 16px 0 0; }
+.pf-head { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+.pf-av svg { border-radius: 50%; box-shadow: 0 0 0 4px var(--moon), 0 0 40px rgba(255, 215, 106, .35); }
+.pf-id { min-width: 0; flex: 1; }
+.pf-meta { margin: 6px 0 0; color: var(--mute); font-size: 13.5px; }
+.pf-motto { margin: 6px 0 0; font-style: italic; color: var(--ink); overflow-wrap: anywhere; }
+.pf-strip { grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; }
+@media (max-width: 640px) { .pf-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.pf-scroll { overflow-x: auto; }
+.pf-table { display: grid; min-width: 520px; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.pf-table .tr { display: grid; grid-template-columns: 1.6fr repeat(4, 1fr); gap: 8px; padding: 9px 12px; border-top: 1px solid var(--line); align-items: center; font-variant-numeric: tabular-nums; text-align: left; font-size: 14px; color: var(--ink); background: none; width: 100%; }
+.pf-table .tr:first-child { border-top: 0; }
+.pf-table .th { background: rgba(255, 255, 255, .05); color: var(--mute); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; font-weight: 800; }
+.pf-table a { color: var(--moon); font-weight: 700; }
+.pf-top { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; counter-reset: t; }
+.pf-top li { display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; padding: 10px 12px; border-radius: 12px; background: rgba(255, 255, 255, .04); }
+.pf-top li::before { counter-increment: t; content: counter(t); font-family: var(--f-num); color: var(--mute); width: 16px; }
+.pf-top b { font-family: var(--f-num); color: var(--moon); font-size: 17px; }
+.pf-top span { color: var(--ink); } .pf-top time { color: var(--mute); font-size: 12.5px; margin-left: auto; }
+.pf-ach { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.pf-a { display: grid; grid-template-columns: 48px minmax(0, 1fr); grid-template-areas: "m n" "m d" "m s"; column-gap: 10px; padding: 10px; border-radius: 14px; background: rgba(255, 255, 255, .03); border: 1px solid var(--line); opacity: .6; }
+.pf-a.on { opacity: 1; border-color: rgba(255, 215, 106, .4); background: rgba(255, 215, 106, .06); }
+.pf-a .medal { grid-area: m; } .pf-a .medal svg { width: 48px; height: 48px; display: block; }
+.pf-a b { grid-area: n; font-size: 14px; } .pf-a span { grid-area: d; font-size: 12.5px; color: var(--mute); } .pf-a small { grid-area: s; font-size: 11.5px; color: var(--ecto); font-family: var(--f-num); }
+.pf-settings { margin-top: 18px; }
+.pf-avpick { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+.pf-avpick > div { flex: 1; min-width: 0; display: grid; gap: 6px; }
+.pf-avpick .lab { font-size: 12px; color: var(--mute); letter-spacing: .08em; text-transform: uppercase; }
+.pf-prev svg { border-radius: 50%; }
+.pf-swatches { display: flex; flex-wrap: wrap; gap: 6px; }
+.pf-swatches button { width: 32px; height: 32px; border-radius: 50%; box-shadow: inset 0 0 0 2px rgba(0, 0, 0, .3); }
+.pf-swatches button.on { box-shadow: 0 0 0 3px var(--night), 0 0 0 5px var(--ink); }
+.pf-accs { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 6px; }
+.pf-accs button { display: grid; justify-items: center; gap: 4px; padding: 8px 4px; border-radius: 12px; background: rgba(255, 255, 255, .04); border: 1px solid var(--line); font-size: 11.5px; color: var(--mute); }
+.pf-accs button.on { border-color: var(--moon); color: var(--ink); background: rgba(255, 215, 106, .1); }
+.pf-accs svg { border-radius: 50%; }
+.pf-pass { display: grid; gap: 6px; max-width: 420px; }
+.pf-admin { margin-top: 10px; }
+.pf-admin .bc-btn { display: inline-grid; place-items: center; text-decoration: none; }
+.pf-settings .bc-btn { justify-self: start; }
+
+/* ---------- admin ---------- */
+.ad .ol-panel { margin-top: 6px; }
+.ad-ctl, .ad-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.ad-ctl input { flex: 1; min-width: 180px; }
+.ad-row input { flex: 1; min-width: 150px; width: auto; }
+.ad-users .tr { cursor: pointer; }
+.ad-users .tr:hover { background: rgba(255, 255, 255, .05); }
+.ad-users .tr.banned { opacity: .55; }
+.ad-users .who { display: flex; gap: 8px; align-items: center; min-width: 0; }
+.ad-users .who b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ad-users em { font-style: normal; font-size: 10.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--ecto); }
+.ad-users em.ban { color: var(--fang); }
+.ad-detail:not(:empty) { margin-top: 10px; padding: 14px; border-radius: 14px; border: 1px solid rgba(255, 215, 106, .4); display: grid; gap: 10px; }
+.ad-detail header { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.ad-detail h3 { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: 22px; }
+.ad-detail a { color: var(--moon); }
+.ad-ledger .tr { grid-template-columns: 110px minmax(0, 2fr) 1fr 1fr; font-size: 13px; }
+.ad-ledger .neg { color: #ff7aa8; } .ad-ledger .pos { color: var(--ecto); }
+.ad-feed { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); font-size: 13.5px; }
+.ad-feed .bc-btn { height: 36px; font-size: 13px; padding-inline: 12px; flex: none; }
+.ad-check { display: flex; gap: 8px; align-items: center; color: var(--ink) !important; }
+.ad-check input { width: auto; }
+.ol-lbw > .ol-seg { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.ol-lbw > .ol-seg button { white-space: normal; line-height: 1.15; }
+@media (max-width: 520px) { .ol-lbw > .ol-seg { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+</style>
+<!-- Platform: Daily Prize Wheel, Bat Pass, Belfry Shop -->
+<link rel="stylesheet" href="core/platform.css?v=20261009p">
+<link rel="stylesheet" href="games/bunky/style.css?v=20261009b">
+<link rel="stylesheet" href="games/olympus/style.css?v=20261009b">
+<link rel="stylesheet" href="games/fishing/style.css?v=20261009b">
+<link rel="stylesheet" href="games/plachinko/style.css?v=20261009b">
+<link rel="stylesheet" href="games/moonshot/style.css?v=20261009b">
+<link rel="stylesheet" href="games/ultraheist/style.css?v=20261009b">
+<link rel="stylesheet" href="games/batjack/style.css?v=20261009b">
+<link rel="stylesheet" href="games/bonanza/style.css?v=20261009b">
+<link rel="stylesheet" href="games/starwing/style.css?v=20261009b">
+<link rel="stylesheet" href="games/crypt/style.css?v=20261009b">
+<link rel="stylesheet" href="games/nighttrain/style.css?v=20261009b">
+<link rel="stylesheet" href="games/gummy/style.css?v=20261009b">
+<link rel="stylesheet" href="games/bookofbats/style.css?v=20261009b">
+<link rel="stylesheet" href="games/derby/style.css?v=20261009b">
+<link rel="stylesheet" href="games/bonkers/style.css?v=20261009b">
+<link rel="stylesheet" href="games/vault/style.css?v=20261009b">
+<link rel="stylesheet" href="games/baccarat/style.css?v=20261009b">
+<link rel="stylesheet" href="games/royale/style.css?v=20261009b">
+<div id="batty-app"></div>
+<script>
+/* Batty Casino core: wallet, RNG, audio, effects, shell and lobby. Games register themselves with Batty.registerGame(). */
+window.Batty = (function () {
+  'use strict';
+
+  const BAT = 'M60 18C57 10 55 8 53 4c-1 5-2 8-1 12C40 8 22 8 4 16c8 2 12 8 13 16 5-5 11-5 15 1 4-5 10-4 13 3 5 6 11 10 15 18 4-8 10-12 15-18 3-7 9-8 13-3 4-6 10-6 15-1 1-8 5-14 13-16C98 8 80 8 68 16c1-4 0-7-1-12-2 4-4 6-7 14Z';
+  const batSvg = (cls) => '<svg viewBox="0 0 120 58" aria-hidden="true"' + (cls ? ' class="' + cls + '"' : '') + '><path d="' + BAT + '"/></svg>';
+
+  /* ---------- tiny DOM helper ---------- */
+  function h(tag, attrs, ...kids) {
+    const el = document.createElement(tag);
+    if (attrs) for (const k in attrs) {
+      const v = attrs[k];
+      if (v == null || v === false) continue;
+      if (k === 'class') el.className = v;
+      else if (k === 'html') el.innerHTML = v;
+      else if (k === 'style' && typeof v === 'object') Object.assign(el.style, v);
+      else if (k.startsWith('on') && typeof v === 'function') el.addEventListener(k.slice(2), v);
+      else el.setAttribute(k, v === true ? '' : v);
+    }
+    for (const kid of kids.flat()) if (kid != null && kid !== false) el.append(kid.nodeType ? kid : document.createTextNode(kid));
+    return el;
+  }
+
+  /* ---------- persistence (per-browser; falls back to memory) ---------- */
+  const KEY = 'batty-casino-v1';
+  const START_BALANCE = 25000;
+  const state = { bal: START_BALANCE, wagered: 0, level: 1, lastClaim: 0, muted: false, stats: {}, prefs: {} };
+  try { const raw = localStorage.getItem(KEY); if (raw) Object.assign(state, JSON.parse(raw)); } catch (e) { /* memory only */ }
+  if (!(state.bal >= 0)) state.bal = START_BALANCE;
+  let saveT = 0;
+  function save() {
+    if (saveT) return;
+    saveT = setTimeout(() => { saveT = 0; try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* memory only */ } }, 60);
+  }
+
+  /* ---------- RNG (crypto-backed, uniform in [0,1)) ---------- */
+  const pool = new Uint32Array(256); let poolI = 256;
+  function rng() {
+    if (poolI >= 256) { crypto.getRandomValues(pool); poolI = 0; }
+    return pool[poolI++] / 4294967296;
+  }
+  const randInt = (n) => Math.floor(rng() * n);
+  function pickWeighted(items, weightOf) {
+    const w = weightOf || ((x) => x.w);
+    let total = 0; for (const it of items) total += w(it);
+    let r = rng() * total;
+    for (const it of items) { r -= w(it); if (r < 0) return it; }
+    return items[items.length - 1];
+  }
+
+  /* ---------- wallet ----------
+     Two modes. Practice (no server): the balance lives in this browser. Online (api.php answered): the server owns the
+     balance; bet() books the stake as "pending" until the server's reply arrives with the authoritative balance. */
+  const STAKES = [20, 40, 100, 200, 400, 1000, 2000, 5000, 10000];
+  const subs = new Set();
+  let shown = state.bal;
+  const srv = { on: false, bal: 0, ver: -1, pending: 0, level: 1, xp: 0, me: null, site: null };
+  const statOf = (id) => state.stats[id] || (state.stats[id] = { rounds: 0, wagered: 0, won: 0, best: 0 });
+  const levelFloor = (L) => Math.round(10000 * Math.pow(L - 1, 1.6));
+  const realBal = () => (srv.on ? srv.bal - srv.pending : state.bal);
+  function emit() { if (!srv.on) save(); subs.forEach((f) => { try { f(shown, realBal()); } catch (e) { console.error(e); } }); }
+  const deferred = [];
+  const wallet = {
+    get balance() { return realBal(); },   // real balance (includes winnings not yet shown)
+    get shown() { return shown; },         // what the player currently sees
+    get online() { return srv.on; },
+    canBet(amount) { return amount > 0 && realBal() >= amount; },
+    /* Take a stake. Returns false (and takes nothing) if the player cannot afford it. */
+    bet(id, amount) {
+      amount = Math.round(amount);
+      if (!(amount > 0) || realBal() < amount) return false;
+      if (srv.on) { srv.pending += amount; shown -= amount; emit(); return true; }
+      state.bal -= amount; shown -= amount;
+      const s = statOf(id); s.rounds++; s.wagered += amount; state.wagered += amount;
+      while (state.wagered >= levelFloor(state.level + 1)) {
+        state.level++;
+        const gift = 500 * state.level;
+        state.bal += gift; shown += gift;
+        setTimeout(() => { ui.toast('Level ' + state.level + '! +' + fmt(gift) + ' Batty Bucks'); sfx('level'); }, 400);
+      }
+      emit(); return true;
+    },
+    /* Credit a win. {silent:true} banks it straight away but keeps the on-screen balance where it is
+       until wallet.sync(). Online, the server has already paid it, so this only moves the display. */
+    win(id, amount, opts) {
+      amount = Math.round(amount);
+      if (!(amount > 0)) return 0;
+      if (!srv.on) { state.bal += amount; const s = statOf(id); s.won += amount; if (amount > s.best) s.best = amount; }
+      if (!(opts && opts.silent)) shown = realBal();
+      emit(); return amount;
+    },
+    sync() { if (shown !== realBal()) { shown = realBal(); emit(); } flushEvents(); },
+    /* Hand back a stake taken with bet() that was never sent to the server (or never played). */
+    unbet(amount) {
+      amount = Math.round(amount); if (!(amount > 0)) return;
+      if (srv.on) srv.pending = Math.max(0, srv.pending - amount); else state.bal += amount;
+      shown += amount; emit();
+    },
+    on(fn) { subs.add(fn); return () => subs.delete(fn); },
+    stats: statOf,
+  };
+
+  /* ---------- server ---------- */
+  function applyServer(r, cost) {
+    if (cost) srv.pending = Math.max(0, srv.pending - cost);
+    if (r && typeof r.bal === 'number' && r.ver >= srv.ver) { srv.bal = r.bal; srv.ver = r.ver; }
+    if (r && typeof r.level === 'number') { srv.level = r.level; srv.xp = r.xp || 0; }
+  }
+  /* api(action, data, {cost, defer}) -> Promise<reply>. cost: the stake this request carries (already booked by bet()).
+     defer: hold toasts for levels, missions and achievements until the game calls wallet.sync(), so they never spoil a result. */
+  async function api(a, data, o) {
+    o = o || {};
+    let res, j;
+    try {
+      res = await fetch('api.php', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json', 'X-Batty': '1' }, body: JSON.stringify(Object.assign({ a }, data || {})) });
+      j = await res.json();
+    } catch (e) {
+      applyServer(null, o.cost); if (o.cost) { shown += o.cost; emit(); }
+      const err = new Error('Can’t reach the casino server. Check your connection and try again.'); err.status = 0; throw err;
+    }
+    if (!res.ok || j.error) {
+      applyServer(null, o.cost); if (o.cost) { shown += o.cost; emit(); }
+      const err = new Error(j.error || 'Something went wrong.'); err.status = res.status;
+      if (res.status === 401 && srv.on && srv.me) { srv.me = null; setTimeout(() => { ui.toast('Your session ended. Please log in again.'); go(''); }, 0); }
+      throw err;
+    }
+    applyServer(j, o.cost);
+    if (j.events) { if (o.defer) deferred.push(...j.events); else showEvents(j.events); }
+    if (o.cost === 0 || o.cost) emit();
+    if (j.me) { srv.me = j.me; applyServer(j.me); }
+    paintLevel();
+    return j;
+  }
+  /* play(game, op, data, cost) for game modules: errors become a toast and resolve to null, so callers just stop. */
+  async function play(game, op, data, cost) {
+    try { return await api('play', Object.assign({ game, op }, data), { cost: cost || 0, defer: true }); }
+    catch (e) {
+      if (e.status === 402) ui.broke(); else ui.toast(e.message);
+      return null;
+    }
+  }
+  function flushEvents() { if (deferred.length) showEvents(deferred.splice(0)); }
+  function showEvents(evs) {
+    let t = 300;
+    for (const e of evs) {
+      setTimeout(() => {
+        if (e.type === 'level') { ui.toast('Level ' + e.level + '! +' + fmt(e.amount) + ' Batty Bucks'); sfx('level'); }
+        else if (e.type === 'achievement') { ui.toast('Achievement unlocked: ' + e.name + ' · +' + fmt(e.reward) + ' BB', 4200); sfx('bonus'); fx.burst({ x: innerWidth / 2, y: 120, kind: 'confetti', count: 40 }); }
+        else if (e.type === 'mission') { ui.toast('Mission complete: ' + e.label + '. Claim ' + fmt(e.reward) + ' BB in the lobby', 4200); sfx('ding'); }
+        else if (e.type === 'pass' && ext.passEvent) ext.passEvent(e); // Platform: Bat Pass tier-ups and challenges (core/platform.js)
+      }, t);
+      t += 900;
+    }
+  }
+
+  const CLAIM_MS = 60 * 60 * 1000;
+  const claimAmount = () => (srv.on && srv.me ? srv.me.claimAmount : 2500 + 250 * (state.level - 1));
+  let claimAt = 0;
+  const claimReadyIn = () => (srv.on ? Math.max(0, claimAt - Date.now()) : Math.max(0, state.lastClaim + CLAIM_MS - Date.now()));
+  async function claim() {
+    if (claimReadyIn() > 0) return false;
+    if (srv.on) {
+      try { const r = await api('claim'); claimAt = Date.now() + CLAIM_MS; shown = realBal(); emit(); sfx('bonus'); fx.rain('coin', 1400); ui.toast('+' + fmt(r.amount) + ' free Batty Bucks'); return true; }
+      catch (e) { ui.toast(e.message); return false; }
+    }
+    state.lastClaim = Date.now();
+    const a = claimAmount(); state.bal += a; shown = state.bal; emit();
+    sfx('bonus'); fx.rain('coin', 1400); ui.toast('+' + fmt(a) + ' free Batty Bucks');
+    return true;
+  }
+  async function rescue() {
+    if (realBal() >= 1000) return false;
+    if (srv.on) {
+      if (!srv.me) return false;
+      try { await api('rescue'); shown = realBal(); emit(); sfx('coin'); ui.toast('Emergency bat-signal answered: +5,000 Batty Bucks'); return true; }
+      catch (e) { ui.toast(e.message); return false; }
+    }
+    state.bal += 5000; shown = state.bal; emit();
+    sfx('coin'); ui.toast('Emergency bat-signal answered: +5,000 Batty Bucks');
+    return true;
+  }
+
+  /* ---------- formatting ---------- */
+  const nf = new Intl.NumberFormat('en-GB', { maximumFractionDigits: 0 });
+  const fmt = (n) => nf.format(Math.round(n));
+  const fmtX = (x) => (x >= 100 ? Math.round(x) : x >= 10 ? Math.round(x * 10) / 10 : Math.round(x * 100) / 100) + '×';
+
+  /* ---------- audio (all synthesised, nothing to download) ---------- */
+  const audio = {
+    ctx: null, master: null,
+    ensure() {
+      if (!this.ctx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        try {
+          this.ctx = new AC();
+          this.master = this.ctx.createGain();
+          this.master.gain.value = state.muted ? 0 : 0.55;
+          const comp = this.ctx.createDynamicsCompressor();
+          this.master.connect(comp); comp.connect(this.ctx.destination);
+        } catch (e) { this.ctx = null; return null; }
+      }
+      if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
+      return this.ctx;
+    },
+    get muted() { return state.muted; },
+    setMuted(m) { state.muted = !!m; save(); if (this.master) this.master.gain.value = m ? 0 : 0.55; },
+    /* tone({f, f2, d, type, v, t, a}) — f2 glides the pitch; t delays the start (seconds) */
+    tone(o) {
+      const c = this.ensure(); if (!c || state.muted) return;
+      const t0 = c.currentTime + (o.t || 0), d = o.d || 0.15, v = o.v == null ? 0.2 : o.v;
+      const osc = c.createOscillator(), g = c.createGain();
+      osc.type = o.type || 'sine';
+      osc.frequency.setValueAtTime(o.f || 440, t0);
+      if (o.f2) osc.frequency.exponentialRampToValueAtTime(Math.max(1, o.f2), t0 + d);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(Math.max(0.0002, v), t0 + (o.a || 0.006));
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
+      osc.connect(g); g.connect(this.master);
+      osc.start(t0); osc.stop(t0 + d + 0.03);
+    },
+    /* noise({d, v, t, lp, hp, f2}) — filtered white noise; f2 sweeps the filter */
+    noise(o) {
+      const c = this.ensure(); if (!c || state.muted) return;
+      const t0 = c.currentTime + (o.t || 0), d = o.d || 0.2, v = o.v == null ? 0.2 : o.v;
+      const buf = c.createBuffer(1, Math.max(1, Math.floor(c.sampleRate * d)), c.sampleRate);
+      const ch = buf.getChannelData(0); for (let i = 0; i < ch.length; i++) ch[i] = Math.random() * 2 - 1;
+      const src = c.createBufferSource(); src.buffer = buf;
+      const flt = c.createBiquadFilter(); flt.type = o.hp ? 'highpass' : 'lowpass';
+      const f0 = o.hp || o.lp || 4000; flt.frequency.setValueAtTime(f0, t0);
+      if (o.f2) flt.frequency.exponentialRampToValueAtTime(o.f2, t0 + d);
+      const g = c.createGain(); g.gain.setValueAtTime(v, t0); g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
+      src.connect(flt); flt.connect(g); g.connect(this.master); src.start(t0);
+    },
+    /* seq([freq | [freq, beats] | 0 for rest], {step, type, v, d}) */
+    seq(notes, o) {
+      o = o || {}; const step = o.step || 0.09; let t = o.t || 0;
+      for (const n of notes) {
+        const f = Array.isArray(n) ? n[0] : n, beats = Array.isArray(n) ? n[1] : 1;
+        if (f) this.tone({ f, d: (o.d || step * 1.6) * beats, type: o.type || 'triangle', v: o.v || 0.18, t });
+        t += step * beats;
+      }
+    },
+  };
+  const N = { C4: 261.6, D4: 293.7, E4: 329.6, F4: 349.2, G4: 392, A4: 440, B4: 493.9, C5: 523.3, D5: 587.3, E5: 659.3, F5: 698.5, G5: 784, A5: 880, B5: 987.8, C6: 1046.5, E6: 1318.5, G6: 1568 };
+  const SFX = {
+    click() { audio.tone({ f: 620, f2: 420, d: 0.05, type: 'square', v: 0.07 }); },
+    chip() { audio.tone({ f: 1900, d: 0.04, type: 'triangle', v: 0.12 }); audio.tone({ f: 2600, d: 0.05, type: 'triangle', v: 0.08, t: 0.02 }); },
+    spin() { audio.noise({ d: 0.35, v: 0.1, lp: 500, f2: 3000 }); },
+    tick() { audio.tone({ f: 1300, d: 0.025, type: 'square', v: 0.06 }); },
+    stop() { audio.tone({ f: 140, f2: 70, d: 0.09, type: 'sine', v: 0.3 }); audio.noise({ d: 0.05, v: 0.08, lp: 1800 }); },
+    coin() { audio.tone({ f: 1320, d: 0.08, type: 'square', v: 0.07 }); audio.tone({ f: 1980, d: 0.22, type: 'square', v: 0.07, t: 0.07 }); },
+    win() { audio.seq([N.C5, N.E5, N.G5, N.C6], { step: 0.075, type: 'triangle', v: 0.2 }); },
+    bigwin() { audio.seq([N.C5, N.E5, N.G5, N.C6, N.G5, N.C6, N.E6, [N.G6, 4]], { step: 0.1, type: 'sawtooth', v: 0.13 }); audio.seq([N.C4, 0, N.G4, 0, N.C5, 0, [N.C5, 5]], { step: 0.1, type: 'square', v: 0.08 }); },
+    bonus() { audio.seq([N.G4, N.C5, N.E5, N.G5, N.E5, N.G5, [N.C6, 3]], { step: 0.085, type: 'square', v: 0.11 }); audio.noise({ d: 0.7, v: 0.05, hp: 5000 }); },
+    lose() { audio.tone({ f: 220, f2: 110, d: 0.3, type: 'sawtooth', v: 0.08 }); },
+    whoosh() { audio.noise({ d: 0.4, v: 0.14, lp: 300, f2: 5000 }); },
+    pop() { audio.tone({ f: 420, f2: 900, d: 0.07, type: 'sine', v: 0.22 }); },
+    ding() { audio.tone({ f: 1568, d: 0.5, type: 'sine', v: 0.2 }); audio.tone({ f: 3136, d: 0.3, type: 'sine', v: 0.06 }); },
+    drum() { audio.tone({ f: 160, f2: 50, d: 0.16, type: 'sine', v: 0.4 }); },
+    thunder() { audio.noise({ d: 1.1, v: 0.35, lp: 900, f2: 80 }); audio.tone({ f: 70, f2: 35, d: 0.9, type: 'sawtooth', v: 0.12 }); },
+    alarm() { audio.seq([880, 660, 880, 660, 880, 660], { step: 0.11, type: 'square', v: 0.09 }); },
+    level() { audio.seq([N.E5, N.G5, N.B5, [N.E6, 3]], { step: 0.09, type: 'triangle', v: 0.2 }); },
+    splash() { audio.noise({ d: 0.45, v: 0.2, hp: 900, f2: 6000 }); audio.tone({ f: 300, f2: 90, d: 0.25, type: 'sine', v: 0.15 }); },
+  };
+  function sfx(name) { try { if (SFX[name]) SFX[name](); } catch (e) { /* audio is optional */ } }
+
+  /* ---------- full-screen particle effects ---------- */
+  const fx = (function () {
+    let cv, cx, parts = [], raf = 0, rainUntil = 0, rainKind = 'coin', dpr = 1, last = 0;
+    const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const COLORS = { coin: ['#ffd76a', '#f5a623', '#fff3bd'], spark: ['#ffffff', '#ffd76a', '#ff3d81', '#58f0c8'], confetti: ['#ff3d81', '#58f0c8', '#ffd76a', '#6b3fd1', '#ffffff', '#4aa8ff'] };
+    function size() { dpr = Math.min(2, window.devicePixelRatio || 1); cv.width = innerWidth * dpr; cv.height = innerHeight * dpr; }
+    function init() { if (cv) return; cv = h('canvas', { class: 'bc-fx', 'aria-hidden': 'true' }); document.body.append(cv); cx = cv.getContext('2d'); size(); addEventListener('resize', size); }
+    function add(kind, x, y, vx, vy, colors) {
+      const cs = colors || COLORS[kind] || COLORS.spark;
+      parts.push({ kind, x, y, vx, vy, r: kind === 'coin' ? 7 + Math.random() * 6 : kind === 'confetti' ? 5 + Math.random() * 5 : 2 + Math.random() * 3, rot: Math.random() * 6.3, vr: (Math.random() - 0.5) * 0.4, life: 0, max: kind === 'spark' ? 0.7 + Math.random() * 0.5 : 2.6, c: cs[(Math.random() * cs.length) | 0] });
+    }
+    function frame(t) {
+      raf = 0; const dt = Math.min(0.05, (t - last) / 1000 || 0.016); last = t;
+      if (t < rainUntil && parts.length < 150 && Math.random() < (innerWidth < 600 ? 0.6 : 1)) for (let i = 0; i < (innerWidth < 600 ? 1 : 2); i++) add(rainKind, Math.random() * innerWidth, -20, (Math.random() - 0.5) * 80, 120 + Math.random() * 260);
+      cx.setTransform(dpr, 0, 0, dpr, 0, 0); cx.clearRect(0, 0, innerWidth, innerHeight);
+      parts = parts.filter((p) => p.life < p.max && p.y < innerHeight + 40);
+      for (const p of parts) {
+        p.life += dt; p.vy += (p.kind === 'spark' ? 500 : 900) * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.rot += p.vr;
+        const a = p.kind === 'spark' ? Math.max(0, 1 - p.life / p.max) : 1;
+        cx.globalAlpha = a; cx.fillStyle = p.c;
+        if (p.kind === 'coin') {
+          const sx = Math.abs(Math.cos(p.rot * 2)) * 0.85 + 0.15;
+          cx.beginPath(); cx.ellipse(p.x, p.y, p.r * sx, p.r, 0, 0, 6.3); cx.fill();
+          cx.strokeStyle = '#a8660a'; cx.lineWidth = 1.5; cx.stroke();
+        } else if (p.kind === 'confetti') {
+          cx.save(); cx.translate(p.x, p.y); cx.rotate(p.rot); cx.fillRect(-p.r, -p.r * 0.45 * Math.cos(p.rot * 3), p.r * 2, p.r * 0.9); cx.restore();
+        } else { cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, 6.3); cx.fill(); }
+      }
+      cx.globalAlpha = 1;
+      if (parts.length || t < rainUntil) raf = requestAnimationFrame(frame);
+    }
+    function kick() { init(); if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); } }
+    return {
+      /* burst({x, y, count, kind:'coin'|'spark'|'confetti', colors, power}) — x/y in viewport pixels, or pass {el} to burst from an element's centre */
+      burst(o) {
+        if (reduce) return; kick();
+        let x = o.x, y = o.y;
+        if (o.el) { const r = o.el.getBoundingClientRect(); x = r.left + r.width / 2; y = r.top + r.height / 2; }
+        const n = o.count || 24, pw = o.power || 1;
+        for (let i = 0; i < n; i++) { const a = Math.random() * 6.3, s = (120 + Math.random() * 420) * pw; add(o.kind || 'spark', x, y, Math.cos(a) * s, Math.sin(a) * s - 220 * pw, o.colors); }
+      },
+      rain(kind, ms) { if (reduce) return; rainKind = kind || 'coin'; rainUntil = performance.now() + (ms || 1500); kick(); },
+      clear() { parts = []; rainUntil = 0; },
+    };
+  })();
+
+  /* ---------- UI helpers ---------- */
+  let toastBox;
+  const ui = {
+    toast(msg, ms) {
+      if (!toastBox) { toastBox = h('div', { class: 'bc-toasts', role: 'status' }); document.body.append(toastBox); }
+      const t = h('div', { class: 'bc-toast' }, msg); toastBox.append(t);
+      while (toastBox.children.length > 3) toastBox.firstChild.remove();
+      setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 320); }, ms || 2600);
+    },
+    /* modal(title, html | Node) -> {close} */
+    modal(title, content) {
+      const body = h('div', { class: 'body' });
+      if (typeof content === 'string') body.innerHTML = content; else body.append(content);
+      const close = () => { veil.remove(); document.removeEventListener('keydown', onKey); };
+      const onKey = (e) => { if (e.key === 'Escape') close(); };
+      const veil = h('div', { class: 'bc-veil', onclick: (e) => { if (e.target === veil) close(); } },
+        h('div', { class: 'bc-modal', role: 'dialog', 'aria-modal': 'true', 'aria-label': title },
+          h('header', null, h('h2', null, title), h('button', { class: 'bc-icon', 'aria-label': 'Close', onclick: close, html: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>' })),
+          body));
+      document.body.append(veil); document.addEventListener('keydown', onKey); sfx('click');
+      return { close, body };
+    },
+    /* Animate a number inside el. Returns a promise. */
+    countUp(el, from, to, ms, format) {
+      const f = format || fmt; ms = ms || 800;
+      return new Promise((res) => {
+        const t0 = performance.now();
+        (function step(t) {
+          const k = Math.min(1, (t - t0) / ms), e = 1 - Math.pow(1 - k, 3);
+          el.textContent = f(from + (to - from) * e);
+          if (k < 1 && el.isConnected) requestAnimationFrame(step); else { el.textContent = f(to); res(); }
+        })(t0);
+      });
+    },
+    /* Full-screen win celebration for wins of 10x stake or more; resolves at once for smaller wins.
+       celebrate({amount, bet, title?}) -> Promise<boolean shown> */
+    celebrate(o) {
+      const ratio = o.bet > 0 ? o.amount / o.bet : 0;
+      if (!o.title && ratio < 10) return Promise.resolve(false);
+      const title = o.title || (ratio >= 250 ? 'Absolutely Batsh!t' : ratio >= 75 ? 'Batty Win' : ratio >= 25 ? 'Mega Win' : 'Big Win');
+      return new Promise((res) => {
+        const out = h('output', null, '0');
+        const el = h('div', { class: 'bc-win' }, h('div', null, h('h2', null, title), out, h('p', null, fmtX(ratio) + ' your stake · Batty Bucks')));
+        document.body.append(el);
+        sfx('bigwin'); fx.rain(ratio >= 75 ? 'confetti' : 'coin', ratio >= 75 ? 3600 : 2400);
+        const dur = ratio >= 75 ? 3200 : 2200;
+        let done = false;
+        const finish = () => { if (done) return; done = true; el.remove(); res(true); };
+        ui.countUp(out, 0, o.amount, dur).then(() => setTimeout(finish, 1300));
+        const tick = setInterval(() => { if (done) return clearInterval(tick); sfx('tick'); }, 90);
+        setTimeout(() => clearInterval(tick), dur);
+        setTimeout(() => el.addEventListener('click', finish), 500);
+      });
+    },
+    /* Stake picker. stake(container, {id, stakes?, onChange?}) -> {value, disabled} */
+    stake(container, o) {
+      const stakes = o.stakes || STAKES;
+      const pref = state.prefs[o.id + ':stake'];
+      let i = Math.max(0, stakes.indexOf(pref)); if (stakes.indexOf(pref) < 0) i = Math.min(2, stakes.length - 1);
+      const out = h('output', null), minus = h('button', { type: 'button', 'aria-label': 'Lower stake' }, '−'), plus = h('button', { type: 'button', 'aria-label': 'Raise stake' }, '+');
+      const box = h('div', { class: 'bc-stake' }, minus, out, plus);
+      let disabled = false;
+      const paint = () => { out.innerHTML = fmt(stakes[i]) + '<small>' + (o.label || 'Stake · BB') + '</small>'; minus.disabled = disabled || i === 0; plus.disabled = disabled || i === stakes.length - 1; };
+      const move = (d) => { i = Math.max(0, Math.min(stakes.length - 1, i + d)); state.prefs[o.id + ':stake'] = stakes[i]; save(); sfx('click'); paint(); if (o.onChange) o.onChange(stakes[i]); };
+      minus.addEventListener('click', () => move(-1)); plus.addEventListener('click', () => move(1));
+      paint(); container.append(box);
+      return { el: box, get value() { return stakes[i]; }, set disabled(d) { disabled = !!d; paint(); }, get disabled() { return disabled; } };
+    },
+    /* Call when wallet.bet() fails. Tops the player up if they are skint, otherwise tells them to lower the stake. */
+    broke() {
+      sfx('lose');
+      if (realBal() < 1000 && !srv.pending) rescue();
+      else ui.toast('Not enough Batty Bucks for that stake. Lower it, or grab the free bonus in the lobby.');
+    },
+  };
+
+  /* ---------- scope: timers and listeners that die with the game ---------- */
+  function scope() {
+    const timers = new Set(), rafs = new Set(), offs = [];
+    const s = {
+      dead: false,
+      timeout(fn, ms) { const id = setTimeout(() => { timers.delete(id); if (!s.dead) fn(); }, ms); timers.add(id); return id; },
+      interval(fn, ms) { const id = setInterval(() => { if (!s.dead) fn(); }, ms); timers.add(id); return id; },
+      clear(id) { clearTimeout(id); clearInterval(id); timers.delete(id); },
+      /* sleep never resolves once the scope is disposed, so an abandoned async round simply stops */
+      sleep(ms) { return new Promise((res) => s.timeout(res, ms)); },
+      raf(fn) { const id = requestAnimationFrame((t) => { rafs.delete(id); if (!s.dead) fn(t); }); rafs.add(id); return id; },
+      /* loop(fn(dtSeconds, tMs)) runs every frame until disposed; returns stop() */
+      loop(fn) { let on = true, last = performance.now(); const step = (t) => { if (!on || s.dead) return; const dt = Math.min(0.05, (t - last) / 1000); last = t; fn(dt, t); s.raf(step); }; s.raf(step); return () => { on = false; }; },
+      on(target, ev, fn, opts) { target.addEventListener(ev, fn, opts); offs.push(() => target.removeEventListener(ev, fn, opts)); },
+      dispose() { s.dead = true; timers.forEach((id) => { clearTimeout(id); clearInterval(id); }); rafs.forEach(cancelAnimationFrame); offs.forEach((f) => f()); timers.clear(); rafs.clear(); offs.length = 0; },
+    };
+    return s;
+  }
+
+  /* ---------- avatars: a bat on a coloured disc with one of eight accessories. code "colour-accessory", e.g. "3-5" ---------- */
+  const AV_COL = ['#ff3d81', '#ffd76a', '#58f0c8', '#6b3fd1', '#4aa8ff', '#ff8a3c', '#a6ec2a', '#c44dff', '#ff5d5d', '#18b5a6', '#d9d4ff', '#c58b4c'];
+  const AV_ACC = ['None', 'Top hat', 'Crown', 'Party hat', 'Shades', 'Bow tie', 'Headphones', 'Halo'];
+  /* cos (optional): the player's equipped platform cosmetics (accessories, frame, effect); core/platform.js draws them */
+  function avatar(code, size, cos) {
+    const m = /^(\d+)-(\d)$/.exec(code || '') || [0, 0, 0];
+    const col = AV_COL[(+m[1]) % AV_COL.length], acc = (+m[2]) % 8;
+    const accs = [
+      '',
+      '<rect x="36" y="6" width="28" height="22" rx="2" fill="#1a1030"/><rect x="28" y="26" width="44" height="6" rx="3" fill="#1a1030"/><rect x="36" y="20" width="28" height="5" fill="#ff3d81"/>',
+      '<path d="M30 30 L32 12 L41 22 L50 8 L59 22 L68 12 L70 30 Z" fill="#ffd76a" stroke="#a8660a" stroke-width="2" stroke-linejoin="round"/><circle cx="50" cy="22" r="3" fill="#ff3d81"/>',
+      '<path d="M38 32 L50 4 L62 32 Z" fill="#58f0c8" stroke="#1a1030" stroke-width="2" stroke-linejoin="round"/><path d="M42 24 L58 24 M45 16 L55 16" stroke="#ff3d81" stroke-width="3"/><circle cx="50" cy="5" r="4" fill="#ffd76a"/>',
+      '<rect x="28" y="47" width="19" height="11" rx="4" fill="#111"/><rect x="53" y="47" width="19" height="11" rx="4" fill="#111"/><path d="M47 51 H53" stroke="#111" stroke-width="3"/><path d="M31 49 l6 0" stroke="#fff" stroke-width="2" opacity=".6"/>',
+      '<path d="M50 78 L36 70 L36 86 Z M50 78 L64 70 L64 86 Z" fill="#ff3d81" stroke="#1a1030" stroke-width="2" stroke-linejoin="round"/><circle cx="50" cy="78" r="4" fill="#ffd76a"/>',
+      '<path d="M24 52 Q24 18 50 18 Q76 18 76 52" fill="none" stroke="#1a1030" stroke-width="6"/><rect x="18" y="46" width="12" height="18" rx="5" fill="#ff3d81"/><rect x="70" y="46" width="12" height="18" rx="5" fill="#ff3d81"/>',
+      '<ellipse cx="50" cy="12" rx="20" ry="6" fill="none" stroke="#ffd76a" stroke-width="4"/>',
+    ];
+    const parts = cos && ext.avatarParts ? ext.avatarParts(cos, acc, accs[acc]) : null; // Platform: {under, acc, wrap}
+    const svg = '<svg class="bc-av" data-av="' + (+m[1]) + '-' + (+m[2]) + '" viewBox="0 0 100 100" width="' + (size || 40) + '" height="' + (size || 40) + '" aria-hidden="true"><circle cx="50" cy="50" r="49" fill="' + col + '"/>' + (parts ? parts.under : '') +
+      '<path d="M22 40 L30 20 L40 34 Q50 30 60 34 L70 20 L78 40 Q84 62 70 76 Q50 90 30 76 Q16 62 22 40 Z" fill="#1a1030"/>' +
+      '<circle cx="40" cy="52" r="8" fill="#fff"/><circle cx="60" cy="52" r="8" fill="#fff"/><circle cx="41.5" cy="53.5" r="3.6" fill="#1a1030"/><circle cx="61.5" cy="53.5" r="3.6" fill="#1a1030"/>' +
+      '<path d="M42 68 Q50 74 58 68" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M44 69 l2 5 l2 -4 M52 70 l2 4 l2 -5" fill="#fff"/>' + (parts && parts.acc != null ? parts.acc : accs[acc]) + '</svg>';
+    return parts ? parts.wrap(svg, size || 40) : svg;
+  }
+
+  /* ---------- registry, shell, lobby ---------- */
+  const ORDER = ['circus', 'bonkers', 'crypt', 'nighttrain', 'gummy', 'bookofbats', 'derby', 'bunky', 'olympus', 'fishing', 'plachinko', 'moonshot', 'ultraheist', 'batjack', 'bonanza', 'starwing', 'vault', 'baccarat', 'royale'];
+  const games = {}, pages = {};
+  let app, bar, stage, current = null, curPage = null, balEl, lvlEl, booted = false;
+  const ext = {}; // filled in by online.js: authCard, lobbyTop, lobbyBottom
+
+  function registerGame(def) { games[def.id] = def; if (booted) route(); }
+  function registerPage(name, def) { pages[name] = def; }
+
+  const ICON = {
+    back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
+    on: '<svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 010 7M19 6a8.5 8.5 0 010 12"/></svg>',
+    off: '<svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9.5l5 5M22 9.5l-5 5"/></svg>',
+    info: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.2"/></svg>',
+    install: '<svg viewBox="0 0 24 24"><path d="M12 3v11M7.5 9.5L12 14l4.5-4.5M5 15v3a2 2 0 002 2h10a2 2 0 002-2v-3"/></svg>',
+    trophy: '<svg viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 01-10 0V4zM7 6H4v2a3 3 0 003 3M17 6h3v2a3 3 0 01-3 3M12 14v4M8 21h8M9 18h6"/></svg>',
+  };
+
+  /* ---------- install as an app (PWA) ---------- */
+  let installEvt = null;
+  const standaloneMode = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const canInstall = () => !standaloneMode() && /^https?:$/.test(location.protocol) && (!!installEvt || isIOS());
+  addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installEvt = e; if (booted && !current) { buildBar(); if (!curPage) route(true); } });
+  addEventListener('appinstalled', () => { installEvt = null; ui.toast('Batty Casino is on your home screen.'); if (booted) buildBar(); });
+  async function installApp() {
+    if (installEvt) { installEvt.prompt(); try { await installEvt.userChoice; } catch (e) {} installEvt = null; buildBar(); return; }
+    ui.modal('Install Batty Casino', '<div class="bc-inst"><p>Put Batty Casino on your home screen and it opens full screen, like an app.</p><ol>'
+      + (isIOS() ? '<li>Tap the <b>Share</b> button in Safari (the square with an arrow).</li><li>Scroll down and tap <b>Add to Home Screen</b>.</li><li>Tap <b>Add</b>.</li>'
+        : '<li>Open your browser menu (the three dots).</li><li>Tap <b>Install app</b> or <b>Add to Home screen</b>.</li>') + '</ol></div>');
+  }
+  function registerSW() {
+    if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol) || !srv.on) return;
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then((reg) => reg.update().catch(() => {})).catch(() => {});
+  }
+
+  function buildBar() {
+    bar.textContent = '';
+    const g = current && games[current], pg = curPage && pages[curPage];
+    if (g || pg) bar.append(h('button', { class: 'bc-back', type: 'button', id: 'bc-back', 'aria-label': 'Back to lobby', onclick: () => go(''), html: ICON.back + '<span>Lobby</span>' }));
+    bar.append(h('div', { class: 'bc-brand' }, g || pg ? null : h('span', { html: batSvg() }), h('b', null, g ? g.name : pg ? pg.title : (srv.site && srv.site.name) || 'Batty Casino')));
+    lvlEl = h('div', { class: 'bc-lvl', title: 'Your level. Playing earns XP; each level pays a bonus.' }, h('span', null), h('i'));
+    balEl = h('span', null, fmt(shown));
+    const loggedOut = srv.on && !srv.me;
+    if (!loggedOut) {
+      bar.append(lvlEl);
+      bar.append(h('div', { class: 'bc-bal', id: 'bc-balance', title: 'Batty Bucks' }, h('span', { class: 'bc-coin', html: batSvg() }), balEl));
+    }
+    if (g && g.rules) bar.append(h('button', { class: 'bc-icon', type: 'button', id: 'bc-info', 'aria-label': 'Rules and paytable', html: ICON.info, onclick: () => ui.modal(g.name, typeof g.rules === 'function' ? g.rules() : g.rules) }));
+    if (!g && !pg && canInstall()) bar.append(h('button', { class: 'bc-icon bc-inst-btn', type: 'button', id: 'bc-install', 'aria-label': 'Install the app', title: 'Install the app', html: ICON.install, onclick: installApp }));
+    if (srv.on && !g) bar.append(h('button', { class: 'bc-icon', type: 'button', id: 'bc-lb', 'aria-label': 'Leaderboards', html: ICON.trophy, onclick: () => go('leaderboard') }));
+    const snd = h('button', { class: 'bc-icon', type: 'button', id: 'bc-sound', 'aria-label': 'Sound on or off', html: state.muted ? ICON.off : ICON.on, onclick: () => { audio.setMuted(!state.muted); snd.innerHTML = state.muted ? ICON.off : ICON.on; if (!state.muted) sfx('click'); } });
+    if (srv.on && srv.me && ext.barPlatform) ext.barPlatform(bar, !!g); // Platform: Bat Pass chip, wheel and shop buttons (core/platform.js)
+    bar.append(snd);
+    if (srv.on && srv.me && !g) bar.append(h('button', { class: 'bc-me', type: 'button', id: 'bc-me', 'aria-label': 'Your profile', html: avatar(srv.me.avatar, 34, srv.me.cos), onclick: () => go('profile/' + srv.me.name) }));
+    paintLevel();
+  }
+  function paintLevel() {
+    if (!lvlEl) return;
+    let L, p;
+    if (srv.on) { L = srv.level; p = srv.xp * 100; }
+    else { L = state.level; const a = levelFloor(L), b = levelFloor(L + 1); p = ((state.wagered - a) / (b - a)) * 100; }
+    lvlEl.firstChild.textContent = 'LV ' + L;
+    lvlEl.lastChild.style.setProperty('--p', Math.max(0, Math.min(100, p)) + '%');
+  }
+  let balAnim = 0, balFrom = shown;
+  wallet.on((s) => {
+    paintLevel();
+    if (!balEl) return;
+    const from = balFrom, to = s; balFrom = to;
+    const my = ++balAnim, t0 = performance.now(), ms = Math.abs(to - from) > 0 ? 450 : 0;
+    if (to > from) { const pill = balEl.parentNode; pill.classList.remove('bump'); void pill.offsetWidth; pill.classList.add('bump'); }
+    (function step(t) {
+      if (my !== balAnim) return;
+      const k = ms ? Math.min(1, (t - t0) / ms) : 1;
+      balEl.textContent = fmt(from + (to - from) * k);
+      if (k < 1) requestAnimationFrame(step);
+    })(t0);
+  });
+
+  const countWord = (n) => (['Zero','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen'][n] || String(n));
+  function lobby() {
+    const online = srv.on, me = srv.me, loggedOut = online && !me;
+    const strip = h('dl', { class: 'bc-strip' });
+    const paintStrip = () => {
+      let rounds = 0, best = 0, L = state.level;
+      if (online && srv.me) { rounds = srv.me.rounds; best = srv.me.bestWin; L = srv.level; }
+      else for (const id in state.stats) { rounds += state.stats[id].rounds; if (state.stats[id].best > best) best = state.stats[id].best; }
+      strip.innerHTML = '<div><dt>Balance</dt><dd>' + fmt(realBal()) + ' BB</dd></div><div><dt>Level</dt><dd>' + L + '</dd></div><div><dt>Rounds played</dt><dd>' + fmt(rounds) + '</dd></div><div><dt>Biggest win</dt><dd>' + (best ? fmt(best) + ' BB' : 'Not yet') + '</dd></div>';
+    };
+    const claimBtn = h('button', { class: 'bc-btn', type: 'button', id: 'bc-claim' });
+    const claimNote = h('small');
+    const rescueBtn = h('button', { class: 'bc-btn ghost', type: 'button', id: 'bc-rescue', onclick: async () => { rescueBtn.disabled = true; await rescue(); rescueBtn.disabled = false; paint(); } }, 'Skint? Top up 5,000');
+    const paint = () => {
+      const left = claimReadyIn();
+      claimBtn.disabled = left > 0;
+      claimBtn.textContent = left > 0 ? 'Next bonus in ' + Math.ceil(left / 60000) + ' min' : 'Claim ' + fmt(claimAmount()) + ' free';
+      claimNote.innerHTML = left > 0 ? 'Free Batty Bucks every hour. Higher levels claim more.' : 'Your hourly bonus is ready: <b>' + fmt(claimAmount()) + ' BB</b>';
+      rescueBtn.hidden = realBal() >= 1000;
+      paintStrip();
+    };
+    claimBtn.addEventListener('click', async () => { claimBtn.disabled = true; await claim(); paint(); });
+    const shelf = h('div', { class: 'bc-shelf' });
+    const ids = ORDER.filter((id) => games[id]).concat(Object.keys(games).filter((id) => !ORDER.includes(id)));
+    for (const id of ids) {
+      const g = games[id], st = state.stats[id];
+      shelf.append(h('button', { class: 'bc-card', type: 'button', id: 'bc-play-' + id, onclick: () => { if (loggedOut) { ui.toast('Log in or create a free account to play.'); const f = document.querySelector('.ol-auth input'); if (f) { f.scrollIntoView({ block: 'center' }); f.focus(); } return; } sfx('pop'); go(id); } },
+        g.tag ? h('span', { class: 'bc-tag' }, g.tag) : null,
+        h('span', { class: 'art', html: g.poster || '' }),
+        h('span', { class: 'meta' }, h('b', null, g.name), h('span', null, g.tagline || ''), h('em', null, !online && st && st.best ? 'Your best: ' + fmt(st.best) + ' BB' : 'Play now'))));
+    }
+    const stars = h('canvas', { class: 'bc-stars', 'aria-hidden': 'true' });
+    const heroText = loggedOut ? countWord(ids.length) + ' proper casino games, zero real money. Make a free account, get <b>' + fmt(srv.site.startBalance) + ' Batty Bucks</b>, and climb the leaderboards.'
+      : online ? 'Welcome back, <b class="ol-name"></b>. Everything here is played with <b>Batty Bucks</b>: free, for fun, and there is always more where they came from.'
+      : countWord(ids.length) + ' proper casino games, zero real money. Everything here is played with <b>Batty Bucks</b>, they are free, and there is always more where they came from.';
+    const heroP = h('p', { html: heroText });
+    if (online && me) heroP.querySelector('.ol-name').textContent = me.name;
+    let instGone = false; try { instGone = localStorage.getItem('batty-noinstall') === '1'; } catch (e) {}
+    const getApp = canInstall() && !instGone ? h('div', { class: 'bc-getapp', id: 'bc-getapp' },
+      h('span', { class: 'ic', html: batSvg() }),
+      h('div', null, h('b', null, 'Get the Batty app'), h('span', null, 'Full screen, one tap from your home screen, no app store.')),
+      h('button', { class: 'bc-btn', type: 'button', onclick: installApp }, 'Install'),
+      h('button', { class: 'x', type: 'button', 'aria-label': 'Hide', onclick: (e) => { try { localStorage.setItem('batty-noinstall', '1'); } catch (er) {} e.target.closest('.bc-getapp').remove(); }, html: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>' })) : null;
+    const top = h('div', { class: 'ol-top' }), bottom = h('div', { class: 'ol-bottom' });
+    const el = h('div', { class: 'bc-lobby' }, stars,
+      h('div', { class: 'bc-wrap' },
+        h('section', { class: 'bc-hero' },
+          h('div', null,
+            h('h1', { html: 'Batty<span>Casino</span>' }), heroP,
+            loggedOut && ext.authCard ? ext.authCard() : h('div', { class: 'bc-claim' }, claimBtn, rescueBtn, claimNote)),
+          h('div', { class: 'bc-moon', html: batSvg() + batSvg() + batSvg() })),
+        getApp, top,
+        loggedOut ? null : strip,
+        h('h2', { class: 'bc-h2' }, 'The floor', h('small', null, ids.length + ' games, all open')),
+        shelf, bottom,
+        h('p', { class: 'bc-foot', html: '<b>For fun only.</b> Batty Bucks cannot be bought, sold, cashed out or swapped for anything. There are no purchases and no prizes. Every game shows its tested return in its rules panel.' + (online ? '' : ' Practice mode: your balance is saved in this browser.') })));
+    paint();
+    const offs = [wallet.on(paint)];
+    if (online && me) api('me').then((r) => { if (r.me) { srv.me = r.me; claimAt = Date.now() + r.me.claimIn * 1000; } paint(); }).catch(() => {});
+    if (online && ext.lobbyTop) offs.push(ext.lobbyTop(top));
+    if (online && ext.lobbyBottom) offs.push(ext.lobbyBottom(bottom));
+    if (online && me && ext.lobbyPlatform) offs.push(ext.lobbyPlatform(top)); // PLATFORM HOOK: Daily Wheel tile, Bat Pass strip, shop teaser (core/platform.js)
+    const tick = setInterval(paint, 20000);
+    requestAnimationFrame(() => {
+      const w = stars.width = stars.clientWidth, hh = stars.height = stars.clientHeight, c = stars.getContext('2d');
+      for (let i = 0; i < 150; i++) { const y = Math.random() * hh; c.globalAlpha = (0.25 + Math.random() * 0.7) * (1 - y / hh); c.fillStyle = Math.random() < 0.15 ? '#ffd76a' : '#ffffff'; const r = Math.random() < 0.08 ? 1.6 : 0.8; c.beginPath(); c.arc(Math.random() * w, y, r, 0, 6.3); c.fill(); }
+    });
+    return { el, destroy() { offs.forEach((f) => typeof f === 'function' && f()); clearInterval(tick); } };
+  }
+
+  let lobbyInst = null, pageInst = null, mounted = null, mountedKey = null;
+  function go(id) { const want = id ? '#' + id : ''; if ((location.hash || '') === want || (!id && !location.hash)) route(true); else location.hash = want; }
+  function route(force) {
+    if (!booted) return;
+    const raw = decodeURIComponent((location.hash || '').replace('#', ''));
+    const [id, ...rest] = raw.split('/'); const param = rest.join('/');
+    let next = games[id] ? id : null, page = !next && pages[id] ? id : null;
+    if (next && srv.on && !srv.me) { next = null; setTimeout(() => ui.toast('Log in or create a free account to play.'), 50); }
+    if (page && pages[page].auth && srv.on && !srv.me) page = null;
+    const key = next ? 'g:' + next : page ? 'p:' + raw : 'lobby';
+    if (key === mountedKey && force !== true) return;
+    if (mounted) { try { games[mounted].unmount && games[mounted].unmount(); } catch (e) { console.error(e); } mounted = null; wallet.sync(); fx.clear(); }
+    if (pageInst) { try { pageInst.destroy && pageInst.destroy(); } catch (e) { console.error(e); } pageInst = null; }
+    if (lobbyInst) { lobbyInst.destroy(); lobbyInst = null; }
+    flushEvents();
+    stage.textContent = ''; current = next; curPage = page; mountedKey = key; buildBar();
+    document.querySelectorAll('.bc-veil,.bc-win').forEach((n) => n.remove());
+    if (next) {
+      const root = h('div', { class: 'g-' + next });
+      stage.append(root); mounted = next;
+      try { games[next].mount(root, Batty); } catch (e) { console.error(e); root.textContent = 'This game failed to load.'; }
+    } else if (page) {
+      const root = h('div', { class: 'pg pg-' + page }); stage.append(root);
+      try { pageInst = pages[page].mount(root, param) || null; } catch (e) { console.error(e); root.textContent = 'This page failed to load.'; }
+    } else { lobbyInst = lobby(); stage.append(lobbyInst.el); }
+    window.scrollTo(0, 0);
+  }
+  /* Refresh who is logged in (after login, logout, profile edits) and redraw the shell. */
+  async function refreshMe(redraw) {
+    const r = await api('me');
+    srv.site = r.site; srv.me = r.me;
+    if (r.me) { srv.bal = r.me.bal; srv.ver = r.me.ver; srv.level = r.me.level; srv.xp = r.me.xp; claimAt = Date.now() + r.me.claimIn * 1000; }
+    shown = realBal(); balFrom = shown; emit();
+    if (redraw !== false) route(true);
+    return r;
+  }
+
+  async function boot() {
+    if (booted) return;
+    app = document.getElementById('batty-app');
+    bar = h('header', { class: 'bc-bar' }); stage = h('main', { class: 'bc-stage' });
+    app.append(bar, stage);
+    const unlock = () => { audio.ensure(); };
+    addEventListener('pointerdown', unlock, { passive: true }); addEventListener('keydown', unlock);
+    /* Online if api.php answers; practice mode otherwise (opened as a file, or no server yet). */
+    if (/^https?:$/.test(location.protocol)) {
+      stage.append(h('div', { class: 'bc-loading' }, h('span', { html: batSvg() }), 'Opening the belfry'));
+      try { srv.on = true; await refreshMe(false); }
+      catch (e) {
+        srv.on = false;
+        if (e.status && e.status !== 404 && e.status !== 405) { stage.textContent = ''; stage.append(h('div', { class: 'bc-loading err' }, h('b', null, 'The casino server is not ready'), h('span', null, e.message))); booted = true; buildBar(); return; }
+      }
+    }
+    booted = true;
+    addEventListener('hashchange', () => route());
+    setInterval(() => { if (srv.on && srv.me && !mounted) api('me').then((r) => { srv.site = r.site; if (r.me) { srv.me = r.me; claimAt = Date.now() + r.me.claimIn * 1000; } }).catch(() => {}); }, 60000);
+    route(true);
+    registerSW();
+  }
+
+  const Batty = { h, rng, randInt, pickWeighted, wallet, STAKES, fmt, fmtX, audio, sfx, fx, ui, scope, registerGame, registerPage, boot, go, batPath: BAT, batSvg, notes: N,
+    api, play, refreshMe, installApp, canInstall, avatar, AV_COL, AV_ACC, ext, games, server: srv,
+    get online() { return srv.on; }, get me() { return srv.me; }, get level() { return srv.on ? srv.level : state.level; } };
+  return Batty;
+})();
+
+/* Batty Casino online features: accounts, live big-wins feed, daily missions, leaderboards, profiles and the admin panel.
+   Only used when api.php answers; in practice mode none of this appears. Everything a player typed is inserted as text, never HTML. */
+(function () {
+  'use strict';
+  const B = Batty, h = B.h, fmt = B.fmt;
+  const GN = { bunky: 'Bunky Time', olympus: 'Raging Cocks of Olympus 2', fishing: 'Fishing Frenzy', plachinko: 'Plachinko', moonshot: "Batty's Moonshot", ultraheist: 'Bat Bandits UltraNudge', batjack: 'Bat Jack', bonanza: 'Sugar Fang Bonanza', starwing: 'Starwing', circus: 'Batty Circus', crypt: "Count Batula's Crypt", nighttrain: 'Night Train', gummy: 'Gummy Bats', bookofbats: 'Book of Bats', derby: 'Bat Derby', bonkers: 'Bonkers Time', vault: 'Crimson Vault', baccarat: 'Velvet Baccarat', royale: 'Roulette Royale' };
+  const GS = { bunky: 'Bunky Time', olympus: 'Raging Cocks', fishing: 'Fishing Frenzy', plachinko: 'Plachinko', moonshot: 'Moonshot', ultraheist: 'Bat Bandits', batjack: 'Bat Jack', bonanza: 'Sugar Fang', starwing: 'Starwing', circus: 'Batty Circus', crypt: "Batula's Crypt", nighttrain: 'Night Train', gummy: 'Gummy Bats', bookofbats: 'Book of Bats', derby: 'Bat Derby', bonkers: 'Bonkers Time', vault: 'Crimson Vault', baccarat: 'Velvet Baccarat', royale: 'Roulette Royale' };
+  const xs = (x) => (x >= 100 ? fmt(x) : (Math.round(x * 100) / 100).toFixed(x >= 10 ? 1 : 2)) + '×';
+  const ago = (t) => { const s = Math.max(0, Math.round(Date.now() / 1000 - t)); return s < 60 ? 'just now' : s < 3600 ? Math.floor(s / 60) + ' min ago' : s < 86400 ? Math.floor(s / 3600) + ' h ago' : Math.floor(s / 86400) + ' d ago'; };
+  const date = (t) => new Date(t * 1000).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  const nameLink = (name, cls) => h('a', { class: 'ol-name ' + (cls || ''), href: '#profile/' + encodeURIComponent(name) }, name);
+  const busy = (btn, on) => { btn.disabled = on; btn.classList.toggle('busy', on); };
+
+  /* ---------------- sign in / create account ---------------- */
+  B.ext.authCard = function () {
+    let mode = 'register';
+    const err = h('p', { class: 'ol-err', role: 'alert' });
+    const name = h('input', { id: 'ol-name', name: 'username', autocomplete: 'username', maxlength: '16', required: true, placeholder: 'e.g. CountBatula' });
+    const pass = h('input', { id: 'ol-pass', name: 'password', type: 'password', autocomplete: 'new-password', minlength: '6', required: true, placeholder: 'At least 6 characters' });
+    const submit = h('button', { class: 'bc-btn', type: 'submit', id: 'ol-submit' });
+    const tabs = h('div', { class: 'ol-tabs', role: 'tablist' });
+    const tReg = h('button', { type: 'button', role: 'tab', id: 'ol-tab-reg' }, 'Create account'), tLog = h('button', { type: 'button', role: 'tab', id: 'ol-tab-log' }, 'Log in');
+    tabs.append(tReg, tLog);
+    const hint = h('small', { class: 'ol-hint' });
+    const paint = () => {
+      tReg.classList.toggle('on', mode === 'register'); tLog.classList.toggle('on', mode === 'login');
+      tReg.setAttribute('aria-selected', mode === 'register'); tLog.setAttribute('aria-selected', mode === 'login');
+      submit.textContent = mode === 'register' ? 'Create account and play' : 'Log in';
+      pass.setAttribute('autocomplete', mode === 'register' ? 'new-password' : 'current-password');
+      hint.textContent = mode === 'register' ? 'Usernames: 3 to 16 letters, numbers or underscores. They show on the leaderboards.' : '';
+      err.textContent = '';
+    };
+    tReg.onclick = () => { mode = 'register'; paint(); B.sfx('click'); };
+    tLog.onclick = () => { mode = 'login'; paint(); B.sfx('click'); };
+    const form = h('form', { class: 'ol-auth', novalidate: true },
+      tabs,
+      h('label', { for: 'ol-name' }, 'Username'), name,
+      h('label', { for: 'ol-pass' }, 'Password'), pass,
+      hint, err, submit);
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault(); err.textContent = '';
+      if (!/^[A-Za-z0-9_]{3,16}$/.test(name.value.trim())) { err.textContent = 'Usernames are 3 to 16 letters, numbers or underscores.'; name.focus(); return; }
+      if (pass.value.length < 6) { err.textContent = 'Passwords need at least 6 characters.'; pass.focus(); return; }
+      busy(submit, true);
+      try {
+        await B.api(mode, { name: name.value.trim(), pass: pass.value });
+        B.sfx('bonus');
+        await B.refreshMe();
+        B.ui.toast(mode === 'register' ? 'Welcome to the belfry, ' + B.me.name + '!' : 'Welcome back, ' + B.me.name);
+        if (mode === 'register') B.fx.rain('coin', 1600);
+      } catch (ex) { err.textContent = ex.message; busy(submit, false); }
+    });
+    paint();
+    return form;
+  };
+
+  /* ---------------- lobby: announcement + live feed ---------------- */
+  B.ext.lobbyTop = function (box) {
+    const site = B.server.site || {};
+    if (site.announce) box.append(h('div', { class: 'ol-announce', role: 'note' }, h('b', null, 'News'), h('span', null, site.announce)));
+    const list = h('ol', { class: 'ol-feed-list' });
+    const online = h('span', { class: 'ol-online' });
+    const feed = h('section', { class: 'ol-feed', 'aria-label': 'Big wins' }, h('header', null, h('b', null, 'Big wins'), online), h('div', { class: 'ol-feed-track' }, list));
+    box.append(feed);
+    let last = 0, items = [], dead = false;
+    const paint = () => {
+      list.textContent = '';
+      if (!items.length) { list.append(h('li', { class: 'ol-empty' }, 'No big wins yet tonight. Be the first: 25× or more lands you here.')); return; }
+      for (const it of items.slice(0, 14)) {
+        const li = h('li', { class: it.x >= 100 ? 'hot' : '' }, h('span', { class: 'av', html: B.avatar(it.avatar, 26) }), nameLink(it.name), h('span', { class: 'won' }, 'won'), h('b', null, fmt(it.amount) + ' BB'),
+          h('span', { class: 'x' }, xs(it.x)), h('span', { class: 'g' }, (it.label ? it.label + ' · ' : '') + GS[it.game]), h('time', null, ago(it.at)));
+        list.append(li);
+      }
+    };
+    const pull = async () => {
+      try {
+        const r = await B.api('feed', { since: 0 });
+        if (dead) return;
+        const fresh = r.items.filter((i) => i.id > last);
+        if (last && fresh.length) { B.sfx('coin'); }
+        if (r.items.length) last = Math.max(last, r.items[0].id);
+        items = r.items; online.textContent = r.online + ' playing now'; paint();
+      } catch (e) { /* the feed is a nicety */ }
+    };
+    pull(); const t = setInterval(pull, 15000);
+    return () => { dead = true; clearInterval(t); };
+  };
+
+  /* ---------------- lobby: missions + leaderboard preview ---------------- */
+  B.ext.lobbyBottom = function (box) {
+    let dead = false;
+    const cols = h('div', { class: 'ol-cols' });
+    box.append(cols);
+    if (B.me) {
+      const mBox = h('section', { class: 'ol-panel ol-missions' }, h('header', null, h('h2', null, 'Daily missions'), h('small', null, 'New ones at midnight (UK time)')));
+      const mList = h('div', { class: 'ol-mlist' }, h('p', { class: 'ol-empty' }, 'Loading missions'));
+      mBox.append(mList); cols.append(mBox);
+      const paintM = (ms) => {
+        mList.textContent = '';
+        for (const m of ms) {
+          const pct = Math.min(100, (m.progress / m.target) * 100), done = m.progress >= m.target;
+          const btn = h('button', { class: 'ol-mclaim', type: 'button', disabled: !done || m.claimed, id: 'ol-mclaim-' + m.slot }, m.claimed ? 'Claimed' : done ? 'Claim ' + fmt(m.reward) : fmt(m.reward) + ' BB');
+          btn.onclick = async () => { busy(btn, true); try { const r = await B.api('mission_claim', { slot: m.slot }); B.wallet.sync(); B.sfx('bonus'); B.fx.burst({ el: btn, kind: 'coin', count: 24 }); B.ui.toast('+' + fmt(r.amount) + ' Batty Bucks'); paintM(r.missions); } catch (e) { B.ui.toast(e.message); busy(btn, false); } };
+          const row = h('div', { class: 'ol-m' + (m.claimed ? ' claimed' : done ? ' done' : '') },
+            h('div', { class: 'ol-mtext' }, h('b', null, m.label), h('span', null, fmt(Math.min(m.progress, m.target)) + ' / ' + fmt(m.target))),
+            h('div', { class: 'ol-bar' }, h('i', { style: { width: pct + '%' } })), btn);
+          if (m.game && !m.claimed && !done) { row.classList.add('link'); row.querySelector('.ol-mtext').onclick = () => B.go(m.game); }
+          mList.append(row);
+        }
+      };
+      B.api('missions').then((r) => { if (!dead) paintM(r.missions); }).catch(() => { mList.textContent = 'Missions are unavailable right now.'; });
+    }
+    const lb = leaderboardWidget({ compact: true });
+    cols.append(h('section', { class: 'ol-panel ol-lbbox' }, h('header', null, h('h2', null, 'Leaderboards'), h('a', { href: '#leaderboard', class: 'ol-more' }, 'See all')), lb.el));
+    return () => { dead = true; lb.destroy(); };
+  };
+
+  /* ---------------- leaderboards ---------------- */
+  const BOARDS = [
+    { id: 'rich', name: 'Richest', unit: 'Balance', fmt: (v) => fmt(v) + ' BB' },
+    { id: 'bigwin', name: 'Biggest win', unit: 'Win', fmt: (v) => fmt(v) + ' BB' },
+    { id: 'bigx', name: 'Best multiplier', unit: 'Multiplier', fmt: xs },
+    { id: 'wagered', name: 'High rollers', unit: 'Wagered', fmt: (v) => fmt(v) + ' BB' },
+  ];
+  function leaderboardWidget(o) {
+    let board = o.board || 'bigwin', period = 'week', game = '', dead = false, seq = 0;
+    const tabs = h('div', { class: 'ol-seg', role: 'tablist' });
+    const periods = h('div', { class: 'ol-seg small' });
+    const gameSel = h('select', { class: 'ol-select', 'aria-label': 'Game', id: o.compact ? 'ol-lb-game-c' : 'ol-lb-game' }, h('option', { value: '' }, 'All games'), ...Object.keys(GN).map((g) => h('option', { value: g }, GS[g])));
+    const table = h('div', { class: 'ol-lb' });
+    const note = h('p', { class: 'ol-lbnote' });
+    const paintTabs = () => {
+      tabs.textContent = ''; periods.textContent = '';
+      for (const b of BOARDS) { const t = h('button', { type: 'button', role: 'tab', class: b.id === board ? 'on' : '', 'aria-selected': b.id === board }, b.name); t.onclick = () => { board = b.id; B.sfx('click'); load(); }; tabs.append(t); }
+      for (const [p, n] of [['day', 'Today'], ['week', 'This week'], ['all', 'All time']]) { const t = h('button', { type: 'button', class: p === period ? 'on' : '' }, n); t.onclick = () => { period = p; B.sfx('click'); load(); }; periods.append(t); }
+      periods.hidden = board === 'rich'; gameSel.hidden = board === 'rich' || board === 'wagered' || o.compact;
+    };
+    gameSel.onchange = () => { game = gameSel.value; load(); };
+    async function load() {
+      paintTabs();
+      const my = ++seq;
+      table.classList.add('loading');
+      try {
+        const r = await B.api('leaderboard', { board, period, game });
+        if (dead || my !== seq) return;
+        const def = BOARDS.find((b) => b.id === board);
+        table.textContent = ''; table.classList.remove('loading');
+        const rows = r.rows.slice(0, o.compact ? 10 : 50);
+        if (!rows.length) table.append(h('p', { class: 'ol-empty' }, 'Nobody on this board yet. Go and put your name on it.'));
+        for (const row of rows) {
+          const mine = B.me && row.id === B.me.id;
+          table.append(h('div', { class: 'ol-row' + (row.rank <= 3 ? ' top' + row.rank : '') + (mine ? ' me' : '') },
+            h('span', { class: 'rk' }, String(row.rank)), h('span', { class: 'av', html: B.avatar(row.avatar, 30) }),
+            h('span', { class: 'who' }, nameLink(row.name), h('small', null, 'Level ' + row.level)), h('b', { class: 'v' }, def.fmt(row.v))));
+        }
+        note.textContent = r.mine && r.mine.rank > rows.length ? 'You are number ' + fmt(r.mine.rank) + ' with ' + fmt(r.mine.v) + ' BB.' : r.season && board !== 'rich' ? 'Counting from the start of this season.' : '';
+      } catch (e) { if (!dead) { table.classList.remove('loading'); table.textContent = e.message; } }
+    }
+    load();
+    const el = h('div', { class: 'ol-lbw' }, tabs, h('div', { class: 'ol-lbctl' }, periods, gameSel), table, note);
+    return { el, destroy() { dead = true; } };
+  }
+  B.registerPage('leaderboard', {
+    title: 'Leaderboards',
+    mount(root) {
+      const lb = leaderboardWidget({ board: 'rich' });
+      root.append(h('div', { class: 'pg-wrap' }, h('h1', { class: 'pg-h1' }, 'Leaderboards'), h('p', { class: 'pg-sub' }, 'Weeks run Monday to Sunday, UK time.'), lb.el));
+      return { destroy: lb.destroy };
+    },
+  });
+
+  /* ---------------- profiles ---------------- */
+  B.registerPage('profile', {
+    title: 'Player',
+    mount(root, param) {
+      let dead = false;
+      const wrap = h('div', { class: 'pg-wrap' }, h('p', { class: 'ol-empty' }, 'Loading'));
+      root.append(wrap);
+      const name = param || (B.me && B.me.name) || '';
+      B.api('profile', { name }).then((r) => { if (!dead) paintProfile(wrap, r); }).catch((e) => { wrap.textContent = ''; wrap.append(h('h1', { class: 'pg-h1' }, 'No such player'), h('p', null, e.message)); });
+      return { destroy() { dead = true; } };
+    },
+  });
+  function paintProfile(wrap, r) {
+    const u = r.user, mine = B.me && B.me.id === u.id;
+    wrap.textContent = '';
+    const avBox = h('div', { class: 'pf-av', html: B.avatar(u.avatar, 112) });
+    const motto = h('p', { class: 'pf-motto' }); motto.textContent = u.motto ? '"' + u.motto + '"' : (mine ? 'No motto yet. Add one below.' : '');
+    const head = h('header', { class: 'pf-head' }, avBox,
+      h('div', { class: 'pf-id' }, h('h1', { class: 'pg-h1' }, u.name), h('p', { class: 'pf-meta' }, 'Level ' + u.level + ' · joined ' + date(u.joined) + ' · seen ' + ago(u.seen) + (u.streak > 1 ? ' · ' + u.streak + '-day streak' : '')), motto));
+    const stats = h('dl', { class: 'bc-strip pf-strip' });
+    stats.innerHTML = '<div><dt>Balance</dt><dd>' + fmt(u.balance) + ' BB</dd></div><div><dt>Richest rank</dt><dd>#' + fmt(u.rank) + '</dd></div><div><dt>Biggest win</dt><dd>' + (u.bestWin ? fmt(u.bestWin) + ' BB' : 'Not yet') + '</dd></div><div><dt>Best multiplier</dt><dd>' + (u.bestX ? xs(u.bestX) : 'Not yet') + '</dd></div>' +
+      '<div><dt>Rounds</dt><dd>' + fmt(u.rounds) + '</dd></div><div><dt>Wagered</dt><dd>' + fmt(u.wagered) + '</dd></div><div><dt>Won</dt><dd>' + fmt(u.won) + '</dd></div><div><dt>Return</dt><dd>' + (u.wagered ? (u.won / u.wagered * 100).toFixed(1) + '%' : '–') + '</dd></div>';
+    wrap.append(head, stats);
+    /* per game */
+    const gt = h('div', { class: 'pf-table' }, h('div', { class: 'tr th' }, h('span', null, 'Game'), h('span', null, 'Rounds'), h('span', null, 'Wagered'), h('span', null, 'Best win'), h('span', null, 'Best ×')));
+    const byGame = {}; r.games.forEach((g) => { byGame[g.game] = g; });
+    for (const id of Object.keys(GN)) { const g = byGame[id] || { rounds: 0, wagered: 0, bestWin: 0, bestX: 0 }; gt.append(h('div', { class: 'tr' }, h('a', { href: mine ? '#' + id : null }, GS[id]), h('span', null, fmt(g.rounds) + (id === 'plachinko' ? ' balls' : '')), h('span', null, fmt(g.wagered)), h('span', null, g.bestWin ? fmt(g.bestWin) : '–'), h('span', null, g.bestX ? xs(g.bestX) : '–'))); }
+    wrap.append(h('h2', { class: 'bc-h2' }, 'Games'), h('div', { class: 'pf-scroll' }, gt));
+    if (r.top.length) {
+      const tl = h('ol', { class: 'pf-top' });
+      for (const t of r.top) tl.append(h('li', null, h('b', null, fmt(t.win) + ' BB'), h('span', null, xs(t.x) + ' on ' + GS[t.game]), h('time', null, date(t.at))));
+      wrap.append(h('h2', { class: 'bc-h2' }, 'Best wins'), tl);
+    }
+    const got = r.achievements.filter((a) => a.at).length;
+    const ag = h('div', { class: 'pf-ach' });
+    for (const a of r.achievements) ag.append(h('div', { class: 'pf-a' + (a.at ? ' on' : '') }, h('span', { class: 'medal', html: medal(a.id, !!a.at) }), h('b', null, a.name), h('span', null, a.desc), h('small', null, a.at ? 'Unlocked ' + date(a.at) : '+' + fmt(a.reward) + ' BB')));
+    wrap.append(h('h2', { class: 'bc-h2' }, 'Achievements', h('small', null, got + ' of ' + r.achievements.length)), ag);
+    if (mine) wrap.append(settingsPanel(u, avBox, motto));
+    if (B.me && B.me.admin) wrap.append(h('p', { class: 'pf-admin' }, h('a', { href: '#admin', class: 'bc-btn ghost' }, 'Open the admin panel')));
+  }
+  function medal(id, on) {
+    const hue = [...id].reduce((a, c) => a + c.charCodeAt(0), 0) % 360;
+    return '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M14 2h8l4 12h-8zM34 2h-8l-4 12h8z" fill="' + (on ? 'hsl(' + hue + ',75%,55%)' : '#3a2d52') + '"/><circle cx="24" cy="30" r="15" fill="' + (on ? '#ffd76a' : '#2a2140') + '" stroke="' + (on ? '#a8660a' : '#4a3d66') + '" stroke-width="3"/>' +
+      '<path d="M' + 24 + ' 22 l2.6 5.4 5.9.8-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.3-4.1 5.9-.8z" fill="' + (on ? '#a8660a' : '#4a3d66') + '"/></svg>';
+  }
+  function settingsPanel(u, avBox, motto) {
+    let pick = u.avatar;
+    const [c0, a0] = pick.split('-').map(Number);
+    let col = c0, acc = a0;
+    const preview = h('span', { class: 'pf-prev', html: B.avatar(pick, 72) });
+    const cols = h('div', { class: 'pf-swatches', role: 'radiogroup', 'aria-label': 'Colour' });
+    const accs = h('div', { class: 'pf-accs', role: 'radiogroup', 'aria-label': 'Accessory' });
+    const paint = () => {
+      pick = col + '-' + acc; preview.innerHTML = B.avatar(pick, 72);
+      cols.textContent = ''; accs.textContent = '';
+      B.AV_COL.forEach((c, i) => { const b = h('button', { type: 'button', role: 'radio', 'aria-checked': i === col, 'aria-label': 'Colour ' + (i + 1), class: i === col ? 'on' : '', style: { background: c } }); b.onclick = () => { col = i; paint(); B.sfx('click'); }; cols.append(b); });
+      B.AV_ACC.forEach((n, i) => { const b = h('button', { type: 'button', role: 'radio', 'aria-checked': i === acc, class: i === acc ? 'on' : '', html: B.avatar(col + '-' + i, 40) + '<span>' + n + '</span>' }); b.onclick = () => { acc = i; paint(); B.sfx('click'); }; accs.append(b); });
+    };
+    paint();
+    const mottoIn = h('input', { id: 'pf-motto', maxlength: '60', value: u.motto, placeholder: 'Something for the leaderboard to read' });
+    const save = h('button', { class: 'bc-btn', type: 'button', id: 'pf-save' }, 'Save profile');
+    const msg = h('p', { class: 'ol-err' });
+    save.onclick = async () => {
+      busy(save, true); msg.textContent = '';
+      try { await B.api('profile_update', { avatar: pick, motto: mottoIn.value }); avBox.innerHTML = B.avatar(pick, 112); motto.textContent = mottoIn.value ? '"' + mottoIn.value + '"' : ''; B.ui.toast('Profile saved'); B.sfx('ding'); const me = document.getElementById('bc-me'); if (me) me.innerHTML = B.avatar(pick, 34); }
+      catch (e) { msg.textContent = e.message; }
+      busy(save, false);
+    };
+    const oldP = h('input', { id: 'pf-old', type: 'password', autocomplete: 'current-password' }), newP = h('input', { id: 'pf-new', type: 'password', autocomplete: 'new-password', minlength: '6' });
+    const pBtn = h('button', { class: 'bc-btn ghost', type: 'submit' }, 'Change password'), pMsg = h('p', { class: 'ol-err' });
+    const pForm = h('form', { class: 'pf-pass' }, h('label', { for: 'pf-old' }, 'Current password'), oldP, h('label', { for: 'pf-new' }, 'New password'), newP, pMsg, pBtn);
+    pForm.addEventListener('submit', async (e) => {
+      e.preventDefault(); pMsg.textContent = ''; busy(pBtn, true);
+      try { await B.api('password', { old: oldP.value, new: newP.value }); oldP.value = newP.value = ''; B.ui.toast('Password changed. Other devices have been logged out.'); }
+      catch (ex) { pMsg.textContent = ex.message; }
+      busy(pBtn, false);
+    });
+    const out = h('button', { class: 'bc-btn ghost', type: 'button', id: 'pf-logout' }, 'Log out');
+    out.onclick = async () => { try { await B.api('logout'); } catch (e) { /* fine */ } location.hash = ''; await B.refreshMe(); B.ui.toast('Logged out. See you soon.'); };
+    return h('section', { class: 'ol-panel pf-settings' },
+      h('header', null, h('h2', null, 'Your profile')),
+      h('div', { class: 'pf-avpick' }, preview, h('div', null, h('b', { class: 'lab' }, 'Colour'), cols, h('b', { class: 'lab' }, 'Accessory'), accs)),
+      h('label', { for: 'pf-motto' }, 'Motto'), mottoIn, msg, save,
+      h('hr'), pForm, h('hr'), out);
+  }
+
+  /* ---------------- admin ---------------- */
+  B.registerPage('admin', {
+    title: 'Admin', auth: true,
+    mount(root) {
+      if (!B.me || !B.me.admin) { root.append(h('div', { class: 'pg-wrap' }, h('h1', { class: 'pg-h1' }, 'Admins only'))); return null; }
+      let dead = false;
+      const wrap = h('div', { class: 'pg-wrap ad' });
+      root.append(wrap);
+      const statsBox = h('section', { class: 'ol-panel' }), usersBox = h('section', { class: 'ol-panel' }), feedBox = h('section', { class: 'ol-panel' }), siteBox = h('section', { class: 'ol-panel' });
+      wrap.append(h('h1', { class: 'pg-h1' }, 'Admin'), statsBox, usersBox, siteBox, feedBox);
+      async function stats() {
+        const s = await B.api('admin_stats'); if (dead) return;
+        statsBox.textContent = '';
+        const top = h('dl', { class: 'bc-strip' });
+        top.innerHTML = '<div><dt>Players</dt><dd>' + fmt(s.players) + '</dd></div><div><dt>Online now</dt><dd>' + fmt(s.online) + '</dd></div><div><dt>Active today</dt><dd>' + fmt(s.activeToday) + '</dd></div><div><dt>Rounds today</dt><dd>' + fmt(s.today.rounds) + '</dd></div>';
+        const gt = h('div', { class: 'pf-table ad-games' }, h('div', { class: 'tr th' }, h('span', null, 'Game'), h('span', null, 'Rounds'), h('span', null, 'Staked'), h('span', null, 'Paid'), h('span', null, 'Actual return')));
+        for (const id of Object.keys(GN)) { const g = s.games[id]; gt.append(h('div', { class: 'tr' }, h('span', null, GS[id]), h('span', null, g ? fmt(id === 'plachinko' ? g.balls : g.rounds) : '0'), h('span', null, g ? fmt(g.staked) : '0'), h('span', null, g ? fmt(g.won) : '0'), h('span', null, g && g.rtp != null ? g.rtp + '%' : '–'))); }
+        statsBox.append(h('header', null, h('h2', null, 'Overview'), h('small', null, 'Batty Bucks held by players: ' + fmt(s.bankroll) + ' · open rounds: ' + s.openRounds)), top, h('div', { class: 'pf-scroll' }, gt),
+          h('p', { class: 'pg-sub' }, 'Actual return drifts around each game’s tested ~96% and settles towards it as more rounds are played.'));
+        annIn.value = s.announce || ''; seasonNote.textContent = s.season ? 'Current season started ' + new Date(s.season.replace(' ', 'T') + 'Z').toLocaleString('en-GB') : 'No season reset yet.';
+      }
+      /* site settings */
+      const annIn = h('input', { id: 'ad-ann', maxlength: '200', placeholder: 'Shown at the top of the lobby. Leave empty for none.' });
+      const annBtn = h('button', { class: 'bc-btn', type: 'button' }, 'Save announcement');
+      annBtn.onclick = async () => { busy(annBtn, true); try { await B.api('admin_announce', { text: annIn.value }); B.ui.toast('Announcement saved'); } catch (e) { B.ui.toast(e.message); } busy(annBtn, false); };
+      const seasonNote = h('p', { class: 'pg-sub' });
+      const resetBal = h('input', { type: 'checkbox', id: 'ad-resetbal' });
+      const confirmIn = h('input', { id: 'ad-confirm', placeholder: 'Type NEW SEASON to confirm' });
+      const seasonBtn = h('button', { class: 'bc-btn ghost', type: 'button' }, 'Start a new season');
+      seasonBtn.onclick = async () => {
+        if (confirmIn.value.trim().toUpperCase() !== 'NEW SEASON') { B.ui.toast('Type NEW SEASON in the box first.'); confirmIn.focus(); return; }
+        busy(seasonBtn, true);
+        try { await B.api('admin_season', { resetBalances: resetBal.checked }); confirmIn.value = ''; B.ui.toast('New season started'); await B.refreshMe(false); stats(); feed(); } catch (e) { B.ui.toast(e.message); }
+        busy(seasonBtn, false);
+      };
+      const migBtn = h('button', { class: 'bc-btn ghost', type: 'button' }, 'Update database');
+      migBtn.onclick = async () => { busy(migBtn, true); try { const r = await B.api('admin_migrate'); B.ui.toast(r.added.length ? 'Database updated: added ' + r.added.join(', ') : 'Database already up to date (' + r.tables + ' tables)'); } catch (e) { B.ui.toast(e.message); } busy(migBtn, false); };
+      siteBox.append(h('header', null, h('h2', null, 'Site')), h('b', null, 'Database'), h('p', { class: 'pg-sub' }, 'After uploading a new version, press this once to add any new tables. Safe to press any time: it never deletes or changes data.'), migBtn, h('hr'), h('label', { for: 'ad-ann' }, 'Lobby announcement'), annIn, annBtn, h('hr'),
+        h('b', null, 'Seasons'), seasonNote, h('p', { class: 'pg-sub' }, 'A new season restarts the Today, This week and All time boards and clears the big-wins feed. Profiles keep their lifetime records.'),
+        h('label', { class: 'ad-check', for: 'ad-resetbal' }, resetBal, ' Also reset every balance to the starting amount'), confirmIn, seasonBtn);
+      /* players */
+      const qIn = h('input', { id: 'ad-q', placeholder: 'Search by username', type: 'search' });
+      const sortSel = h('select', { class: 'ol-select', id: 'ad-sort' }, h('option', { value: 'seen' }, 'Recently seen'), h('option', { value: 'balance' }, 'Balance'), h('option', { value: 'wagered' }, 'Wagered'), h('option', { value: 'new' }, 'Newest'));
+      const list = h('div', { class: 'pf-table ad-users' });
+      const detail = h('div', { class: 'ad-detail' });
+      usersBox.append(h('header', null, h('h2', null, 'Players')), h('div', { class: 'ad-ctl' }, qIn, sortSel), h('div', { class: 'pf-scroll' }, list), detail);
+      let qt = 0;
+      qIn.oninput = () => { clearTimeout(qt); qt = setTimeout(users, 250); };
+      sortSel.onchange = users;
+      async function users() {
+        const r = await B.api('admin_users', { q: qIn.value, sort: sortSel.value }); if (dead) return;
+        list.textContent = '';
+        list.append(h('div', { class: 'tr th' }, h('span', null, 'Player'), h('span', null, 'Balance'), h('span', null, 'Wagered'), h('span', null, 'Level'), h('span', null, 'Seen')));
+        for (const u of r.users) {
+          const row = h('button', { class: 'tr' + (u.banned ? ' banned' : ''), type: 'button' }, h('span', { class: 'who' }, h('span', { class: 'av', html: B.avatar(u.avatar, 24) }), h('b', null, u.name), u.admin ? h('em', null, 'admin') : null, u.banned ? h('em', { class: 'ban' }, 'banned') : null),
+            h('span', null, fmt(u.balance)), h('span', null, fmt(u.wagered)), h('span', null, String(u.level)), h('span', null, ago(u.seen)));
+          row.onclick = () => user(u.id);
+          list.append(row);
+        }
+        if (!r.users.length) list.append(h('p', { class: 'ol-empty' }, 'No players match.'));
+      }
+      async function user(id) {
+        const r = await B.api('admin_user', { id }); if (dead) return;
+        const u = r.user;
+        detail.textContent = '';
+        const amt = h('input', { id: 'ad-amt', inputmode: 'numeric', placeholder: 'e.g. 5000 or -5000' }), note = h('input', { id: 'ad-note', maxlength: '80', placeholder: 'Reason (shows in their ledger)' });
+        const adj = h('button', { class: 'bc-btn', type: 'button' }, 'Adjust balance');
+        adj.onclick = async () => { const n = parseInt(String(amt.value).replace(/[^0-9-]/g, ''), 10); if (!n) { B.ui.toast('Enter an amount.'); return; } busy(adj, true); try { const x = await B.api('admin_adjust', { id, amount: n, note: note.value }); B.ui.toast('New balance: ' + fmt(x.balance)); user(id); users(); } catch (e) { B.ui.toast(e.message); busy(adj, false); } };
+        const ban = h('button', { class: 'bc-btn ghost', type: 'button' }, +u.banned ? 'Unban' : 'Ban');
+        ban.onclick = async () => { try { await B.api('admin_set', { id, field: 'banned', on: !+u.banned }); user(id); users(); } catch (e) { B.ui.toast(e.message); } };
+        const adm = h('button', { class: 'bc-btn ghost', type: 'button' }, +u.is_admin ? 'Remove admin' : 'Make admin');
+        adm.onclick = async () => { try { await B.api('admin_set', { id, field: 'is_admin', on: !+u.is_admin }); user(id); users(); } catch (e) { B.ui.toast(e.message); } };
+        const np = h('input', { id: 'ad-np', type: 'text', placeholder: 'New password (6+ characters)' });
+        const npb = h('button', { class: 'bc-btn ghost', type: 'button' }, 'Set password');
+        npb.onclick = async () => { try { await B.api('admin_password', { id, pass: np.value }); np.value = ''; B.ui.toast('Password changed and their sessions ended.'); } catch (e) { B.ui.toast(e.message); } };
+        const led = h('div', { class: 'pf-table ad-ledger' }, h('div', { class: 'tr th' }, h('span', null, 'When'), h('span', null, 'What'), h('span', null, 'Amount'), h('span', null, 'Balance')));
+        for (const l of r.ledger) led.append(h('div', { class: 'tr' }, h('span', null, new Date(l.created_at.replace(' ', 'T').slice(0, 19) + 'Z').toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })), h('span', null, l.kind + (l.game ? ' · ' + GS[l.game] : '') + (l.note ? ' · ' + l.note : '')), h('span', { class: +l.amount < 0 ? 'neg' : 'pos' }, (+l.amount > 0 ? '+' : '') + fmt(+l.amount)), h('span', null, fmt(+l.balance))));
+        detail.append(h('header', null, h('h3', null, u.username), h('a', { href: '#profile/' + encodeURIComponent(u.username) }, 'Public profile')),
+          h('p', { class: 'pg-sub' }, 'Balance ' + fmt(+u.balance) + ' · level ' + u.level + ' · ' + fmt(+u.rounds) + ' rounds · joined ' + u.created_at.slice(0, 10)),
+          h('div', { class: 'ad-row' }, amt, note, adj), h('div', { class: 'ad-row' }, ban, adm, np, npb), h('b', null, 'Ledger (last 100)'), h('div', { class: 'pf-scroll' }, led));
+        detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      /* feed moderation */
+      async function feed() {
+        const r = await B.api('feed', { since: 0 }); if (dead) return;
+        feedBox.textContent = '';
+        feedBox.append(h('header', null, h('h2', null, 'Big-wins feed'), h('small', null, 'Remove anything you don’t want in the lobby')));
+        if (!r.items.length) feedBox.append(h('p', { class: 'ol-empty' }, 'The feed is empty.'));
+        for (const it of r.items) {
+          const del = h('button', { class: 'bc-btn ghost', type: 'button' }, 'Remove');
+          del.onclick = async () => { try { await B.api('admin_feed_delete', { id: it.id }); feed(); } catch (e) { B.ui.toast(e.message); } };
+          feedBox.append(h('div', { class: 'ad-feed' }, h('span', null, it.name + ' won ' + fmt(it.amount) + ' BB (' + xs(it.x) + ') on ' + GS[it.game] + ', ' + ago(it.at)), del));
+        }
+      }
+      stats().catch((e) => B.ui.toast(e.message)); users().catch((e) => B.ui.toast(e.message)); feed().catch(() => {});
+      return { destroy() { dead = true; } };
+    },
+  });
+})();
+
+</script>
+<!-- Platform: Daily Prize Wheel, Bat Pass, Belfry Shop (online mode only) -->
+<script src="core/platform.js?v=20261009p"></script>
+<script src="games/bunky/game.js?v=20261009b"></script>
+<script src="games/olympus/game.js?v=20261009b"></script>
+<script src="games/fishing/game.js?v=20261009b"></script>
+<script src="games/plachinko/game.js?v=20261009b"></script>
+<script src="games/moonshot/game.js?v=20261009b"></script>
+<script src="games/ultraheist/game.js?v=20261009b"></script>
+<script src="games/batjack/game.js?v=20261009b"></script>
+<script src="games/bonanza/game.js?v=20261009b"></script>
+<script src="games/starwing/game.js?v=20261009b"></script>
+<script src="games/crypt/game.js?v=20261009b"></script>
+<script src="games/nighttrain/game.js?v=20261009b"></script>
+<script src="games/gummy/game.js?v=20261009b"></script>
+<script src="games/bookofbats/game.js?v=20261009b"></script>
+<script src="games/derby/game.js?v=20261009b"></script>
+<script src="games/bonkers/game.js?v=20261009b"></script>
+<script src="games/vault/game.js?v=20261009b"></script>
+<script src="games/baccarat/game.js?v=20261009b"></script>
+<script src="games/royale/game.js?v=20261009b"></script>
+<script src="circus/math.js?v=20261009-showcase"></script>
+<script src="circus/art.js?v=20261009-showcase"></script>
+<script src="circus/game.js?v=20261009-showcase"></script>
+<script>
+// This should never occur with a complete deployment; make a partial FTP upload obvious.
+if (!Batty.games.circus) {
+  console.error('Batty Circus could not load. Check circus/math.js, circus/art.js, circus/game.js and their folder paths.');
+}
+Batty.boot();
+</script>
+</body>
+</html>
