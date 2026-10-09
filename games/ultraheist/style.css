@@ -1,246 +1,542 @@
 /* ===== ultraheist ===== */
-/* Bat Bandits UltraNudge — noir heist: rain-slick city, a steel vault window behind a laser grid, neon cyan and magenta,
-   gold for money. Condensed heist-poster lettering (Bebas Neue, with condensed fallbacks), Chakra Petch for numbers. */
+/* Bat Bandits UltraNudge — noir heist: a rain-lashed city under sweeping searchlights, a steel vault window behind a
+   laser grid, neon cyan and magenta, gold for money, red and blue for the law. Condensed heist-poster lettering
+   (Bebas Neue, with condensed fallbacks), Chakra Petch for numbers. Everything is scoped under .g-ultraheist. */
 .g-ultraheist {
-  --uh-ink: #eaf2ff; --uh-mute: #8f9cbc; --uh-cyan: #5ff0ff; --uh-mag: #ff3d9e; --uh-red: #ff2a48; --uh-gold: #ffcc4a; --uh-night: #04050c;
+  --uh-ink: #eaf2ff; --uh-mute: #8f9cbc; --uh-cyan: #5ff0ff; --uh-mag: #ff3d9e; --uh-red: #ff2a48; --uh-gold: #ffcc4a; --uh-blue: #3d7bff; --uh-night: #04050c;
   --uh-cond: 'Bebas Neue', 'Oswald', 'TeX Gyre Heros Cn', 'Arial Narrow', 'Roboto Condensed', Impact, sans-serif;
   --uh-num: 'Chakra Petch', 'Figtree', 'DejaVu Sans', sans-serif;
   --uh-goldtext: linear-gradient(180deg, #fff8d2 8%, #ffd257 40%, #e48d10 72%, #8a4b05);
-  --uh-steel: linear-gradient(180deg, #59647c, #2a3142 30%, #1a1f2c 70%, #3c4458);
-  --cell: 80px; --cellh: 80px; --gap: 6px; --side: 240px;
-  position: relative; overflow: hidden; min-height: 520px; background: var(--uh-night); color: var(--uh-ink);
-  font-family: var(--f-body); user-select: none; -webkit-user-select: none;
+  --uh-steel: linear-gradient(180deg, #5d6880, #2a3142 30%, #1a1f2c 70%, #3c4458);
+  --cell: 80px; --cellh: 80px; --gap: 6px; --side: 240px; --lw: 190px; --rw: 180px;
+  position: relative; overflow: hidden; background: var(--uh-night); color: var(--uh-ink);
+  font-family: var(--f-body); user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;
 }
 .g-ultraheist .g-ultraheist-defs { position: absolute; width: 0; height: 0; overflow: hidden; pointer-events: none; }
 .g-ultraheist button { font-family: inherit; color: inherit; }
 
-/* ---------- city, rain, wet street ---------- */
-.g-ultraheist .uh-bg { position: absolute; inset: 0; pointer-events: none; }
-.g-ultraheist .uh-bg .city { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.g-ultraheist .uh-bg .search { transform-origin: 300px 700px; animation: ultraheist-sweep 14s ease-in-out infinite alternate; }
-.g-ultraheist .uh-bg .search.b { transform-origin: 1340px 700px; animation-duration: 17s; animation-direction: alternate-reverse; }
-@keyframes ultraheist-sweep { from { transform: rotate(-14deg); } to { transform: rotate(16deg); } }
+/* ================= the world ================= */
+.g-ultraheist .uh-bg { position: absolute; inset: -12px; pointer-events: none; overflow: hidden; transform: scale(1.03); }
+.g-ultraheist .uh-layer { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.g-ultraheist .uh-layer.l-far { animation: ultraheist-drift 46s ease-in-out infinite alternate; }
+.g-ultraheist .uh-layer.l-mid { animation: ultraheist-drift2 46s ease-in-out infinite alternate; }
+.g-ultraheist .uh-layer.l-near { animation: ultraheist-drift3 46s ease-in-out infinite alternate; }
+@keyframes ultraheist-drift { from { transform: translateX(-6px); } to { transform: translateX(6px); } }
+@keyframes ultraheist-drift2 { from { transform: translateX(-14px); } to { transform: translateX(14px); } }
+@keyframes ultraheist-drift3 { from { transform: translateX(-26px) translateY(2px); } to { transform: translateX(26px); } }
+.g-ultraheist .l-sky .tw { animation: ultraheist-star 3.6s ease-in-out infinite; }
+@keyframes ultraheist-star { 50% { opacity: .1; } }
+.g-ultraheist .l-mid .fl { animation: ultraheist-window 9s steps(1) infinite; }
+@keyframes ultraheist-window { 0%, 40% { opacity: .8; } 41%, 70% { opacity: .05; } 71% { opacity: .9; } }
+.g-ultraheist .l-mid .bk { animation: ultraheist-blink 2.2s steps(1) infinite; }
+@keyframes ultraheist-blink { 0%, 55% { opacity: 1; } 56%, 100% { opacity: .12; } }
+.g-ultraheist .l-mid .neon { animation: ultraheist-neon 6s infinite; }
+@keyframes ultraheist-neon { 0%, 18%, 22%, 62%, 64%, 100% { opacity: 1; } 20%, 63% { opacity: .3; } }
+
+/* searchlights sweeping from behind the buildings */
+.g-ultraheist .uh-beams { position: absolute; inset: 0; }
+.g-ultraheist .uh-beams i { position: absolute; bottom: 18%; width: 22%; height: 110%; transform-origin: 50% 100%;
+  background: linear-gradient(0deg, rgba(180, 240, 255, .26), rgba(180, 240, 255, .08) 55%, transparent 92%);
+  clip-path: polygon(47% 100%, 53% 100%, 100% 0, 0 0); animation: ultraheist-sweep 13s ease-in-out infinite alternate; transition: background .8s; }
+.g-ultraheist .uh-beams .b1 { left: 4%; }
+.g-ultraheist .uh-beams .b2 { left: 40%; animation-duration: 17s; animation-delay: -6s; opacity: .7; }
+.g-ultraheist .uh-beams .b3 { left: 74%; animation-duration: 11s; animation-direction: alternate-reverse; }
+@keyframes ultraheist-sweep { from { transform: rotate(-24deg); } to { transform: rotate(22deg); } }
+.g-ultraheist .uh-bg.cheer .uh-beams i { animation: ultraheist-focus .9s ease-out; }
+@keyframes ultraheist-focus { 40% { filter: brightness(1.9); } }
+.g-ultraheist .uh-bg.alarm .uh-beams i, .g-ultraheist.free .uh-beams i { background: linear-gradient(0deg, rgba(255, 60, 90, .32), rgba(255, 60, 90, .1) 55%, transparent 92%); animation-duration: 4.5s; }
+.g-ultraheist.free .uh-beams .b2 { background: linear-gradient(0deg, rgba(80, 130, 255, .3), rgba(80, 130, 255, .08) 55%, transparent 92%); }
+
+/* clouds drifting over the moon, bats crossing it */
+.g-ultraheist .uh-clouds { position: absolute; inset: 0 0 40% 0; }
+.g-ultraheist .uh-clouds i { position: absolute; top: 10%; left: -40%; width: 46%; height: 18%; border-radius: 50%; background: radial-gradient(ellipse at 50% 60%, rgba(70, 80, 130, .55), rgba(40, 46, 90, .25) 45%, transparent 70%);
+  animation: ultraheist-cloud 95s linear infinite; }
+.g-ultraheist .uh-clouds i:nth-child(2) { top: 2%; width: 60%; height: 22%; animation-duration: 140s; animation-delay: -60s; opacity: .8; }
+.g-ultraheist .uh-clouds i:nth-child(3) { top: 22%; width: 38%; animation-duration: 120s; animation-delay: -95s; opacity: .6; }
+@keyframes ultraheist-cloud { to { transform: translateX(330%); } }
+.g-ultraheist .uh-flyers svg { position: absolute; top: 14%; left: -8%; width: 54px; opacity: .9; animation: ultraheist-flyer 28s linear infinite; }
+.g-ultraheist .uh-flyers svg:nth-child(2) { top: 21%; width: 34px; animation-duration: 36s; animation-delay: -17s; }
+@keyframes ultraheist-flyer { 0% { transform: translate(0, 0) scaleY(1); } 3% { transform: translate(6vw, -1vh) scaleY(.4); } 6% { transform: translate(12vw, 1vh) scaleY(1); } 9% { transform: translate(18vw, -1vh) scaleY(.4); } 12% { transform: translate(24vw, 0) scaleY(1); }
+  15% { transform: translate(30vw, -2vh) scaleY(.4); } 18% { transform: translate(36vw, 0) scaleY(1); } 21% { transform: translate(42vw, -1vh) scaleY(.4); } 24% { transform: translate(48vw, 1vh) scaleY(1); } 27% { transform: translate(54vw, -1vh) scaleY(.4); }
+  30% { transform: translate(60vw, 0) scaleY(1); } 33% { transform: translate(66vw, -2vh) scaleY(.4); } 36% { transform: translate(72vw, 0) scaleY(1); } 39% { transform: translate(78vw, -1vh) scaleY(.4); } 42% { transform: translate(84vw, 1vh) scaleY(1); }
+  45% { transform: translate(90vw, -1vh) scaleY(.4); } 48%, 100% { transform: translate(118vw, 0) scaleY(1); } }
+
+.g-ultraheist .uh-fog { position: absolute; left: -20%; right: -20%; bottom: 12%; height: 22%; background: radial-gradient(ellipse at 30% 60%, rgba(120, 110, 190, .2), transparent 60%), radial-gradient(ellipse at 75% 50%, rgba(160, 90, 170, .16), transparent 55%);
+  animation: ultraheist-fog 30s ease-in-out infinite alternate; }
+@keyframes ultraheist-fog { to { transform: translateX(8%); } }
+.g-ultraheist .uh-street { position: absolute; left: 0; right: 0; bottom: 0; height: 22%;
+  background: linear-gradient(180deg, transparent, rgba(4, 5, 12, .8) 30%, #04050c),
+    repeating-linear-gradient(90deg, rgba(255, 61, 158, .09) 0 3px, transparent 3px 61px),
+    repeating-linear-gradient(90deg, rgba(95, 240, 255, .07) 0 2px, transparent 2px 97px),
+    repeating-linear-gradient(90deg, rgba(255, 210, 107, .06) 0 4px, transparent 4px 143px); }
 .g-ultraheist .uh-rain { position: absolute; inset: 0; width: 100%; height: 100%; }
-.g-ultraheist .uh-street { position: absolute; left: 0; right: 0; bottom: 0; height: 30%;
-  background: linear-gradient(180deg, transparent, rgba(4, 5, 12, .75) 40%, #04050c),
-    repeating-linear-gradient(90deg, rgba(255, 61, 158, .07) 0 3px, transparent 3px 60px),
-    repeating-linear-gradient(90deg, rgba(95, 240, 255, .05) 0 2px, transparent 2px 97px); }
-.g-ultraheist .uh-bg::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 42%, transparent 25%, rgba(2, 3, 9, .72) 100%); }
-.g-ultraheist .uh-flash { position: absolute; inset: 0; opacity: 0; z-index: 2; }
-.g-ultraheist .uh-flash.red { background: radial-gradient(ellipse at 50% 30%, rgba(255, 42, 72, .55), rgba(255, 42, 72, .1) 60%, transparent); }
+.g-ultraheist .uh-police { position: absolute; inset: 0; opacity: 0; transition: opacity .6s; }
+.g-ultraheist .uh-police i { position: absolute; top: -20%; width: 80%; height: 100%; }
+.g-ultraheist .uh-police .r { left: -30%; background: radial-gradient(ellipse at 40% 30%, rgba(255, 30, 60, .5), transparent 62%); animation: ultraheist-pol 1s steps(1) infinite; }
+.g-ultraheist .uh-police .b { right: -30%; background: radial-gradient(ellipse at 60% 30%, rgba(50, 110, 255, .5), transparent 62%); animation: ultraheist-pol 1s steps(1) infinite; animation-delay: -.5s; }
+@keyframes ultraheist-pol { 0% { opacity: 1; } 12% { opacity: .2; } 22% { opacity: 1; } 50%, 100% { opacity: .05; } }
+.g-ultraheist .uh-bg.alarm .uh-police, .g-ultraheist.free .uh-police, .g-ultraheist.alert .uh-police { opacity: 1; }
+.g-ultraheist.free .uh-police { opacity: .7; }
+.g-ultraheist .uh-bolt { position: absolute; inset: 0; opacity: 0; background: linear-gradient(180deg, rgba(200, 215, 255, .5), rgba(200, 215, 255, .05) 60%, transparent); }
+.g-ultraheist .uh-bolt svg { position: absolute; inset: 0 0 30% 0; width: 100%; height: 70%; }
+.g-ultraheist .uh-bolt path { fill: none; stroke: #f4f6ff; stroke-width: .5; vector-effect: non-scaling-stroke; stroke-width: 2.4px; filter: drop-shadow(0 0 6px #9fb8ff); }
+.g-ultraheist .uh-bolt.on { animation: ultraheist-bolt 1.1s ease-out; }
+@keyframes ultraheist-bolt { 0% { opacity: 0; } 4% { opacity: 1; } 10% { opacity: .1; } 16% { opacity: .9; } 34% { opacity: .2; } 100% { opacity: 0; } }
+.g-ultraheist .uh-flash { position: absolute; inset: 0; opacity: 0; }
+.g-ultraheist .uh-flash.red { background: radial-gradient(ellipse at 50% 30%, rgba(255, 42, 72, .6), rgba(255, 42, 72, .12) 60%, transparent); }
+.g-ultraheist .uh-flash.white { background: radial-gradient(ellipse at 50% 50%, rgba(220, 240, 255, .32), transparent 65%); }
+.g-ultraheist .uh-flash.gold { background: radial-gradient(ellipse at 50% 45%, rgba(255, 214, 110, .75), rgba(255, 180, 60, .15) 60%, transparent); }
 .g-ultraheist .uh-flash.on { animation: ultraheist-flash 1.1s ease-out; }
-@keyframes ultraheist-flash { 0% { opacity: 0; } 10% { opacity: 1; } 30% { opacity: .2; } 45% { opacity: .9; } 100% { opacity: 0; } }
-.g-ultraheist.free .uh-bg .city { filter: hue-rotate(-60deg) saturate(1.6) brightness(.85); transition: filter 1s; }
-.g-ultraheist.free .uh-bg::before { content: ''; position: absolute; inset: 0; z-index: 1; background: radial-gradient(ellipse at 50% 0, rgba(255, 30, 60, .32), transparent 60%); animation: ultraheist-siren 1.6s ease-in-out infinite; }
+.g-ultraheist .uh-flash.white.on { animation-duration: .45s; }
+@keyframes ultraheist-flash { 0% { opacity: 0; } 10% { opacity: 1; } 30% { opacity: .25; } 45% { opacity: .9; } 100% { opacity: 0; } }
+.g-ultraheist .uh-vig { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 46%, transparent 30%, rgba(2, 3, 9, .74) 100%); transition: background .6s; }
+.g-ultraheist.tense .uh-vig { background: radial-gradient(ellipse at 50% 46%, rgba(2, 3, 9, .2) 20%, rgba(2, 3, 9, .92) 85%); }
+.g-ultraheist .uh-bg.cheer .uh-vig { animation: ultraheist-cheer .9s ease-out; }
+@keyframes ultraheist-cheer { 30% { background: radial-gradient(ellipse at 50% 46%, rgba(255, 200, 90, .14) 20%, rgba(2, 3, 9, .6) 100%); } }
+.g-ultraheist.free .uh-layer.l-sky { filter: hue-rotate(-50deg) saturate(1.5) brightness(.9); }
+.g-ultraheist.free .uh-bg::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0, rgba(255, 30, 60, .3), transparent 62%); animation: ultraheist-siren 1.4s ease-in-out infinite; }
 @keyframes ultraheist-siren { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
 
-/* ---------- page layout ---------- */
+/* ================= page layout ================= */
 .g-ultraheist .uh-wrap { position: absolute; inset: 0; z-index: 3; display: flex; flex-direction: column; align-items: center; padding: 6px 8px 0; }
 .g-ultraheist .uh-center { flex: 1; min-height: 0; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
 .g-ultraheist .uh-side { display: none; }
-.g-ultraheist.wide .uh-wrap { display: grid; grid-template-columns: var(--side) minmax(0, 1fr) var(--side); grid-template-rows: minmax(0, 1fr) auto; grid-template-areas: 'l c r' 'k k k'; gap: 0 22px; padding: 12px 22px 0; align-items: center; }
+.g-ultraheist.wide .uh-wrap { display: grid; grid-template-columns: var(--side) minmax(0, 1fr) var(--side); grid-template-rows: minmax(0, 1fr) auto; grid-template-areas: 'l c r' 'k k k'; gap: 0 22px; padding: 10px 22px 0; align-items: center; }
 .g-ultraheist.wide .uh-center { grid-area: c; gap: 10px; }
 .g-ultraheist.wide .uh-side { display: block; }
 .g-ultraheist.wide .uh-side.left { grid-area: l; }
 .g-ultraheist.wide .uh-side.right { grid-area: r; }
 .g-ultraheist.wide .uh-ctl { grid-area: k; }
 
-/* ---------- top HUD: multiplier dial, logo, heist board ---------- */
-.g-ultraheist .uh-hud { width: calc(var(--cell) * 5 + var(--gap) * 4 + 40px); max-width: 100%; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; }
-.g-ultraheist .uh-logo { text-align: center; line-height: .86; min-width: 0; overflow: hidden; }
-.g-ultraheist .uh-logo b { display: block; font-family: var(--uh-cond); font-weight: 700; font-size: clamp(22px, min(calc(var(--cell) * .58), 8.2vw), 66px); letter-spacing: .06em; text-transform: uppercase;
+/* ================= HUD: multiplier dial, logo, heist board ================= */
+.g-ultraheist .uh-hud { position: relative; z-index: 4; width: calc(var(--cell) * 5 + var(--gap) * 4 + 40px); max-width: 100%; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; }
+.g-ultraheist .uh-logo { text-align: center; line-height: .86; min-width: 0; overflow: hidden; padding: 2px 0 4px; }
+.g-ultraheist .uh-logo b { display: block; font-family: var(--uh-cond); font-weight: 700; font-size: clamp(22px, min(calc(var(--cell) * .56), 8.2vw), 66px); letter-spacing: .06em; text-transform: uppercase;
   background: var(--uh-goldtext); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 3px 0 #3a1a02) drop-shadow(0 0 16px rgba(255, 190, 60, .35)); white-space: nowrap; }
-.g-ultraheist .uh-logo i { display: inline-block; margin-top: 4px; font-style: normal; font-family: var(--uh-cond); font-size: clamp(13px, calc(var(--cell) * .2), 22px); letter-spacing: .5em; padding-left: .5em; color: var(--uh-cyan);
+.g-ultraheist .uh-logo i { display: inline-block; margin-top: 4px; font-style: normal; font-family: var(--uh-cond); font-size: clamp(12px, calc(var(--cell) * .2), 22px); letter-spacing: .5em; padding-left: .5em; color: var(--uh-cyan);
   text-shadow: 0 0 6px var(--uh-cyan), 0 0 18px rgba(95, 240, 255, .8); animation: ultraheist-neon 5s infinite; }
-@keyframes ultraheist-neon { 0%, 18%, 22%, 62%, 64%, 100% { opacity: 1; } 20%, 63% { opacity: .35; } }
-.g-ultraheist .uh-dial { position: relative; width: clamp(62px, calc(var(--cell) * 1.08), 118px); aspect-ratio: 1; flex: none; }
-.g-ultraheist .uh-dial .ring { position: absolute; inset: 0; transition: transform .45s cubic-bezier(.3, 1.6, .5, 1); filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .6)); }
-.g-ultraheist .uh-dial .ring svg { width: 100%; height: 100%; display: block; }
-.g-ultraheist .uh-dial .face { position: absolute; inset: 17%; border-radius: 50%; display: grid; place-content: center; text-align: center; background: radial-gradient(circle at 40% 30%, #1f2840, #070a14 75%);
-  border: 2px solid #0a0e19; box-shadow: inset 0 0 14px rgba(95, 240, 255, .25); }
-.g-ultraheist .uh-dial .face small { font-family: var(--uh-cond); font-size: clamp(8px, calc(var(--cell) * .11), 12px); letter-spacing: .2em; color: var(--uh-mute); line-height: 1; }
-.g-ultraheist .uh-dial output { font-family: var(--uh-num); font-weight: 700; font-size: clamp(17px, calc(var(--cell) * .3), 34px); line-height: 1.05; color: #fff; text-shadow: 0 0 10px rgba(95, 240, 255, .7); }
-.g-ultraheist .uh-dial .pin { position: absolute; left: 50%; top: -3px; width: 12px; height: 12px; margin-left: -6px; background: var(--uh-red); clip-path: polygon(50% 100%, 0 0, 100% 0); filter: drop-shadow(0 0 4px var(--uh-red)); }
-.g-ultraheist .uh-dial.hot output { color: var(--uh-gold); text-shadow: 0 0 12px rgba(255, 204, 74, .9); }
-.g-ultraheist .uh-dial.hot .face { box-shadow: inset 0 0 18px rgba(255, 204, 74, .45), 0 0 22px rgba(255, 204, 74, .35); }
-.g-ultraheist .uh-dial.slam output { animation: ultraheist-slam .5s cubic-bezier(.2, 1.8, .4, 1); }
-@keyframes ultraheist-slam { 0% { transform: scale(2.3); opacity: .2; } 60% { transform: scale(.9); opacity: 1; } 100% { transform: scale(1); } }
 
-.g-ultraheist .uh-board { display: flex; flex-direction: column; align-items: stretch; gap: 6px; min-width: clamp(96px, calc(var(--cell) * 1.5), 160px); }
-.g-ultraheist .uh-meter { padding: 6px 8px 7px; border-radius: 10px; background: rgba(8, 10, 22, .78); border: 1px solid rgba(255, 42, 72, .35); }
+.g-ultraheist .uh-dial { --tc: #5ff0ff; --tg: rgba(95, 240, 255, .35); position: relative; width: clamp(70px, calc(var(--cell) * 1.12), 128px); aspect-ratio: 1; flex: none; }
+.g-ultraheist .uh-dial.t2 { --tc: #ffcc4a; --tg: rgba(255, 204, 74, .5); }
+.g-ultraheist .uh-dial.t3 { --tc: #ff4fae; --tg: rgba(255, 61, 158, .55); }
+.g-ultraheist .uh-dial.t4 { --tc: #ff4a3d; --tg: rgba(255, 74, 40, .65); }
+.g-ultraheist .uh-dial .aura { position: absolute; inset: -22%; border-radius: 50%; background: radial-gradient(circle, var(--tg), transparent 66%); opacity: .35; transition: opacity .4s; }
+.g-ultraheist .uh-dial.t1 .aura { opacity: .6; }
+.g-ultraheist .uh-dial.t2 .aura, .g-ultraheist .uh-dial.t3 .aura, .g-ultraheist .uh-dial.t4 .aura { opacity: 1; animation: ultraheist-aura 1.2s ease-in-out infinite; }
+.g-ultraheist .uh-dial.t4 .aura { animation-duration: .6s; }
+@keyframes ultraheist-aura { 50% { transform: scale(1.12); opacity: .7; } }
+.g-ultraheist .uh-dial .leds, .g-ultraheist .uh-dial .ring { position: absolute; inset: 0; }
+.g-ultraheist .uh-dial .leds svg, .g-ultraheist .uh-dial .ring svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.g-ultraheist .uh-dial .leds path { fill: none; stroke: #1c2336; stroke-width: 5; stroke-linecap: round; transition: stroke .25s; }
+.g-ultraheist .uh-dial .leds path.on { stroke: var(--tc); filter: drop-shadow(0 0 3px var(--tc)); }
+.g-ultraheist .uh-dial .ring { inset: 6%; transition: transform .5s cubic-bezier(.3, 1.6, .5, 1); filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .6)); }
+.g-ultraheist .uh-dial .face { position: absolute; inset: 21%; border-radius: 50%; display: grid; place-content: center; text-align: center; background: radial-gradient(circle at 40% 30%, #1f2840, #070a14 75%);
+  border: 2px solid #0a0e19; box-shadow: inset 0 0 14px var(--tg), 0 0 18px var(--tg); }
+.g-ultraheist .uh-dial .face small { font-family: var(--uh-cond); font-size: clamp(8px, calc(var(--cell) * .1), 12px); letter-spacing: .2em; color: var(--uh-mute); line-height: 1; }
+.g-ultraheist .uh-dial output { font-family: var(--uh-num); font-weight: 700; font-size: clamp(17px, calc(var(--cell) * .3), 36px); line-height: 1.05; color: #fff; text-shadow: 0 0 10px var(--tc), 0 0 22px var(--tg); }
+.g-ultraheist .uh-dial.t2 output, .g-ultraheist .uh-dial.t3 output, .g-ultraheist .uh-dial.t4 output { color: var(--tc); text-shadow: 0 0 8px var(--tc), 0 0 24px var(--tc), 0 2px 0 #000; }
+.g-ultraheist .uh-dial .pin { position: absolute; left: 50%; top: -2px; width: 12px; height: 12px; margin-left: -6px; background: var(--uh-red); clip-path: polygon(50% 100%, 0 0, 100% 0); filter: drop-shadow(0 0 4px var(--uh-red)); }
+.g-ultraheist .uh-dial .shock { position: absolute; inset: 0; border-radius: 50%; border: 3px solid var(--tc); opacity: 0; pointer-events: none; }
+.g-ultraheist .uh-dial.slam output { animation: ultraheist-slam .55s cubic-bezier(.2, 1.8, .4, 1); }
+.g-ultraheist .uh-dial.slam .shock { animation: ultraheist-shock .6s ease-out; }
+.g-ultraheist .uh-dial.slam .face { animation: ultraheist-faceflash .5s ease-out; }
+@keyframes ultraheist-slam { 0% { transform: scale(2.4); opacity: .2; filter: brightness(2.5); } 55% { transform: scale(.88); opacity: 1; } 100% { transform: scale(1); } }
+@keyframes ultraheist-shock { 0% { transform: scale(.8); opacity: 1; } 100% { transform: scale(1.7); opacity: 0; } }
+@keyframes ultraheist-faceflash { 0% { background: radial-gradient(circle, #fff, var(--tc) 60%, #070a14); } }
+
+.g-ultraheist .uh-board { display: flex; flex-direction: column; align-items: stretch; gap: 6px; min-width: clamp(96px, calc(var(--cell) * 1.5), 168px); }
+.g-ultraheist .uh-meter { padding: 6px 8px 7px; border-radius: 10px; background: rgba(8, 10, 22, .8); border: 1px solid rgba(255, 42, 72, .35); }
 .g-ultraheist .uh-meter .lbl { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; font-family: var(--uh-cond); letter-spacing: .12em; text-transform: uppercase; font-size: 12px; color: #ff8494; }
 .g-ultraheist .uh-meter .lbl small { font-size: 9.5px; letter-spacing: .04em; color: var(--uh-mute); text-transform: none; font-family: var(--f-body); }
 .g-ultraheist .uh-meter .bulbs { display: flex; gap: 6px; margin-top: 5px; }
 .g-ultraheist .uh-meter .bulbs i { flex: 1; height: 12px; border-radius: 6px; background: #2a0710; border: 1px solid #4d0f1c; transition: background .2s, box-shadow .2s; }
 .g-ultraheist .uh-meter .bulbs i.on { background: radial-gradient(circle at 50% 35%, #ffd0d6, #ff2a48 60%); box-shadow: 0 0 10px var(--uh-red), 0 0 20px rgba(255, 42, 72, .5); }
-.g-ultraheist .uh-meter .bulbs i.pop { animation: ultraheist-bulb .4s; }
-@keyframes ultraheist-bulb { 50% { transform: scaleY(1.6); } }
+.g-ultraheist .uh-meter .bulbs i.pop { animation: ultraheist-bulb .45s; }
+@keyframes ultraheist-bulb { 40% { transform: scale(1.25, 1.8); filter: brightness(2); } }
 .g-ultraheist .uh-meter:not(.live) { opacity: .62; }
-.g-ultraheist .uh-board.ring .uh-meter { animation: ultraheist-ring .9s; }
+.g-ultraheist .uh-board.ring .uh-meter, .g-ultraheist .uh-board.ring .uh-fsbox { animation: ultraheist-ring .9s; }
 @keyframes ultraheist-ring { 0%, 100% { transform: none; } 10%, 30%, 50%, 70% { transform: translateX(-4px) rotate(-1deg); } 20%, 40%, 60%, 80% { transform: translateX(4px) rotate(1deg); } }
-.g-ultraheist .uh-fsbox { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 10px; border-radius: 10px; background: linear-gradient(180deg, #4a0716, #1c030a); border: 1px solid #ff2a48; box-shadow: 0 0 16px rgba(255, 42, 72, .4); }
-.g-ultraheist .uh-fsbox small { font-family: var(--uh-cond); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: #ffb3bd; }
-.g-ultraheist .uh-fsbox b { font-family: var(--uh-num); font-size: 22px; line-height: 1.1; color: #fff; }
-.g-ultraheist .uh-hint { display: flex; align-items: center; gap: 6px; padding: 3px 8px 3px 4px; border-radius: 10px; background: rgba(8, 10, 22, .72); border: 1px solid rgba(95, 240, 255, .2); font-size: 11.5px; line-height: 1.2; color: var(--uh-mute); }
+.g-ultraheist .uh-fsbox { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 3px 10px; border-radius: 10px; background: linear-gradient(180deg, #4a0716, #1c030a); border: 1px solid #ff2a48; box-shadow: 0 0 16px rgba(255, 42, 72, .45); }
+.g-ultraheist .uh-fsbox small { font-family: var(--uh-cond); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: #ffb3bd; line-height: 1; }
+.g-ultraheist .uh-fsbox b { display: inline-block; font-family: var(--uh-num); font-size: clamp(20px, calc(var(--cell) * .3), 30px); line-height: 1.1; color: #fff; text-shadow: 0 0 10px rgba(255, 42, 72, .9); }
+.g-ultraheist .uh-fsbox b.flip { animation: ultraheist-flip .45s cubic-bezier(.3, 1.5, .5, 1); }
+@keyframes ultraheist-flip { 0% { transform: rotateX(90deg) scale(1.3); color: var(--uh-gold); } 100% { transform: none; } }
+.g-ultraheist .uh-fsbox.last { animation: ultraheist-lastspin .7s ease-in-out infinite alternate; }
+@keyframes ultraheist-lastspin { to { box-shadow: 0 0 26px rgba(255, 42, 72, .9), inset 0 0 12px rgba(255, 42, 72, .6); } }
+.g-ultraheist .uh-hint { display: flex; align-items: center; gap: 6px; padding: 3px 8px 3px 4px; border-radius: 10px; background: rgba(8, 10, 22, .76); border: 1px solid rgba(95, 240, 255, .2); font-size: 11.5px; line-height: 1.2; color: var(--uh-mute); }
 .g-ultraheist .uh-hint svg { width: 28px; height: 28px; flex: none; }
 .g-ultraheist .uh-hint b { color: var(--uh-ink); }
 
-/* ---------- the vault window ---------- */
+/* ================= the vault machine ================= */
 .g-ultraheist .uh-machine { position: relative; padding: 14px; border-radius: 22px; background: var(--uh-steel);
-  box-shadow: 0 0 0 2px #0a0d16, 0 0 0 4px #4a5368, 0 0 0 6px #0a0d16, 0 26px 60px rgba(0, 0, 0, .7), 0 0 60px rgba(95, 240, 255, .12), inset 0 2px 0 rgba(255, 255, 255, .25); }
+  box-shadow: 0 0 0 2px #0a0d16, 0 0 0 4px #4a5368, 0 0 0 6px #0a0d16, 0 26px 60px rgba(0, 0, 0, .7), 0 0 60px rgba(95, 240, 255, .14), inset 0 2px 0 rgba(255, 255, 255, .25); transition: box-shadow .5s; }
 .g-ultraheist .uh-machine::before { content: ''; position: absolute; inset: 5px; border-radius: 18px; border: 1px dashed rgba(255, 255, 255, .12); pointer-events: none; }
+.g-ultraheist .uh-machine::after { content: ''; position: absolute; inset: 0; border-radius: 22px; pointer-events: none; background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, .14) 45%, transparent 55%) 0 0 / 300% 100%; animation: ultraheist-sheen 7s ease-in-out infinite; mix-blend-mode: screen; }
+@keyframes ultraheist-sheen { 0%, 60% { background-position: 100% 0; } 100% { background-position: -50% 0; } }
 .g-ultraheist .uh-machine .bolt { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff, #8d98ad 50%, #2a3142); box-shadow: 0 1px 2px #000; }
 .g-ultraheist .uh-machine .bolt.a { left: 5px; top: 5px; } .g-ultraheist .uh-machine .bolt.b { right: 5px; top: 5px; }
 .g-ultraheist .uh-machine .bolt.c { left: 5px; bottom: 5px; } .g-ultraheist .uh-machine .bolt.d { right: 5px; bottom: 5px; }
-.g-ultraheist.free .uh-machine { box-shadow: 0 0 0 2px #0a0d16, 0 0 0 4px #ff2a48, 0 0 0 6px #0a0d16, 0 26px 60px rgba(0, 0, 0, .7), 0 0 70px rgba(255, 42, 72, .45), inset 0 2px 0 rgba(255, 255, 255, .25); }
-.g-ultraheist .uh-machine.jolt { animation: ultraheist-jolt .34s cubic-bezier(.3, 0, .3, 1); }
-@keyframes ultraheist-jolt { 0% { transform: none; } 70% { transform: translateY(2px); } 80% { transform: translateY(6px); } 100% { transform: none; } }
-.g-ultraheist .uh-window { position: relative; border-radius: 10px; background: #04060d; box-shadow: inset 0 0 0 2px #000, inset 0 10px 30px rgba(0, 0, 0, .9); }
+.g-ultraheist.free .uh-machine { box-shadow: 0 0 0 2px #0a0d16, 0 0 0 4px #ff2a48, 0 0 0 6px #0a0d16, 0 26px 60px rgba(0, 0, 0, .7), 0 0 70px rgba(255, 42, 72, .5), inset 0 2px 0 rgba(255, 255, 255, .25); }
+.g-ultraheist .uh-machine.thump .uh-window { animation: ultraheist-thumpglow .45s ease-out; }
+@keyframes ultraheist-thumpglow { 0% { box-shadow: inset 0 0 0 2px #000, inset 0 0 40px rgba(255, 61, 158, .7), 0 0 30px rgba(255, 61, 158, .6); } }
+/* police beacons on the top corners */
+.g-ultraheist .uh-beacon { position: absolute; top: -12px; width: 26px; height: 16px; border-radius: 13px 13px 3px 3px; z-index: 5; background: linear-gradient(180deg, #4a1220, #22060c); box-shadow: 0 0 0 2px #0a0d16, inset 0 2px 0 rgba(255, 255, 255, .2); }
+.g-ultraheist .uh-beacon.l { left: 18px; } .g-ultraheist .uh-beacon.r { right: 18px; background: linear-gradient(180deg, #13214a, #060c22); }
+.g-ultraheist .uh-beacon::after { content: ''; position: absolute; left: 50%; top: 50%; width: 260px; height: 260px; margin: -130px 0 0 -130px; border-radius: 50%; opacity: 0; pointer-events: none;
+  background: conic-gradient(from 0deg, rgba(255, 40, 70, .55), transparent 18%, transparent 50%, rgba(255, 40, 70, .55) 50%, transparent 68%); }
+.g-ultraheist .uh-beacon.r::after { background: conic-gradient(from 0deg, rgba(60, 120, 255, .55), transparent 18%, transparent 50%, rgba(60, 120, 255, .55) 50%, transparent 68%); }
+.g-ultraheist .uh-machine.beacons .uh-beacon.l { background: radial-gradient(circle at 50% 70%, #fff, #ff2a48 50%, #6e0616); box-shadow: 0 0 0 2px #0a0d16, 0 0 18px #ff2a48, 0 0 40px rgba(255, 42, 72, .7); animation: ultraheist-bcn .5s steps(1) infinite; }
+.g-ultraheist .uh-machine.beacons .uh-beacon.r { background: radial-gradient(circle at 50% 70%, #fff, #3d7bff 50%, #0a1e5c); box-shadow: 0 0 0 2px #0a0d16, 0 0 18px #3d7bff, 0 0 40px rgba(61, 123, 255, .7); animation: ultraheist-bcn .5s steps(1) infinite; animation-delay: -.25s; }
+.g-ultraheist .uh-machine.beacons .uh-beacon::after { opacity: 1; animation: ultraheist-rot .9s linear infinite; }
+@keyframes ultraheist-bcn { 50% { filter: brightness(.45); } }
+@keyframes ultraheist-rot { to { transform: rotate(360deg); } }
+
+.g-ultraheist .uh-window { position: relative; border-radius: 10px; background: #04060d; box-shadow: inset 0 0 0 2px #000, inset 0 10px 30px rgba(0, 0, 0, .9); cursor: default; }
+.g-ultraheist .uh-window .glass { position: absolute; inset: 0; z-index: 2; pointer-events: none; border-radius: 10px; background: linear-gradient(160deg, rgba(255, 255, 255, .07), transparent 26%, transparent 70%, rgba(95, 240, 255, .05)); }
 .g-ultraheist .uh-reels { position: relative; display: flex; gap: var(--gap); }
 .g-ultraheist .uh-reel { position: relative; width: var(--cell); height: calc(var(--cellh) * 4); overflow: hidden; border-radius: 6px;
   background: linear-gradient(180deg, #0b1020, #121a33 50%, #0b1020); box-shadow: inset 0 14px 18px -10px rgba(0, 0, 0, .9), inset 0 -14px 18px -10px rgba(0, 0, 0, .9); }
-.g-ultraheist .uh-reel::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(0, 0, 0, .45), transparent 14%, transparent 86%, rgba(0, 0, 0, .45)); }
+.g-ultraheist .uh-reels.free .uh-reel { background: linear-gradient(180deg, #1a0710, #2a0c1c 50%, #1a0710); }
+.g-ultraheist .uh-reel::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(0, 0, 0, .5), transparent 14%, transparent 86%, rgba(0, 0, 0, .5)); }
 .g-ultraheist .uh-strip { position: absolute; left: 0; right: 0; top: 0; will-change: transform; }
-.g-ultraheist .uh-reel.thud .uh-strip > .uh-cell { animation: ultraheist-thud .22s ease-out; }
-@keyframes ultraheist-thud { 40% { transform: translateY(5px) scaleY(.96); } }
-.g-ultraheist .uh-reel.spinning .uh-cell svg { filter: blur(1.2px) brightness(1.1); }
+.g-ultraheist .uh-reel.spinning { filter: url(#ultraheist-f-mblur) brightness(1.08); }
+.g-ultraheist .uh-reel.spinning .uh-cell > svg { transform: scaleY(1.08); }
+.g-ultraheist .uh-reel .dust { position: absolute; left: -10%; right: -10%; bottom: -6px; height: 26px; z-index: 3; pointer-events: none; opacity: 0;
+  background: radial-gradient(ellipse at 50% 100%, rgba(255, 240, 210, .55), rgba(180, 200, 255, .15) 50%, transparent 70%); }
+.g-ultraheist .uh-reel.thud .dust { animation: ultraheist-dust .5s ease-out; }
+@keyframes ultraheist-dust { 0% { opacity: 1; transform: scaleX(.5); } 100% { opacity: 0; transform: scaleX(1.3) translateY(-6px); } }
+.g-ultraheist .uh-reel.thud .uh-strip > .uh-cell { animation: ultraheist-thud .26s ease-out; }
+@keyframes ultraheist-thud { 35% { transform: translateY(4px) scaleY(.95); } }
+.g-ultraheist .uh-reel .anti { position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: 0; border-radius: 6px; box-shadow: inset 0 0 0 3px var(--uh-gold), inset 0 0 30px rgba(255, 204, 74, .7); background: linear-gradient(0deg, rgba(255, 180, 40, .35), transparent 40%, transparent 60%, rgba(255, 180, 40, .35)); }
+.g-ultraheist .uh-reel.tease { animation: ultraheist-tease .14s linear infinite; }
+.g-ultraheist .uh-reel.tease .anti { opacity: 1; animation: ultraheist-antiglow .5s ease-in-out infinite alternate; }
+@keyframes ultraheist-tease { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-1.5px); } 75% { transform: translateX(1.5px); } }
+@keyframes ultraheist-antiglow { from { opacity: .55; } to { opacity: 1; } }
+
+/* ---------- symbols: idle life inside the art, win moves per symbol ---------- */
 .g-ultraheist .uh-cell { position: relative; height: var(--cellh); display: grid; place-items: center; }
-.g-ultraheist .uh-cell > svg { width: 84%; height: 84%; max-height: calc(var(--cell) * .84); filter: drop-shadow(0 3px 3px rgba(0, 0, 0, .7)); transition: transform .2s, filter .2s; }
+.g-ultraheist .uh-cell > svg { width: 84%; height: 84%; max-height: calc(var(--cell) * .84); overflow: visible; filter: drop-shadow(0 3px 3px rgba(0, 0, 0, .7)); transition: opacity .25s; }
 .g-ultraheist .uh-cell.s-print > svg, .g-ultraheist .uh-cell.s-key > svg, .g-ultraheist .uh-cell.s-cuffs > svg, .g-ultraheist .uh-cell.s-lock > svg, .g-ultraheist .uh-cell.s-crowbar > svg, .g-ultraheist .uh-cell.s-torch > svg { width: 74%; height: 74%; }
 .g-ultraheist .uh-cell.s-diamond > svg { filter: drop-shadow(0 0 8px rgba(95, 240, 255, .55)) drop-shadow(0 3px 3px rgba(0, 0, 0, .7)); }
 .g-ultraheist .uh-cell.s-gold > svg { filter: drop-shadow(0 0 8px rgba(255, 200, 70, .45)) drop-shadow(0 3px 3px rgba(0, 0, 0, .7)); }
-.g-ultraheist .uh-cell .val { position: absolute; left: 50%; bottom: 7%; transform: translateX(-50%); padding: 1px 7px; border-radius: 999px; white-space: nowrap;
-  font-family: var(--uh-num); font-weight: 700; font-size: clamp(10px, calc(var(--cell) * .19), 20px); line-height: 1.25; color: #2a1402; background: linear-gradient(180deg, #fff3b8, #ffc23a); box-shadow: 0 0 0 1.5px #5a3003, 0 2px 6px rgba(0, 0, 0, .6); }
-.g-ultraheist .uh-cell.big .val { background: linear-gradient(180deg, #ffd7ef, #ff3d9e); color: #fff; box-shadow: 0 0 0 1.5px #5d0638, 0 0 12px rgba(255, 61, 158, .8); }
-.g-ultraheist .uh-cell.empty > svg { filter: grayscale(1) brightness(.45); transform: scale(.88); }
-.g-ultraheist .uh-cell.empty .val { background: #2a2f3d; color: #8f9cbc; box-shadow: 0 0 0 1px #000; font-size: clamp(8px, calc(var(--cell) * .13), 13px); font-family: var(--uh-cond); letter-spacing: .1em; text-transform: uppercase; }
-.g-ultraheist .uh-cell.hit > svg { animation: ultraheist-hit .7s ease-in-out infinite alternate; filter: drop-shadow(0 0 10px #fff) drop-shadow(0 0 18px var(--uh-cyan)); }
-@keyframes ultraheist-hit { from { transform: scale(1); } to { transform: scale(1.1); } }
-.g-ultraheist .uh-cell.alarm > svg { animation: ultraheist-vault .5s ease-in-out infinite alternate; }
-@keyframes ultraheist-vault { from { transform: rotate(-8deg) scale(1); filter: drop-shadow(0 0 6px var(--uh-red)); } to { transform: rotate(8deg) scale(1.12); filter: drop-shadow(0 0 22px var(--uh-red)); } }
+.g-ultraheist .uh-cell.s-vault > svg { filter: drop-shadow(0 0 6px rgba(255, 42, 72, .5)) drop-shadow(0 3px 3px rgba(0, 0, 0, .7)); }
+.g-ultraheist .uh-tw { transform-box: fill-box; transform-origin: center; animation: ultraheist-tw 2.8s ease-in-out infinite; }
+@keyframes ultraheist-tw { 0%, 70%, 100% { transform: scale(0) rotate(0); opacity: 0; } 80% { transform: scale(1) rotate(45deg); opacity: 1; } 90% { transform: scale(.4) rotate(90deg); opacity: .6; } }
+.g-ultraheist .uh-scan { opacity: 0; animation: ultraheist-scan 4.2s ease-in-out infinite; }
+@keyframes ultraheist-scan { 0%, 60% { transform: translateY(0); opacity: 0; } 64% { opacity: .55; } 92% { transform: translateY(68px); opacity: .55; } 96%, 100% { transform: translateY(70px); opacity: 0; } }
+.g-ultraheist .uh-beam { animation: ultraheist-beam 3.4s steps(1) infinite; }
+@keyframes ultraheist-beam { 0%, 100% { opacity: .9; } 47% { opacity: .35; } 50% { opacity: .9; } 53% { opacity: .5; } 56% { opacity: .9; } }
+.g-ultraheist .uh-dialturn { transform-box: view-box; transform-origin: 50% 50%; animation: ultraheist-dial 6s ease-in-out infinite; }
+@keyframes ultraheist-dial { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(40deg); } 55% { transform: rotate(-25deg); } 75% { transform: rotate(10deg); } }
+.g-ultraheist .uh-sway { transform-box: view-box; transform-origin: 50% 92%; animation: ultraheist-sway 3.2s ease-in-out infinite; }
+@keyframes ultraheist-sway { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+.g-ultraheist .uh-led { animation: ultraheist-led 1.2s steps(1) infinite; }
+@keyframes ultraheist-led { 50% { fill: #5a0612; } }
+.g-ultraheist .uh-ledglow { transform-box: fill-box; transform-origin: center; animation: ultraheist-ledglow 1.6s ease-in-out infinite; }
+@keyframes ultraheist-ledglow { 50% { transform: scale(.9); opacity: .5; } }
 
-/* win lines */
-.g-ultraheist .uh-lines { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 2; }
+.g-ultraheist .uh-cell .val { position: absolute; left: 50%; bottom: 7%; transform: translateX(-50%); padding: 1px 7px; border-radius: 999px; white-space: nowrap; z-index: 1;
+  font-family: var(--uh-num); font-weight: 700; font-size: clamp(10px, calc(var(--cell) * .19), 20px); line-height: 1.25; color: #2a1402; background: linear-gradient(180deg, #fff3b8, #ffc23a); box-shadow: 0 0 0 1.5px #5a3003, 0 2px 6px rgba(0, 0, 0, .6); }
+.g-ultraheist .uh-cell.big .val { background: linear-gradient(180deg, #ffd7ef, #ff3d9e); color: #fff; box-shadow: 0 0 0 1.5px #5d0638, 0 0 12px rgba(255, 61, 158, .8); animation: ultraheist-bigval 1.1s ease-in-out infinite alternate; }
+@keyframes ultraheist-bigval { to { box-shadow: 0 0 0 1.5px #5d0638, 0 0 22px rgba(255, 61, 158, 1); } }
+.g-ultraheist .uh-cell.empty > svg { filter: grayscale(1) brightness(.45); transform: scale(.88); }
+.g-ultraheist .uh-cell.empty .val { background: #2a2f3d; color: #8f9cbc; box-shadow: 0 0 0 1px #000; font-size: clamp(8px, calc(var(--cell) * .13), 13px); font-family: var(--uh-cond); letter-spacing: .1em; text-transform: uppercase; animation: none; }
+.g-ultraheist .uh-cell.grabbed > svg { animation: ultraheist-grabbed .5s ease-out; }
+@keyframes ultraheist-grabbed { 30% { transform: scale(1.25) rotate(-6deg); filter: brightness(1.8) drop-shadow(0 0 12px var(--uh-gold)); } }
+
+.g-ultraheist .uh-reels.showing .uh-cell:not(.hit) > svg, .g-ultraheist .uh-reels.showing .uh-cell:not(.hit) .val { opacity: .3; }
+.g-ultraheist .uh-cell.hit::before { content: ''; position: absolute; inset: 3px; border-radius: 10px; border: 2px solid var(--lc, var(--uh-cyan)); box-shadow: 0 0 12px var(--lc, var(--uh-cyan)), inset 0 0 14px var(--lc, var(--uh-cyan)); opacity: .85; animation: ultraheist-frame .7s ease-in-out infinite alternate; }
+@keyframes ultraheist-frame { from { opacity: .45; } to { opacity: 1; } }
+.g-ultraheist .uh-cell.hit > svg { filter: drop-shadow(0 0 8px #fff) drop-shadow(0 0 16px var(--lc, var(--uh-cyan))); animation: ultraheist-hit .7s ease-in-out infinite alternate; }
+@keyframes ultraheist-hit { from { transform: scale(1); } to { transform: scale(1.12); } }
+.g-ultraheist .uh-cell.s-print.hit > svg { animation: ultraheist-w-print .8s ease-in-out infinite; }
+@keyframes ultraheist-w-print { 0%, 100% { transform: scale(1); filter: drop-shadow(0 0 6px var(--uh-cyan)); } 50% { transform: scale(1.12); filter: drop-shadow(0 0 22px var(--uh-cyan)) brightness(1.5); } }
+.g-ultraheist .uh-cell.s-key.hit > svg { animation: ultraheist-w-key .9s cubic-bezier(.4, 1.6, .5, 1) infinite; }
+@keyframes ultraheist-w-key { 0%, 100% { transform: rotate(0) scale(1.05); } 40% { transform: rotate(-38deg) scale(1.15); } 60% { transform: rotate(-30deg) scale(1.12); } }
+.g-ultraheist .uh-cell.s-cuffs.hit > svg { transform-origin: 50% 20%; animation: ultraheist-w-cuffs 1s ease-in-out infinite; }
+@keyframes ultraheist-w-cuffs { 0%, 100% { transform: rotate(-14deg) scale(1.08); } 50% { transform: rotate(14deg) scale(1.08); } }
+.g-ultraheist .uh-cell.s-lock.hit > svg { animation: ultraheist-w-lock .7s ease-in-out infinite; }
+@keyframes ultraheist-w-lock { 0%, 100% { transform: translateY(0) scale(1.05); } 20% { transform: translateY(-12%) rotate(-6deg) scale(1.12); } 40% { transform: translateY(0) rotate(5deg) scale(1.1, .94); } 60% { transform: rotate(-3deg) scale(1.08); } }
+.g-ultraheist .uh-cell.s-crowbar.hit > svg { transform-origin: 25% 85%; animation: ultraheist-w-crow .8s cubic-bezier(.5, 1.8, .5, 1) infinite; }
+@keyframes ultraheist-w-crow { 0%, 100% { transform: rotate(0) scale(1.05); } 45% { transform: rotate(-22deg) scale(1.12); } }
+.g-ultraheist .uh-cell.s-torch.hit > svg { animation: ultraheist-w-torch .6s steps(2) infinite; }
+@keyframes ultraheist-w-torch { 0% { transform: scale(1.1) rotate(-6deg); filter: drop-shadow(0 0 22px #fff6b0) brightness(1.4); } 50% { transform: scale(1.06) rotate(4deg); filter: drop-shadow(0 0 8px #fff6b0); } }
+.g-ultraheist .uh-cell.s-safe.hit > svg { animation: ultraheist-w-safe 1.2s cubic-bezier(.5, 0, .3, 1.4) infinite; }
+@keyframes ultraheist-w-safe { 0% { transform: rotate(0) scale(1.05); } 70%, 100% { transform: rotate(360deg) scale(1.12); } }
+.g-ultraheist .uh-cell.s-car.hit > svg { animation: ultraheist-w-car .5s ease-in-out infinite; }
+@keyframes ultraheist-w-car { 0%, 100% { transform: translateX(-4%) scale(1.08); } 25% { transform: translate(2%, -3%) rotate(-3deg) scale(1.12); } 50% { transform: translateX(5%) scale(1.1); } 75% { transform: translate(0, 1%) rotate(2deg) scale(1.1); } }
+.g-ultraheist .uh-cell.s-gold.hit > svg { animation: ultraheist-w-gold .6s ease-in-out infinite alternate; }
+@keyframes ultraheist-w-gold { from { transform: translateY(2%) scale(1.04); filter: drop-shadow(0 0 8px var(--uh-gold)); } to { transform: translateY(-8%) scale(1.15); filter: drop-shadow(0 0 26px var(--uh-gold)) brightness(1.3); } }
+.g-ultraheist .uh-cell.s-diamond.hit > svg { animation: ultraheist-w-dia 1s ease-in-out infinite; }
+@keyframes ultraheist-w-dia { 0%, 100% { transform: scale(1.06) rotateY(0); filter: drop-shadow(0 0 10px var(--uh-cyan)); } 50% { transform: scale(1.18) rotateY(180deg); filter: drop-shadow(0 0 30px #fff) brightness(1.4); } }
+.g-ultraheist .uh-cell.s-gold.hit::after, .g-ultraheist .uh-cell.s-diamond.hit::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 25% 25%, #fff 0 2px, transparent 3px), radial-gradient(circle at 78% 30%, #fff 0 1.5px, transparent 2.5px), radial-gradient(circle at 60% 80%, #fff 0 2px, transparent 3px); animation: ultraheist-sparkle .8s ease-in-out infinite alternate; }
+@keyframes ultraheist-sparkle { from { opacity: 0; transform: scale(.8); } to { opacity: 1; transform: scale(1.1) rotate(10deg); } }
+.g-ultraheist .uh-cell.alarm > svg { animation: ultraheist-vault .45s ease-in-out infinite alternate; }
+@keyframes ultraheist-vault { from { transform: rotate(-10deg) scale(1.02); filter: drop-shadow(0 0 6px var(--uh-red)); } to { transform: rotate(10deg) scale(1.16); filter: drop-shadow(0 0 26px var(--uh-red)) brightness(1.3); } }
+.g-ultraheist .uh-cell.alarm::before { content: ''; position: absolute; inset: 2px; border-radius: 50%; border: 3px solid var(--uh-red); animation: ultraheist-alarmring .8s ease-out infinite; }
+@keyframes ultraheist-alarmring { from { transform: scale(.7); opacity: 1; } to { transform: scale(1.3); opacity: 0; } }
+
+/* win lines and per-line amounts */
+.g-ultraheist .uh-lines { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 3; }
 .g-ultraheist .uh-lines polyline { fill: none; stroke-linejoin: round; stroke-linecap: round; }
-.g-ultraheist .uh-lines .glow { stroke-width: 9; opacity: .4; filter: blur(3px); animation: ultraheist-line .5s ease-out; }
-.g-ultraheist .uh-lines .core { stroke: #fff; stroke-width: 2.4; opacity: .95; stroke-dasharray: 2000; animation: ultraheist-draw .45s ease-out; }
+.g-ultraheist .uh-lines .glow { stroke-width: 10; opacity: .45; filter: blur(3px); animation: ultraheist-line .5s ease-out; }
+.g-ultraheist .uh-lines .core { stroke-width: 3; opacity: .95; stroke-dasharray: 2000; animation: ultraheist-draw .45s ease-out; filter: brightness(1.6); }
 @keyframes ultraheist-draw { from { stroke-dashoffset: 2000; } to { stroke-dashoffset: 0; } }
 @keyframes ultraheist-line { from { opacity: 0; } }
+.g-ultraheist .uh-fly .lb { position: absolute; transform: translate(-50%, -50%); padding: 0 6px; border-radius: 6px; border: 1.5px solid; background: rgba(4, 6, 14, .9); font-family: var(--uh-num); font-weight: 700; font-size: clamp(10px, calc(var(--cell) * .16), 16px); line-height: 1.35; color: #fff; white-space: nowrap; animation: ultraheist-lb .35s cubic-bezier(.2, 1.6, .4, 1); }
+@keyframes ultraheist-lb { from { transform: translate(-50%, -50%) scale(0); } }
 
 /* lasers across the vault */
 .g-ultraheist .uh-lasers { position: absolute; inset: -6px; pointer-events: none; z-index: 4; overflow: hidden; border-radius: 12px; }
 .g-ultraheist .uh-lasers i { position: absolute; left: -10%; width: 120%; height: 2px; background: linear-gradient(90deg, transparent, rgba(255, 42, 72, .9) 20%, #ffd0d6 50%, rgba(255, 42, 72, .9) 80%, transparent);
-  box-shadow: 0 0 8px var(--uh-red), 0 0 18px rgba(255, 42, 72, .6); opacity: .0; animation: ultraheist-laser 7s linear infinite; }
+  box-shadow: 0 0 8px var(--uh-red), 0 0 18px rgba(255, 42, 72, .6); opacity: 0; animation: ultraheist-laser 7s linear infinite; }
 .g-ultraheist .uh-lasers i:nth-child(1) { top: 20%; transform: rotate(4deg); }
 .g-ultraheist .uh-lasers i:nth-child(2) { top: 55%; transform: rotate(-3deg); animation-delay: 2.3s; }
 .g-ultraheist .uh-lasers i:nth-child(3) { top: 82%; transform: rotate(2deg); animation-delay: 4.6s; }
-@keyframes ultraheist-laser { 0%, 8% { opacity: 0; } 12%, 28% { opacity: .55; } 32%, 100% { opacity: 0; } }
+@keyframes ultraheist-laser { 0%, 8% { opacity: 0; } 12%, 28% { opacity: .5; } 32%, 100% { opacity: 0; } }
 .g-ultraheist.free .uh-lasers i { animation-duration: 2.4s; }
+.g-ultraheist .uh-sweep { position: absolute; inset: 0; z-index: 2; pointer-events: none; overflow: hidden; border-radius: 10px; }
+.g-ultraheist .uh-sweep::before { content: ''; position: absolute; top: -20%; bottom: -20%; left: -40%; width: 34%; background: linear-gradient(90deg, transparent, rgba(255, 250, 220, .28), transparent); transform: skewX(-14deg); opacity: 0; }
+.g-ultraheist .uh-sweep.go::before { animation: ultraheist-sweepx .9s ease-in-out; }
+@keyframes ultraheist-sweepx { 0% { left: -40%; opacity: 1; } 100% { left: 110%; opacity: 1; } }
 
-/* bandits */
-.g-ultraheist .uh-bandits { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
-.g-ultraheist .uh-bandit { position: absolute; width: var(--cell); height: var(--cellh); display: grid; place-items: center; transform: translateY(calc(var(--cell) * -5)); opacity: 0;
-  transition: transform .5s cubic-bezier(.3, 1.35, .5, 1), opacity .2s; }
-.g-ultraheist .uh-bandit.in { transform: none; opacity: 1; }
-.g-ultraheist .uh-bandit::before { content: ''; position: absolute; inset: 4%; border-radius: 12px; background: radial-gradient(circle at 50% 45%, rgba(255, 61, 158, .45), rgba(40, 10, 60, .92) 70%);
+/* ---------- the bandits ---------- */
+.g-ultraheist .uh-bandits { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
+.g-ultraheist .uh-bandit { position: absolute; left: 0; top: 0; width: var(--cell); height: var(--cellh); opacity: 0; }
+.g-ultraheist .uh-bandit.in { opacity: 1; }
+.g-ultraheist .uh-bandit .bw { position: absolute; inset: 0; display: grid; place-items: center; transform-origin: 50% -30%; }
+.g-ultraheist .uh-bandit .bw::before { content: ''; position: absolute; inset: 4%; border-radius: 12px; background: radial-gradient(circle at 50% 42%, rgba(255, 61, 158, .5), rgba(40, 10, 60, .94) 72%);
   border: 2px solid var(--uh-mag); box-shadow: 0 0 16px rgba(255, 61, 158, .65), inset 0 0 14px rgba(255, 61, 158, .4); }
-.g-ultraheist .uh-bandit > svg { position: relative; width: 96%; height: 96%; filter: drop-shadow(0 4px 4px rgba(0, 0, 0, .8)); }
-.g-ultraheist .uh-bandit .rope { position: absolute; left: 50%; bottom: 88%; width: 2px; height: var(--rope, 200px); margin-left: -1px; background: repeating-linear-gradient(180deg, #c9a46a 0 4px, #6b4a22 4px 7px); opacity: .9; transition: opacity .3s .1s; }
+.g-ultraheist .uh-bandit.set .bw::before { animation: ultraheist-bcard 2.4s ease-in-out infinite; }
+@keyframes ultraheist-bcard { 50% { box-shadow: 0 0 24px rgba(255, 61, 158, .9), inset 0 0 18px rgba(255, 61, 158, .55); } }
+.g-ultraheist .uh-bsvg { position: relative; width: 96%; height: 96%; overflow: visible; filter: drop-shadow(0 4px 4px rgba(0, 0, 0, .8)); }
+.g-ultraheist .uh-bandit .rope { position: absolute; left: 50%; bottom: 84%; width: 3px; height: var(--rope, 200px); margin-left: -1.5px; background: repeating-linear-gradient(180deg, #d8b478 0 4px, #6b4a22 4px 7px); box-shadow: 0 0 2px #000; transition: opacity .35s .15s; }
 .g-ultraheist .uh-bandit.set .rope { opacity: 0; }
-.g-ultraheist .uh-bandit.set > svg { animation: ultraheist-land .3s ease-out; }
-@keyframes ultraheist-land { 40% { transform: scale(1.1, .9); } }
-.g-ultraheist .uh-bandit.hit > svg { animation: ultraheist-hit .7s ease-in-out infinite alternate; }
-.g-ultraheist .uh-bandit.hit::before { box-shadow: 0 0 26px #fff, 0 0 36px var(--uh-mag), inset 0 0 18px rgba(255, 61, 158, .6); }
-.g-ultraheist .uh-bandit.grab-pop::before { animation: ultraheist-grab .35s ease-out; }
-@keyframes ultraheist-grab { 40% { transform: scale(1.12); background-color: rgba(255, 204, 74, .5); border-color: var(--uh-gold); } }
-.g-ultraheist .uh-bandit.out { transform: translateY(calc(var(--cell) * -5)) rotate(-12deg); opacity: 0; transition: transform .5s cubic-bezier(.6, -.4, .8, .4), opacity .5s; }
+.g-ultraheist .uh-bandit .dust { position: absolute; left: -15%; right: -15%; bottom: -4%; height: 30%; opacity: 0; background: radial-gradient(ellipse at 50% 80%, rgba(255, 220, 240, .6), transparent 65%); }
+.g-ultraheist .uh-bandit.set .dust { animation: ultraheist-dust .55s ease-out; }
+.g-ultraheist .uh-bandit .grab { position: absolute; inset: 0; border-radius: 12px; pointer-events: none; }
+.g-ultraheist .uh-bandit.grab-pop .bw { animation: ultraheist-grab .35s ease-out; }
+.g-ultraheist .uh-bandit.grab-pop .grab { animation: ultraheist-grabglow .4s ease-out; }
+@keyframes ultraheist-grab { 40% { transform: scale(1.14); } }
+@keyframes ultraheist-grabglow { 0% { box-shadow: 0 0 0 0 rgba(255, 204, 74, .9), inset 0 0 30px rgba(255, 204, 74, .8); } 100% { box-shadow: 0 0 0 18px rgba(255, 204, 74, 0); } }
+.g-ultraheist .uh-bandit.out { opacity: 0; transition: opacity .5s; }
+.g-ultraheist .uh-bandit.out .bw { transform: translateY(calc(var(--cell) * -1.5)) rotate(-12deg); transition: transform .5s cubic-bezier(.6, -.4, .8, .4); }
 
-/* flying cash */
-.g-ultraheist .uh-fly { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
-.g-ultraheist .uh-fly .chip { position: absolute; transform: translate(-50%, -50%); padding: 2px 8px; border-radius: 999px; font-family: var(--uh-num); font-weight: 700; font-size: clamp(11px, calc(var(--cell) * .2), 20px);
-  color: #2a1402; background: linear-gradient(180deg, #fff3b8, #ffc23a); box-shadow: 0 0 0 1.5px #5a3003, 0 0 16px rgba(255, 204, 74, .9); white-space: nowrap; margin: -10px 0 0 -24px; }
-.g-ultraheist .uh-fly .chip.go { transition: transform .5s cubic-bezier(.5, -.3, .6, 1); }
-.g-ultraheist .uh-steptag { position: absolute; left: 50%; top: -14px; transform: translate(-50%, -6px); opacity: 0; z-index: 6; padding: 3px 14px; border-radius: 999px; white-space: nowrap;
+/* bandit parts (shared by the reel bandits, the mascot and the Wild icon) */
+.g-ultraheist .b-lid { transform-box: fill-box; transform-origin: 50% 0; transform: scaleY(0); }
+.g-ultraheist .b-open { opacity: 0; }
+.g-ultraheist .b-wl { transform-box: fill-box; transform-origin: 100% 40%; }
+.g-ultraheist .b-wr { transform-box: fill-box; transform-origin: 0 40%; }
+.g-ultraheist .b-head, .g-ultraheist .b-all, .g-ultraheist .b-hat, .g-ultraheist .b-pup, .g-ultraheist .b-tails, .g-ultraheist .b-leg, .g-ultraheist .b-swag { transform-box: fill-box; }
+.g-ultraheist .b-all { transform-origin: 50% 100%; }
+.g-ultraheist .b-head { transform-origin: 50% 90%; }
+.g-ultraheist .b-hat { transform-origin: 50% 100%; }
+.g-ultraheist .b-pup { transform-origin: center; }
+.g-ultraheist .b-leg { transform-origin: 50% 0; }
+.g-ultraheist .b-swag { transform-origin: 30% 10%; }
+.g-ultraheist .g-ultraheist-defs .b-lid { animation: ultraheist-blink 4.4s infinite; }
+@keyframes ultraheist-blink { 0%, 90%, 100% { transform: scaleY(0); } 94% { transform: scaleY(1); } }
+/* idle: blink, glance about, wings breathe, mask tails flutter */
+.g-ultraheist .uh-bandit.set .b-lid, .g-ultraheist .uh-mascot .b-lid { animation: ultraheist-blink 4.2s infinite; animation-delay: var(--bd, 0s); }
+.g-ultraheist .uh-bandit.set .b-pup { animation: ultraheist-glance 5.5s ease-in-out infinite; animation-delay: var(--bd, 0s); }
+@keyframes ultraheist-glance { 0%, 18%, 100% { transform: translate(0, 0); } 24%, 40% { transform: translate(-2.2px, .4px); } 46%, 62% { transform: translate(2px, -.3px); } 68% { transform: translate(0, 0); } }
+.g-ultraheist .uh-bandit.set .b-wl { animation: ultraheist-wingl 2.2s ease-in-out infinite; }
+.g-ultraheist .uh-bandit.set .b-wr { animation: ultraheist-wingr 2.2s ease-in-out infinite; }
+@keyframes ultraheist-wingl { 50% { transform: rotate(9deg); } }
+@keyframes ultraheist-wingr { 50% { transform: rotate(-9deg); } }
+.g-ultraheist .uh-bandit.set .b-tails, .g-ultraheist .uh-mascot .b-tails { animation: ultraheist-tails .5s ease-in-out infinite alternate; }
+@keyframes ultraheist-tails { to { transform: translateY(1.2px) scaleY(.85); } }
+.g-ultraheist .uh-bandit.set .b-all { animation: ultraheist-bob 2.2s ease-in-out infinite; }
+@keyframes ultraheist-bob { 50% { transform: translateY(-2.5%); } }
+/* win: wink, grin, wings flapping, bounce */
+.g-ultraheist .uh-bandit.hit .b-open { opacity: 1; } .g-ultraheist .uh-bandit.hit .b-smile { opacity: 0; }
+.g-ultraheist .uh-bandit.hit .b-lid.l { animation: none; transform: scaleY(1); }
+.g-ultraheist .uh-bandit.hit .b-wl { animation: ultraheist-flapl .22s ease-in-out infinite alternate; }
+.g-ultraheist .uh-bandit.hit .b-wr { animation: ultraheist-flapr .22s ease-in-out infinite alternate; }
+@keyframes ultraheist-flapl { from { transform: rotate(-14deg); } to { transform: rotate(26deg); } }
+@keyframes ultraheist-flapr { from { transform: rotate(14deg); } to { transform: rotate(-26deg); } }
+.g-ultraheist .uh-bandit.hit .b-all { animation: ultraheist-jump .44s cubic-bezier(.3, 1.4, .5, 1) infinite alternate; }
+@keyframes ultraheist-jump { from { transform: translateY(0) scale(1.04, .96); } to { transform: translateY(-9%) scale(1.02); } }
+.g-ultraheist .uh-bandit.hit .bw::before { box-shadow: 0 0 26px #fff, 0 0 40px var(--uh-mag), inset 0 0 20px rgba(255, 61, 158, .7); }
+/* riding a nudge: hat holds on, wings spread */
+.g-ultraheist .uh-bandit.ride .b-head { animation: ultraheist-ridehead .45s ease-out; }
+.g-ultraheist .uh-bandit.ride .b-hat { animation: ultraheist-ridehat .45s ease-out; }
+@keyframes ultraheist-ridehead { 40% { transform: rotate(-8deg) translateY(4%); } }
+@keyframes ultraheist-ridehat { 30% { transform: translateY(-16%) rotate(10deg); } }
+.g-ultraheist .uh-bandit.falling .b-wl { animation: ultraheist-flapl .1s linear infinite alternate; }
+.g-ultraheist .uh-bandit.falling .b-wr { animation: ultraheist-flapr .1s linear infinite alternate; }
+.g-ultraheist .uh-bandit.falling .b-open { opacity: 1; } .g-ultraheist .uh-bandit.falling .b-smile { opacity: 0; }
+
+/* the mascot: a bandit sitting on the vault, legs swinging */
+.g-ultraheist .uh-mascot { position: absolute; z-index: 6; pointer-events: none; width: clamp(56px, calc(var(--cell) * .98), 128px); aspect-ratio: 1; right: calc(var(--cell) * -.72); bottom: -2%; }
+.g-ultraheist .uh-mascot .uh-bsvg { width: 100%; height: 100%; filter: drop-shadow(0 6px 6px rgba(0, 0, 0, .7)); }
+.g-ultraheist .uh-mascot .b-leg.l { animation: ultraheist-legl 1.6s ease-in-out infinite; }
+.g-ultraheist .uh-mascot .b-leg.r { animation: ultraheist-legr 1.6s ease-in-out infinite; }
+@keyframes ultraheist-legl { 50% { transform: rotate(24deg); } }
+@keyframes ultraheist-legr { 50% { transform: rotate(-20deg); } }
+.g-ultraheist .uh-mascot .b-wl { animation: ultraheist-wingl 3s ease-in-out infinite; }
+.g-ultraheist .uh-mascot .b-wr { animation: ultraheist-wingr 3s ease-in-out infinite; }
+.g-ultraheist .uh-mascot .b-all { animation: ultraheist-bob 3s ease-in-out infinite; }
+.g-ultraheist .uh-mascot .b-swag { animation: ultraheist-swag 3s ease-in-out infinite; }
+@keyframes ultraheist-swag { 50% { transform: rotate(-8deg); } }
+.g-ultraheist .uh-mascot.look .b-pup { animation: ultraheist-look 2.4s ease-in-out; }
+@keyframes ultraheist-look { 15%, 40% { transform: translate(-2.6px, .6px); } 55%, 80% { transform: translate(2.4px, -.4px); } }
+.g-ultraheist .uh-mascot.look .b-head { animation: ultraheist-lookhead 2.4s ease-in-out; }
+@keyframes ultraheist-lookhead { 15%, 40% { transform: rotate(-7deg); } 55%, 80% { transform: rotate(6deg); } }
+.g-ultraheist .uh-mascot.tip .b-hat { animation: ultraheist-tip 1.3s ease-in-out; }
+@keyframes ultraheist-tip { 25%, 60% { transform: translateY(-22%) rotate(-16deg); } }
+.g-ultraheist .uh-mascot.tip .b-lid.r { animation: ultraheist-winkr 1.3s; }
+@keyframes ultraheist-winkr { 30%, 55% { transform: scaleY(1); } }
+.g-ultraheist .uh-mascot.peek .b-all { animation: ultraheist-peek 1.4s ease-in-out; }
+@keyframes ultraheist-peek { 30%, 70% { transform: rotate(-12deg) translateX(-6%); } }
+.g-ultraheist .uh-mascot.cheer .b-all { animation: ultraheist-cheer2 .36s cubic-bezier(.3, 1.4, .5, 1) infinite alternate; }
+@keyframes ultraheist-cheer2 { from { transform: translateY(0) scale(1.05, .95); } to { transform: translateY(-16%) rotate(-4deg); } }
+.g-ultraheist .uh-mascot.cheer .b-wl, .g-ultraheist .uh-mascot.alarm .b-wl { animation: ultraheist-flapl .18s ease-in-out infinite alternate; }
+.g-ultraheist .uh-mascot.cheer .b-wr, .g-ultraheist .uh-mascot.alarm .b-wr { animation: ultraheist-flapr .18s ease-in-out infinite alternate; }
+.g-ultraheist .uh-mascot.cheer .b-open, .g-ultraheist .uh-mascot.alarm .b-open { opacity: 1; }
+.g-ultraheist .uh-mascot.cheer .b-smile, .g-ultraheist .uh-mascot.alarm .b-smile { opacity: 0; }
+.g-ultraheist .uh-mascot.cheer .b-swag { animation: ultraheist-swagup .36s ease-in-out infinite alternate; }
+@keyframes ultraheist-swagup { to { transform: rotate(-30deg) translateY(-10%); } }
+.g-ultraheist .uh-mascot.nervous .b-all { animation: ultraheist-nerv .09s linear infinite; }
+@keyframes ultraheist-nerv { 0%, 100% { transform: translateX(-1.5%); } 50% { transform: translateX(1.5%); } }
+.g-ultraheist .uh-mascot.nervous .b-pup { transform: scale(.6); animation: none; }
+.g-ultraheist .uh-mascot.nervous .b-leg { animation-duration: .3s; }
+.g-ultraheist .uh-mascot.alarm .b-all { animation: ultraheist-alarmjump .5s cubic-bezier(.3, 1.4, .5, 1) infinite alternate; }
+@keyframes ultraheist-alarmjump { to { transform: translateY(-20%) scale(1.06); } }
+.g-ultraheist .uh-mascot.alarm .b-hat { animation: ultraheist-hatpop .5s ease-out infinite alternate; }
+@keyframes ultraheist-hatpop { to { transform: translateY(-34%) rotate(8deg); } }
+.g-ultraheist .uh-mascot.glum .b-head { animation: ultraheist-glum .9s ease-in-out; }
+@keyframes ultraheist-glum { 30%, 70% { transform: rotate(8deg) translateY(6%); } }
+
+/* the multiplier bursting out of the reels, nudge chevrons, centre win pop, step tag */
+.g-ultraheist .uh-multfly { position: absolute; left: 50%; top: 50%; z-index: 9; pointer-events: none; opacity: 0; transform: translate(-50%, -50%);
+  font-family: var(--uh-num); font-weight: 700; font-size: clamp(54px, calc(var(--cell) * 1.25), 150px); line-height: 1; color: #fff; white-space: nowrap;
+  text-shadow: 0 0 10px var(--uh-cyan), 0 0 34px var(--uh-cyan), 0 5px 0 #031820; -webkit-text-stroke: 2px #031820; }
+.g-ultraheist .uh-multfly.t2 { color: #ffe08a; text-shadow: 0 0 10px var(--uh-gold), 0 0 40px #ff9d1a, 0 5px 0 #3a1a02; -webkit-text-stroke-color: #3a1a02; }
+.g-ultraheist .uh-multfly.t3 { color: #ffd0ea; text-shadow: 0 0 10px var(--uh-mag), 0 0 44px var(--uh-mag), 0 5px 0 #3d0624; -webkit-text-stroke-color: #3d0624; }
+.g-ultraheist .uh-multfly.t4 { color: #fff1c8; text-shadow: 0 0 10px #ff6a2a, 0 0 50px var(--uh-red), 0 5px 0 #3d0606; -webkit-text-stroke-color: #3d0606; }
+.g-ultraheist .uh-chev { position: absolute; inset: 0; z-index: 4; pointer-events: none; display: flex; justify-content: space-between; align-items: center; padding: 0 2px; }
+.g-ultraheist .uh-chev svg { width: calc(var(--cell) * .34); max-width: 44px; height: auto; opacity: 0; }
+.g-ultraheist .uh-chev path { fill: none; stroke: #ffd0ea; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 6px var(--uh-mag)); }
+.g-ultraheist .uh-chev.go svg { animation: ultraheist-chev .55s ease-out; }
+@keyframes ultraheist-chev { 0% { opacity: 0; transform: translateY(-40%); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(50%); } }
+.g-ultraheist .uh-pop { position: absolute; left: 50%; top: 50%; z-index: 8; pointer-events: none; transform: translate(-50%, -50%); opacity: 0; text-align: center; white-space: nowrap; }
+.g-ultraheist .uh-pop b { display: block; font-family: var(--uh-num); font-weight: 700; font-size: clamp(28px, calc(var(--cell) * .62), 72px); line-height: 1; color: #fff; text-shadow: 0 0 12px var(--uh-cyan), 0 0 30px rgba(95, 240, 255, .7), 0 4px 0 #031820; -webkit-text-stroke: 1.5px #031820; }
+.g-ultraheist .uh-pop small { display: inline-block; margin-top: 4px; padding: 2px 10px; border-radius: 999px; background: rgba(4, 6, 14, .85); font-family: var(--uh-cond); letter-spacing: .14em; text-transform: uppercase; font-size: clamp(12px, calc(var(--cell) * .2), 20px); color: var(--uh-gold); }
+.g-ultraheist .uh-pop.gold b, .g-ultraheist .uh-pop.big b { color: #ffe9a6; text-shadow: 0 0 12px var(--uh-gold), 0 0 34px #ff9d1a, 0 4px 0 #3a1a02; -webkit-text-stroke-color: #3a1a02; }
+.g-ultraheist .uh-pop.on { animation: ultraheist-pop2 1.25s cubic-bezier(.2, 1.4, .4, 1) forwards; }
+.g-ultraheist .uh-pop.big.on b { font-size: clamp(34px, calc(var(--cell) * .8), 92px); }
+@keyframes ultraheist-pop2 { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.3); } 18% { opacity: 1; transform: translate(-50%, -50%) scale(1.12); } 30%, 75% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -80%) scale(.92); } }
+.g-ultraheist .uh-steptag { position: absolute; left: 50%; top: -15px; transform: translate(-50%, -6px); opacity: 0; z-index: 10; padding: 3px 14px; border-radius: 999px; white-space: nowrap;
   font-family: var(--uh-cond); font-size: clamp(14px, calc(var(--cell) * .24), 22px); letter-spacing: .12em; text-transform: uppercase; background: #070a14; border: 1.5px solid var(--uh-cyan); color: #fff; box-shadow: 0 0 14px rgba(95, 240, 255, .6); transition: opacity .2s, transform .2s; }
 .g-ultraheist .uh-steptag.on { opacity: 1; transform: translate(-50%, 0); }
 .g-ultraheist .uh-steptag.mult { border-color: var(--uh-gold); box-shadow: 0 0 16px rgba(255, 204, 74, .7); color: #ffe7a6; }
 .g-ultraheist .uh-steptag.bag { border-color: var(--uh-gold); background: #2a1402; color: #ffe7a6; }
-.g-ultraheist .uh-steptag.nudge { border-color: var(--uh-mag); color: #ffd0ea; box-shadow: 0 0 18px rgba(255, 61, 158, .8); }
+.g-ultraheist .uh-steptag.nudge { border-color: var(--uh-mag); color: #ffd0ea; box-shadow: 0 0 18px rgba(255, 61, 158, .8); animation: ultraheist-tagthump .3s ease-out; }
+.g-ultraheist .uh-steptag.alarmtag { border-color: var(--uh-red); background: #2a0208; color: #ffd0d6; box-shadow: 0 0 20px rgba(255, 42, 72, .9); animation: ultraheist-tagalarm .5s steps(1) infinite; }
+@keyframes ultraheist-tagthump { 0% { transform: translate(-50%, 0) scale(1.35); } }
+@keyframes ultraheist-tagalarm { 50% { background: #6e0616; } }
 
-/* ---------- win bar ---------- */
+/* flying cash */
+.g-ultraheist .uh-fly { position: absolute; inset: 0; pointer-events: none; z-index: 7; }
+.g-ultraheist .uh-fly .chip { position: absolute; transform: translate(-50%, -50%); padding: 2px 8px; border-radius: 999px; font-family: var(--uh-num); font-weight: 700; font-size: clamp(11px, calc(var(--cell) * .2), 20px);
+  color: #2a1402; background: linear-gradient(180deg, #fff3b8, #ffc23a); box-shadow: 0 0 0 1.5px #5a3003, 0 0 16px rgba(255, 204, 74, .9); white-space: nowrap; }
+
+/* ================= win bar ================= */
 .g-ultraheist .uh-winbar { width: calc(var(--cell) * 5 + var(--gap) * 4 + 28px); max-width: 100%; display: flex; align-items: center; gap: 12px; padding: 5px 14px; border-radius: 12px;
   background: linear-gradient(180deg, rgba(10, 14, 28, .92), rgba(5, 7, 15, .92)); border: 1px solid rgba(95, 240, 255, .22); min-height: 46px; }
-.g-ultraheist .uh-winbar .w { display: flex; flex-direction: column; line-height: 1; min-width: 70px; }
-.g-ultraheist .uh-winbar .w small { font-family: var(--uh-cond); letter-spacing: .2em; font-size: 11px; color: var(--uh-mute); text-transform: uppercase; }
+.g-ultraheist .uh-winbar .w { display: flex; flex-direction: column; line-height: 1; min-width: 74px; }
+.g-ultraheist .uh-winbar .w small { font-family: var(--uh-cond); letter-spacing: .2em; font-size: 11px; color: var(--uh-mute); text-transform: uppercase; white-space: nowrap; }
 .g-ultraheist .uh-winbar .amt { font-family: var(--uh-num); font-weight: 700; font-size: 24px; line-height: 1.1; color: #fff; font-variant-numeric: tabular-nums; }
 .g-ultraheist .uh-winbar.won .amt { color: var(--uh-gold); text-shadow: 0 0 12px rgba(255, 204, 74, .6); }
+.g-ultraheist .uh-winbar.bump .amt { animation: ultraheist-bump .35s ease-out; }
+@keyframes ultraheist-bump { 40% { transform: scale(1.18); text-shadow: 0 0 22px rgba(255, 204, 74, 1); } }
 .g-ultraheist .uh-winbar.cap { border-color: var(--uh-gold); box-shadow: 0 0 20px rgba(255, 204, 74, .5); }
+.g-ultraheist.free .uh-winbar { border-color: rgba(255, 42, 72, .55); box-shadow: 0 0 18px rgba(255, 42, 72, .25); }
 .g-ultraheist .uh-winbar .msg { flex: 1; min-width: 0; text-align: right; font-size: 13.5px; line-height: 1.25; color: #c8d3ee; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .g-ultraheist .uh-winbar .msg.hot { color: var(--uh-cyan); }
 .g-ultraheist .uh-winbar .msg.gold { color: #ffe08a; }
 .g-ultraheist .uh-winbar .msg.alarm { color: #ff8494; font-weight: 700; }
 
-/* ---------- side panels ---------- */
+/* ================= side panels ================= */
 .g-ultraheist .uh-side { align-self: center; padding: 16px 16px 14px; border-radius: 16px; background: linear-gradient(180deg, rgba(12, 16, 32, .88), rgba(6, 8, 18, .88)); border: 1px solid rgba(95, 240, 255, .18);
   box-shadow: 0 18px 40px rgba(0, 0, 0, .5); backdrop-filter: blur(4px); max-height: 100%; overflow: hidden; }
 .g-ultraheist .uh-side h3 { margin: 0 0 10px; font-family: var(--uh-cond); font-weight: 700; font-size: 22px; letter-spacing: .1em; text-transform: uppercase; color: var(--uh-gold); display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
 .g-ultraheist .uh-side h3 small { font-size: 11px; letter-spacing: .06em; color: var(--uh-mute); font-family: var(--f-body); text-transform: none; }
 .g-ultraheist .uh-side .tip { display: grid; grid-template-columns: 50px 1fr; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid rgba(255, 255, 255, .07); }
-.g-ultraheist .uh-side .tip svg { width: 50px; height: 50px; }
+.g-ultraheist .uh-side .tip svg { width: 50px; height: 50px; overflow: visible; }
 .g-ultraheist .uh-side .tip p { margin: 0; font-size: 12.5px; line-height: 1.35; color: #b4c0dc; }
 .g-ultraheist .uh-side .tip b { color: #fff; }
 .g-ultraheist .uh-side .pays { display: grid; gap: 2px; }
 .g-ultraheist .uh-side .pr { display: grid; grid-template-columns: 46px 1fr; align-items: center; gap: 8px; padding: 2px 0; border-top: 1px solid rgba(255, 255, 255, .06); }
-.g-ultraheist .uh-side .pr .ic svg { width: 44px; height: 44px; display: block; }
+.g-ultraheist .uh-side .pr .ic svg { width: 44px; height: 44px; display: block; overflow: visible; }
 .g-ultraheist .uh-side .pr .v { font-family: var(--uh-num); font-weight: 600; font-size: 13.5px; color: #e9f0ff; text-align: right; }
 .g-ultraheist.short .uh-side .pr .ic svg { width: 34px; height: 34px; }
 .g-ultraheist.short .uh-side .tip svg { width: 40px; height: 40px; }
+.g-ultraheist.short .uh-side .tip p { font-size: 12px; }
 
-/* ---------- controls ---------- */
-.g-ultraheist .uh-ctl { position: relative; width: 100%; max-width: 980px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 14px; padding: 10px 6px calc(10px + env(safe-area-inset-bottom, 0px)); justify-self: center; }
+/* ================= controls ================= */
+.g-ultraheist .uh-ctl { position: relative; z-index: 6; width: 100%; max-width: 980px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 14px; padding: 10px 6px calc(10px + env(safe-area-inset-bottom, 0px)); justify-self: center; }
 .g-ultraheist .uh-ctl .l, .g-ultraheist .uh-ctl .r { display: flex; gap: 10px; align-items: center; }
 .g-ultraheist .uh-ctl .l { justify-content: flex-end; }
 .g-ultraheist .uh-stakebox .bc-stake { padding: 4px; border-radius: 14px; background: rgba(8, 10, 22, .85); border: 1px solid rgba(95, 240, 255, .25); }
-.g-ultraheist .uh-stakebox .bc-stake button { width: 38px; height: 38px; background: linear-gradient(180deg, #2b3550, #141a2b); border: 1px solid rgba(95, 240, 255, .35); color: var(--uh-cyan); }
+.g-ultraheist .uh-stakebox .bc-stake button { width: 38px; height: 38px; background: linear-gradient(180deg, #2b3550, #141a2b); border: 1px solid rgba(95, 240, 255, .35); color: var(--uh-cyan); transition: transform .08s; }
+.g-ultraheist .uh-stakebox .bc-stake button:active:not(:disabled) { transform: scale(.9); }
 .g-ultraheist .uh-stakebox .bc-stake output { min-width: 96px; color: #fff; font-size: 18px; }
 .g-ultraheist .uh-stakebox .bc-stake output small { display: block; font-family: var(--uh-cond); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--uh-mute); font-weight: 400; }
-.g-ultraheist .uh-btn { min-height: 50px; min-width: 92px; padding: 6px 14px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.05;
+.g-ultraheist .uh-btn { position: relative; min-height: 50px; min-width: 92px; padding: 6px 14px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.05;
   background: linear-gradient(180deg, #1d2540, #0c1020); border: 1px solid rgba(95, 240, 255, .35); box-shadow: 0 4px 0 #04060c, 0 8px 18px rgba(0, 0, 0, .45); transition: transform .08s, box-shadow .08s, filter .15s; }
+.g-ultraheist .uh-btn > svg { position: absolute; left: 9px; top: 50%; width: 16px; height: 16px; margin-top: -8px; color: var(--uh-cyan); opacity: .8; }
+.g-ultraheist .uh-btn.auto, .g-ultraheist .uh-btn.turbo { padding-left: 28px; }
 .g-ultraheist .uh-btn b { font-family: var(--uh-cond); font-weight: 700; font-size: 17px; letter-spacing: .12em; text-transform: uppercase; }
 .g-ultraheist .uh-btn small { font-family: var(--uh-num); font-size: 11.5px; color: var(--uh-mute); letter-spacing: .04em; }
+.g-ultraheist .uh-btn:hover:not(:disabled) { filter: brightness(1.15); }
 .g-ultraheist .uh-btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 #04060c; }
 .g-ultraheist .uh-btn:disabled { filter: grayscale(.7) brightness(.6); }
-.g-ultraheist .uh-btn.buy { background: linear-gradient(180deg, #ffe08a, #e09a1a 55%, #8a5205); border-color: #ffe9a8; color: #2a1402; box-shadow: 0 4px 0 #4a2a02, 0 0 22px rgba(255, 204, 74, .35); }
+.g-ultraheist .uh-btn.buy { background: linear-gradient(180deg, #ffe08a, #e09a1a 55%, #8a5205); border-color: #ffe9a8; color: #2a1402; box-shadow: 0 4px 0 #4a2a02, 0 0 22px rgba(255, 204, 74, .35); overflow: hidden; }
+.g-ultraheist .uh-btn.buy::after { content: ''; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, .55) 50%, transparent 65%) 0 0 / 300% 100%; animation: ultraheist-sheen 4s ease-in-out infinite; }
 .g-ultraheist .uh-btn.buy small { color: #4a2a02; font-weight: 700; }
 .g-ultraheist .uh-btn.on { border-color: var(--uh-mag); box-shadow: 0 4px 0 #04060c, 0 0 18px rgba(255, 61, 158, .6); }
-.g-ultraheist .uh-btn.on small { color: #ff9ccd; }
+.g-ultraheist .uh-btn.on small, .g-ultraheist .uh-btn.on > svg { color: #ff9ccd; }
+.g-ultraheist .uh-btn.turbo.on > svg { animation: ultraheist-zap .6s steps(2) infinite; }
+@keyframes ultraheist-zap { 50% { opacity: .3; } }
 .g-ultraheist .uh-btn.go { background: linear-gradient(180deg, #5ff0ff, #0a86ad); color: #021018; border-color: #c8fbff; }
 .g-ultraheist .uh-btn.ghost { background: transparent; box-shadow: none; }
 .g-ultraheist .uh-spin { position: relative; width: 96px; height: 96px; border-radius: 50%; color: #021018; display: grid; place-items: center;
-  background: radial-gradient(circle at 38% 30%, #e9ffff, #5ff0ff 40%, #0a86ad 80%); box-shadow: 0 0 0 4px #04060c, 0 0 0 7px #5b667d, 0 0 0 9px #04060c, 0 0 34px rgba(95, 240, 255, .55), 0 10px 26px rgba(0, 0, 0, .6); transition: transform .1s, filter .2s; }
-.g-ultraheist .uh-spin svg { width: 76%; height: 76%; }
-.g-ultraheist .uh-spin:active { transform: scale(.94); }
-.g-ultraheist .uh-spin.busy svg { animation: ultraheist-turn 1.2s linear infinite; }
-@keyframes ultraheist-turn { to { transform: rotate(360deg); } }
-.g-ultraheist .uh-spin.busy { filter: saturate(.6) brightness(.85); }
+  background: radial-gradient(circle at 38% 30%, #e9ffff, #5ff0ff 40%, #0a86ad 80%); box-shadow: 0 0 0 4px #04060c, 0 0 0 7px #5b667d, 0 0 0 9px #04060c, 0 0 34px rgba(95, 240, 255, .55), 0 10px 26px rgba(0, 0, 0, .6); transition: transform .1s, filter .2s, background .2s; }
+.g-ultraheist .uh-spin::before { content: ''; position: absolute; inset: -14px; border-radius: 50%; border: 2px solid rgba(95, 240, 255, .5); opacity: 0; animation: ultraheist-spinring 2.4s ease-out infinite; pointer-events: none; }
+@keyframes ultraheist-spinring { 0% { transform: scale(.8); opacity: .8; } 70%, 100% { transform: scale(1.15); opacity: 0; } }
+.g-ultraheist .uh-spin.busy::before { animation: none; }
+.g-ultraheist .uh-spin svg { grid-area: 1 / 1; width: 76%; height: 76%; }
+.g-ultraheist .uh-spin .i-stop, .g-ultraheist .uh-spin .i-skip { display: none; width: 60%; height: 60%; }
+.g-ultraheist .uh-spin:active { transform: scale(.93); }
+.g-ultraheist .uh-spin.stop { background: radial-gradient(circle at 38% 30%, #ffe0e6, #ff5470 40%, #a3102a 80%); box-shadow: 0 0 0 4px #04060c, 0 0 0 7px #5b667d, 0 0 0 9px #04060c, 0 0 34px rgba(255, 42, 72, .6), 0 10px 26px rgba(0, 0, 0, .6); color: #2a0208; }
+.g-ultraheist .uh-spin.stop .i-spin, .g-ultraheist .uh-spin.skip .i-spin { display: none; }
+.g-ultraheist .uh-spin.stop .i-stop { display: block; }
+.g-ultraheist .uh-spin.skip .i-skip { display: block; }
+.g-ultraheist .uh-spin.skip { filter: saturate(.75) brightness(.9); }
+.g-ultraheist .uh-spin.skipping { filter: saturate(.4) brightness(.7); }
 .g-ultraheist .uh-spin em { position: absolute; right: -6px; top: -6px; min-width: 28px; padding: 2px 6px; border-radius: 999px; font-style: normal; font-family: var(--uh-num); font-weight: 700; font-size: 13px; background: var(--uh-mag); color: #fff; box-shadow: 0 0 10px var(--uh-mag); }
 .g-ultraheist .uh-spin em:empty { display: none; }
-.g-ultraheist .uh-automenu { position: absolute; bottom: calc(100% - 4px); right: 6px; z-index: 20; width: min(340px, calc(100vw - 24px)); padding: 14px; border-radius: 16px; background: #0b0f1d; border: 1px solid rgba(95, 240, 255, .35); box-shadow: 0 18px 50px rgba(0, 0, 0, .7); }
+.g-ultraheist .uh-automenu { position: absolute; bottom: calc(100% - 4px); right: 6px; z-index: 20; width: min(340px, calc(100vw - 24px)); padding: 14px; border-radius: 16px; background: #0b0f1d; border: 1px solid rgba(95, 240, 255, .35); box-shadow: 0 18px 50px rgba(0, 0, 0, .7); animation: ultraheist-menu .25s cubic-bezier(.2, 1.4, .4, 1); }
+@keyframes ultraheist-menu { from { transform: translateY(12px) scale(.96); opacity: 0; } }
 .g-ultraheist .uh-automenu h4 { margin: 0 0 6px; font-family: var(--uh-cond); font-size: 22px; letter-spacing: .12em; text-transform: uppercase; color: var(--uh-cyan); }
 .g-ultraheist .uh-automenu label { display: block; margin: 8px 0 5px; font-size: 12px; color: var(--uh-mute); }
 .g-ultraheist .uh-automenu .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.g-ultraheist .uh-automenu .chips button, .g-ultraheist .uh-automenu .tog { min-width: 52px; min-height: 36px; padding: 4px 10px; border-radius: 10px; background: #161d33; border: 1px solid rgba(255, 255, 255, .12); font-family: var(--uh-num); font-weight: 700; }
+.g-ultraheist .uh-automenu .chips button, .g-ultraheist .uh-automenu .tog { min-width: 52px; min-height: 36px; padding: 4px 10px; border-radius: 10px; background: #161d33; border: 1px solid rgba(255, 255, 255, .12); font-family: var(--uh-num); font-weight: 700; transition: transform .08s; }
+.g-ultraheist .uh-automenu .chips button:active, .g-ultraheist .uh-automenu .tog:active { transform: scale(.94); }
 .g-ultraheist .uh-automenu .chips button.on, .g-ultraheist .uh-automenu .tog.on { background: #0f3d4b; border-color: var(--uh-cyan); color: #fff; box-shadow: 0 0 10px rgba(95, 240, 255, .4); }
 .g-ultraheist .uh-automenu .tog { display: block; width: 100%; margin: 10px 0; font-family: var(--f-body); }
 .g-ultraheist .uh-automenu .uh-btn.go { width: 100%; }
 
-/* ---------- overlays: heist intro, the take, bonus buy ---------- */
-.g-ultraheist .uh-ov { position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; padding: 16px; background: radial-gradient(ellipse at 50% 40%, rgba(60, 4, 16, .78), rgba(2, 3, 8, .92)); animation: ultraheist-fade .3s; }
-.g-ultraheist .uh-ov.out { animation: ultraheist-fadeout .38s forwards; }
+/* ================= overlays: heist intro, the take, bonus buy ================= */
+.g-ultraheist .uh-ov { position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; padding: 16px; overflow: hidden; background: radial-gradient(ellipse at 50% 40%, rgba(60, 4, 16, .8), rgba(2, 3, 8, .94)); animation: ultraheist-fade .3s; }
+.g-ultraheist .uh-ov > * { grid-area: 1 / 1; }
+.g-ultraheist .uh-ov.out { animation: ultraheist-fadeout .42s forwards; }
 @keyframes ultraheist-fade { from { opacity: 0; } }
 @keyframes ultraheist-fadeout { to { opacity: 0; } }
 .g-ultraheist .uh-ov.buying { background: rgba(2, 3, 8, .82); }
-.g-ultraheist .uh-ov .card { position: relative; z-index: 2; width: min(460px, 100%); text-align: center; padding: 24px 22px 20px; border-radius: 22px; background: linear-gradient(180deg, rgba(20, 8, 20, .96), rgba(6, 4, 12, .96)); border: 2px solid var(--uh-red);
+.g-ultraheist .uh-ov .card { position: relative; z-index: 2; width: min(460px, 100%); max-height: 100%; overflow: auto; text-align: center; padding: 24px 22px 20px; border-radius: 22px; background: linear-gradient(180deg, rgba(20, 8, 20, .96), rgba(6, 4, 12, .96)); border: 2px solid var(--uh-red);
   box-shadow: 0 0 0 5px rgba(0, 0, 0, .6), 0 0 60px rgba(255, 42, 72, .5); animation: ultraheist-pop .5s cubic-bezier(.2, 1.5, .4, 1); }
 @keyframes ultraheist-pop { from { transform: scale(.6); opacity: 0; } }
 .g-ultraheist .uh-ov .card small { font-family: var(--uh-cond); letter-spacing: .3em; text-transform: uppercase; color: #ff8494; font-size: 14px; }
@@ -249,35 +545,92 @@
 .g-ultraheist .uh-ov .card p { margin: 6px 0; color: #d9def0; font-size: 14.5px; line-height: 1.4; }
 .g-ultraheist .uh-ov .card p b { color: #fff; font-size: 18px; }
 .g-ultraheist .uh-ov .card p.fine { color: var(--uh-mute); font-size: 12.5px; }
-.g-ultraheist .uh-ov .card em { display: block; margin-top: 10px; font-style: normal; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--uh-mute); }
-.g-ultraheist .uh-ov .card output { display: block; font-family: var(--uh-num); font-weight: 700; font-size: clamp(38px, 10vw, 64px); line-height: 1.1; color: var(--uh-gold); text-shadow: 0 0 22px rgba(255, 204, 74, .7); }
+.g-ultraheist .uh-ov .card em { display: block; margin-top: 10px; font-style: normal; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--uh-mute); animation: ultraheist-neon 3s infinite; }
+.g-ultraheist .uh-ov .card output { display: block; font-family: var(--uh-num); font-weight: 700; font-size: clamp(38px, 10vw, 64px); line-height: 1.1; color: var(--uh-gold); text-shadow: 0 0 22px rgba(255, 204, 74, .7); font-variant-numeric: tabular-nums; }
+.g-ultraheist .uh-ov .card output.done { animation: ultraheist-bump .5s ease-out; }
 .g-ultraheist .uh-ov .card .row { display: flex; gap: 10px; justify-content: center; margin-top: 14px; flex-wrap: wrap; }
 .g-ultraheist .uh-ov .card.buy { border-color: var(--uh-gold); box-shadow: 0 0 0 5px rgba(0, 0, 0, .6), 0 0 60px rgba(255, 204, 74, .35); }
-.g-ultraheist .uh-ov .door { position: absolute; width: min(70vmin, 520px); aspect-ratio: 1; opacity: .5; animation: ultraheist-door 1.6s cubic-bezier(.3, .8, .4, 1) forwards; }
-.g-ultraheist .uh-ov .door svg { width: 100%; height: 100%; }
-@keyframes ultraheist-door { from { transform: rotate(-200deg) scale(.4); opacity: 0; } 60% { opacity: .7; } to { transform: rotate(0) scale(1); opacity: .35; } }
-.g-ultraheist .uh-ov .door.small { position: relative; width: 84px; margin: -6px auto 2px; opacity: 1; animation: ultraheist-door 1s cubic-bezier(.3, .8, .4, 1); }
+.g-ultraheist .uh-ov .door.small { position: relative; width: 84px; margin: -6px auto 2px; animation: ultraheist-door 1s cubic-bezier(.3, .8, .4, 1); }
+.g-ultraheist .uh-ov .door.small svg { width: 100%; height: 100%; }
+@keyframes ultraheist-door { from { transform: rotate(-200deg) scale(.4); opacity: 0; } }
+
+/* the intro: siren lights, the vault door, the title */
+.g-ultraheist .uh-ov.intro { cursor: pointer; background: radial-gradient(ellipse at 50% 45%, #1a0408, #020205 75%); }
+.g-ultraheist .uh-ov .lights { position: absolute; inset: 0; pointer-events: none; }
+.g-ultraheist .uh-ov .lights i { position: absolute; top: -40%; width: 120%; height: 180%; opacity: .55; }
+.g-ultraheist .uh-ov .lights i:first-child { left: -60%; background: conic-gradient(from 0deg at 50% 50%, rgba(255, 30, 60, .55), transparent 12%, transparent 50%, rgba(255, 30, 60, .45) 50%, transparent 62%); animation: ultraheist-rot 1.6s linear infinite; }
+.g-ultraheist .uh-ov .lights i:last-child { right: -60%; background: conic-gradient(from 90deg at 50% 50%, rgba(50, 110, 255, .55), transparent 12%, transparent 50%, rgba(50, 110, 255, .45) 50%, transparent 62%); animation: ultraheist-rot 1.6s linear infinite reverse; }
+.g-ultraheist .uh-vault { position: relative; width: min(62vmin, 400px); aspect-ratio: 1; perspective: 1000px; transition: transform .7s cubic-bezier(.5, 0, .3, 1), opacity .7s; animation: ultraheist-vaultin .7s cubic-bezier(.2, 1.3, .4, 1); }
+@keyframes ultraheist-vaultin { from { transform: scale(.6); opacity: 0; } }
+.g-ultraheist .uh-vault .vin { position: absolute; inset: 3%; border-radius: 50%; overflow: hidden; box-shadow: inset 0 0 40px #000; }
+.g-ultraheist .uh-vault .vin svg, .g-ultraheist .uh-vault .vdoor svg { width: 100%; height: 100%; display: block; }
+.g-ultraheist .uh-vault .rays { position: absolute; inset: -40%; border-radius: 50%; opacity: 0; pointer-events: none; transition: opacity .6s;
+  background: repeating-conic-gradient(from 0deg, rgba(255, 214, 110, .32) 0 6deg, transparent 6deg 20deg); -webkit-mask: radial-gradient(circle, #000 25%, transparent 68%); mask: radial-gradient(circle, #000 25%, transparent 68%); animation: ultraheist-rot 14s linear infinite; }
+.g-ultraheist .uh-vault .vdoor { position: absolute; inset: 0; transform-origin: 97% 50%; transition: transform 1s cubic-bezier(.5, 0, .25, 1); filter: drop-shadow(0 18px 30px rgba(0, 0, 0, .8)); }
+.g-ultraheist .uh-vault .vd-wheel { transform-box: view-box; transform-origin: 50% 50%; }
+.g-ultraheist .uh-vault .vd-bolts { transform-box: view-box; transform-origin: 50% 50%; transition: transform .25s cubic-bezier(.5, 0, .5, 1.6); }
+.g-ultraheist .uh-ov.spinwheel .vd-wheel { animation: ultraheist-wheel 1s cubic-bezier(.5, 0, .3, 1) forwards; }
+@keyframes ultraheist-wheel { to { transform: rotate(540deg); } }
+.g-ultraheist .uh-ov.unbolt .vd-bolts { transform: scale(.84); }
+.g-ultraheist .uh-ov.unbolt .vd-led { fill: #58f08a; }
+.g-ultraheist .uh-ov.open .vdoor { transform: rotateY(-112deg); }
+.g-ultraheist .uh-ov.open .rays { opacity: 1; }
+.g-ultraheist .uh-ov.titled .uh-vault { transform: translateY(-14%) scale(.66); opacity: .5; }
+.g-ultraheist .uh-ov .title { position: relative; z-index: 2; text-align: center; opacity: 0; pointer-events: none; max-width: 100%; }
+.g-ultraheist .uh-ov.titled .title { opacity: 1; transition: opacity .2s; }
+.g-ultraheist .uh-ov .title small { display: block; font-family: var(--uh-cond); letter-spacing: .34em; text-transform: uppercase; color: #ff8494; font-size: clamp(13px, 2.4vmin, 18px); }
+.g-ultraheist .uh-ov .title h2 { margin: 2px 0 0; font-family: var(--uh-cond); font-weight: 700; font-size: clamp(64px, 19vmin, 168px); line-height: .85; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; }
+.g-ultraheist .uh-ov .title h2 .k { font-size: .32em; letter-spacing: .3em; vertical-align: .9em; color: var(--uh-cyan); text-shadow: 0 0 12px var(--uh-cyan); }
+.g-ultraheist .uh-ov .title h2 .ch { display: inline-block; background: var(--uh-goldtext); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 4px 0 #3a1a02) drop-shadow(0 0 24px rgba(255, 190, 60, .55)); }
+.g-ultraheist .uh-ov.titled .title h2 .ch { animation: ultraheist-letter .55s cubic-bezier(.2, 1.6, .4, 1) backwards; }
+@keyframes ultraheist-letter { from { transform: translateY(-80%) scale(2.4) rotate(-12deg); opacity: 0; } }
+.g-ultraheist .uh-ov .title .sub { font-family: var(--uh-cond); font-size: clamp(26px, 7vmin, 56px); letter-spacing: .32em; padding-left: .32em; text-transform: uppercase; color: #fff; text-shadow: 0 0 10px var(--uh-red), 0 0 30px var(--uh-red); }
+.g-ultraheist .uh-ov.titled .title .sub { animation: ultraheist-subin .5s .35s cubic-bezier(.2, 1.4, .4, 1) backwards; }
+@keyframes ultraheist-subin { from { letter-spacing: 1em; opacity: 0; } }
+.g-ultraheist .uh-ov .title .spins { display: inline-flex; align-items: center; gap: 10px; margin: 10px 0 4px; padding: 4px 16px 4px 6px; border-radius: 999px; background: rgba(40, 2, 10, .9); border: 2px solid var(--uh-red); box-shadow: 0 0 24px rgba(255, 42, 72, .6); }
+.g-ultraheist .uh-ov .title .spins b { display: grid; place-items: center; width: 1.7em; height: 1.7em; border-radius: 50%; background: radial-gradient(circle at 40% 30%, #fff3b8, #ffc23a 60%, #b8650a); color: #2a1402; font-family: var(--uh-num); font-size: clamp(22px, 5vmin, 34px); }
+.g-ultraheist .uh-ov .title .spins span { font-family: var(--uh-cond); font-size: clamp(16px, 3.6vmin, 24px); letter-spacing: .16em; text-transform: uppercase; }
+.g-ultraheist .uh-ov.titled .title .spins { animation: ultraheist-pop .5s .55s cubic-bezier(.2, 1.6, .4, 1) backwards; }
+.g-ultraheist .uh-ov .title p { margin: 6px auto 0; max-width: 460px; color: #d9def0; font-size: clamp(12px, 2.4vmin, 15px); line-height: 1.4; text-shadow: 0 2px 6px #000; }
+.g-ultraheist .uh-ov .title em { display: block; margin-top: 10px; font-style: normal; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--uh-mute); animation: ultraheist-neon 2.4s infinite; }
+
+/* the outro: the getaway car tears across */
+.g-ultraheist .uh-ov.outro { cursor: pointer; background: radial-gradient(ellipse at 50% 40%, rgba(70, 40, 4, .82), rgba(2, 3, 8, .95)); }
+.g-ultraheist .uh-ov.outro .card { border-color: var(--uh-gold); box-shadow: 0 0 0 5px rgba(0, 0, 0, .6), 0 0 70px rgba(255, 204, 74, .45); }
+.g-ultraheist .uh-ov .road { position: absolute; left: 0; right: 0; bottom: 6%; height: clamp(50px, 12vmin, 90px); pointer-events: none; align-self: end; }
+.g-ultraheist .uh-ov .road::before { content: ''; position: absolute; left: 0; right: 0; bottom: 8%; height: 3px; background: repeating-linear-gradient(90deg, rgba(255, 220, 120, .6) 0 30px, transparent 30px 60px); animation: ultraheist-roadline .4s linear infinite; }
+@keyframes ultraheist-roadline { to { background-position: -60px 0; } }
+.g-ultraheist .uh-ov .road .car { position: absolute; bottom: 10%; left: 0; height: 100%; aspect-ratio: 1.2; animation: ultraheist-drive 2.6s cubic-bezier(.5, 0, .3, 1) .2s backwards; }
+.g-ultraheist .uh-ov .road .car svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 6px 6px #000); animation: ultraheist-rev .16s ease-in-out infinite alternate; }
+@keyframes ultraheist-drive { from { transform: translateX(-30vw); } to { transform: translateX(calc(100vw - 100%)); } }
+@keyframes ultraheist-rev { to { transform: translateY(-2px) rotate(-1deg); } }
+.g-ultraheist .uh-ov .road .car::after { content: ''; position: absolute; right: 92%; bottom: 8%; width: 90%; height: 40%; background: radial-gradient(ellipse at 100% 60%, rgba(200, 200, 220, .45), transparent 70%); }
 .g-ultraheist .uh-banner { position: absolute; left: 50%; top: 42%; z-index: 25; transform: translate(-50%, -50%); padding: 10px 26px; border-radius: 14px; white-space: nowrap; pointer-events: none;
-  font-family: var(--uh-cond); font-size: clamp(26px, 7vw, 46px); letter-spacing: .08em; text-transform: uppercase; color: #fff; background: rgba(40, 2, 10, .9); border: 2px solid var(--uh-red); box-shadow: 0 0 40px rgba(255, 42, 72, .7); }
-.g-ultraheist .uh-banner.on { animation: ultraheist-pop .45s cubic-bezier(.2, 1.6, .4, 1); }
+  font-family: var(--uh-cond); font-size: clamp(26px, 7vw, 52px); letter-spacing: .08em; text-transform: uppercase; color: #fff; background: rgba(40, 2, 10, .92); border: 2px solid var(--uh-red); box-shadow: 0 0 40px rgba(255, 42, 72, .7); }
+.g-ultraheist .uh-banner.on { animation: ultraheist-banner .5s cubic-bezier(.2, 1.6, .4, 1); }
+@keyframes ultraheist-banner { from { transform: translate(-50%, -50%) scale(.4) rotate(-6deg); opacity: 0; } }
+.g-ultraheist .uh-banner.gold { background: linear-gradient(180deg, rgba(70, 36, 2, .95), rgba(30, 14, 2, .95)); border-color: var(--uh-gold); box-shadow: 0 0 46px rgba(255, 204, 74, .7); color: #ffe9a6; text-shadow: 0 0 14px rgba(255, 204, 74, .9); }
 
 /* rules modal (rendered in the shell's modal, outside .g-ultraheist) */
 .g-ultraheist-rules .pt { width: 100%; border-collapse: collapse; }
 .g-ultraheist-rules .pt td, .g-ultraheist-rules .pt th { padding: 3px 6px; text-align: right; border-bottom: 1px solid rgba(255, 255, 255, .08); white-space: nowrap; }
 .g-ultraheist-rules .pt td:first-child, .g-ultraheist-rules .pt th:first-child { text-align: left; }
 .g-ultraheist-rules .uh-ri { display: inline-block; width: 30px; height: 30px; vertical-align: middle; margin-right: 6px; }
-.g-ultraheist-rules .uh-ri svg { width: 100%; height: 100%; }
+.g-ultraheist-rules .uh-ri svg { width: 100%; height: 100%; overflow: visible; }
 .g-ultraheist-rules .st { width: 100%; border-collapse: collapse; margin: 6px 0; }
 .g-ultraheist-rules .st td { padding: 3px 6px; border-bottom: 1px solid rgba(255, 255, 255, .08); }
 .g-ultraheist-rules .st td:last-child { text-align: right; font-weight: 700; }
 
-/* ---------- phones ---------- */
+/* ================= phones, portrait ================= */
 .g-ultraheist.narrow .uh-wrap { padding: 4px 8px 0; }
 .g-ultraheist.narrow .uh-center { gap: 6px; justify-content: space-evenly; }
 .g-ultraheist.narrow .uh-machine { padding: 8px; border-radius: 16px; }
+.g-ultraheist.narrow .uh-machine::after { border-radius: 16px; }
 .g-ultraheist.narrow .uh-machine .bolt { width: 7px; height: 7px; }
 .g-ultraheist.narrow .uh-machine .bolt.a, .g-ultraheist.narrow .uh-machine .bolt.c { left: 3px; } .g-ultraheist.narrow .uh-machine .bolt.b, .g-ultraheist.narrow .uh-machine .bolt.d { right: 3px; }
 .g-ultraheist.narrow .uh-machine .bolt.a, .g-ultraheist.narrow .uh-machine .bolt.b { top: 3px; } .g-ultraheist.narrow .uh-machine .bolt.c, .g-ultraheist.narrow .uh-machine .bolt.d { bottom: 3px; }
+.g-ultraheist.narrow .uh-beacon { top: -10px; width: 22px; height: 13px; }
+.g-ultraheist.narrow .uh-mascot { right: 4%; left: auto; bottom: calc(100% - 9px); width: clamp(52px, calc(var(--cell) * .9), 96px); }
 .g-ultraheist.narrow .uh-hud { width: calc(var(--cell) * 5 + var(--gap) * 4 + 16px); gap: 6px; }
 .g-ultraheist.narrow .uh-board { min-width: 0; width: clamp(92px, 27vw, 150px); }
 .g-ultraheist.narrow .uh-meter .lbl small { display: none; }
@@ -286,11 +639,13 @@
 .g-ultraheist.narrow .uh-winbar { width: calc(var(--cell) * 5 + var(--gap) * 4 + 16px); padding: 4px 10px; min-height: 40px; gap: 8px; }
 .g-ultraheist.narrow .uh-winbar .amt { font-size: 20px; }
 .g-ultraheist.narrow .uh-winbar .msg { font-size: 12px; }
-.g-ultraheist.narrow .uh-ctl { position: sticky; bottom: 0; z-index: 10; grid-template-columns: 1fr auto 1fr; grid-template-areas: 'l s r'; gap: 8px; padding: 8px 4px calc(10px + env(safe-area-inset-bottom, 0px));
+.g-ultraheist.narrow .uh-ctl { grid-template-columns: 1fr auto 1fr; gap: 8px; padding: 6px 4px calc(10px + env(safe-area-inset-bottom, 0px));
   background: linear-gradient(180deg, rgba(4, 5, 12, 0), rgba(4, 5, 12, .9) 22%); }
 .g-ultraheist.narrow .uh-ctl .l, .g-ultraheist.narrow .uh-ctl .r { flex-direction: column; align-items: stretch; gap: 6px; }
 .g-ultraheist.narrow .uh-ctl .l { justify-content: center; }
 .g-ultraheist.narrow .uh-btn { min-height: 44px; min-width: 0; padding: 4px 8px; }
+.g-ultraheist.narrow .uh-btn.auto, .g-ultraheist.narrow .uh-btn.turbo { padding-left: 24px; }
+.g-ultraheist.narrow .uh-btn > svg { left: 7px; width: 14px; height: 14px; margin-top: -7px; }
 .g-ultraheist.narrow .uh-btn b { font-size: 15px; }
 .g-ultraheist.narrow .uh-stakebox .bc-stake { display: flex; justify-content: space-between; padding: 2px; }
 .g-ultraheist.narrow .uh-stakebox .bc-stake button { width: 34px; height: 34px; }
@@ -302,7 +657,62 @@
   .g-ultraheist.narrow .uh-btn b { font-size: 14px; letter-spacing: .08em; }
   .g-ultraheist.narrow .uh-stakebox .bc-stake button { width: 30px; height: 30px; }
 }
+
+/* ================= phones, landscape (and any short, wide window) ================= */
+.g-ultraheist.land .uh-wrap { display: grid; grid-template-columns: var(--lw) auto var(--rw); grid-template-rows: auto minmax(0, 1fr); grid-template-areas: 'hud mach ctl' 'win mach ctl'; gap: 6px 16px; padding: 6px 12px 6px; justify-content: center; align-items: center; }
+.g-ultraheist.land .uh-center { display: contents; }
+.g-ultraheist.land .uh-hud { grid-area: hud; width: 100%; display: grid; grid-template-columns: auto 1fr; grid-template-areas: 'logo logo' 'dial board'; gap: 4px 8px; align-items: center; align-self: end; }
+.g-ultraheist.land .uh-logo { grid-area: logo; }
+.g-ultraheist.land .uh-logo b { font-size: 30px; }
+.g-ultraheist.land .uh-logo i { font-size: 12px; margin-top: 2px; }
+.g-ultraheist.land .uh-dial { grid-area: dial; width: 74px; }
+.g-ultraheist.land .uh-dial output { font-size: 22px; }
+.g-ultraheist.land .uh-board { grid-area: board; min-width: 0; gap: 4px; }
+.g-ultraheist.land .uh-meter { padding: 4px 6px 5px; }
+.g-ultraheist.land .uh-meter .lbl small { display: none; }
+.g-ultraheist.land .uh-meter .bulbs i { height: 9px; }
+.g-ultraheist.land .uh-hint { font-size: 10px; }
+.g-ultraheist.land .uh-hint svg { width: 20px; height: 20px; }
+.g-ultraheist.land .uh-fsbox b { font-size: 20px; }
+.g-ultraheist.land .uh-machine { grid-area: mach; padding: 7px; border-radius: 14px; align-self: center; }
+.g-ultraheist.land .uh-machine::after { border-radius: 14px; }
+.g-ultraheist.land .uh-machine .bolt { width: 6px; height: 6px; }
+.g-ultraheist.land .uh-machine .bolt.a, .g-ultraheist.land .uh-machine .bolt.c { left: 2px; } .g-ultraheist.land .uh-machine .bolt.b, .g-ultraheist.land .uh-machine .bolt.d { right: 2px; }
+.g-ultraheist.land .uh-machine .bolt.a, .g-ultraheist.land .uh-machine .bolt.b { top: 2px; } .g-ultraheist.land .uh-machine .bolt.c, .g-ultraheist.land .uh-machine .bolt.d { bottom: 2px; }
+.g-ultraheist.land .uh-beacon { top: auto; bottom: -9px; width: 20px; height: 11px; border-radius: 3px 3px 10px 10px; }
+.g-ultraheist.land .uh-mascot { display: none; }
+.g-ultraheist.land .uh-steptag { top: 4px; }
+.g-ultraheist.land .uh-winbar { grid-area: win; width: 100%; flex-direction: column; align-items: stretch; gap: 4px; padding: 6px 10px; align-self: start; }
+.g-ultraheist.land .uh-winbar .w { flex-direction: row; align-items: baseline; justify-content: space-between; gap: 6px; }
+.g-ultraheist.land .uh-winbar .amt { font-size: 20px; }
+.g-ultraheist.land .uh-winbar .msg { text-align: left; font-size: 11.5px; -webkit-line-clamp: 3; }
+.g-ultraheist.land .uh-ctl { grid-area: ctl; display: flex; flex-direction: column; align-items: stretch; gap: 8px; padding: 0; max-width: none; }
+.g-ultraheist.land .uh-spin { order: -1; align-self: center; width: 84px; height: 84px; }
+.g-ultraheist.land .uh-ctl .l { flex-direction: column; align-items: stretch; gap: 6px; }
+.g-ultraheist.land .uh-ctl .r { gap: 6px; }
+.g-ultraheist.land .uh-ctl .r .uh-btn { flex: 1; }
+.g-ultraheist.land .uh-btn { min-height: 40px; min-width: 0; padding: 3px 8px; }
+.g-ultraheist.land .uh-btn.auto, .g-ultraheist.land .uh-btn.turbo { padding-left: 22px; }
+.g-ultraheist.land .uh-btn > svg { left: 6px; width: 13px; height: 13px; margin-top: -6.5px; }
+.g-ultraheist.land .uh-btn b { font-size: 14px; letter-spacing: .08em; }
+.g-ultraheist.land .uh-btn small { font-size: 10.5px; }
+.g-ultraheist.land .uh-stakebox .bc-stake { display: flex; justify-content: space-between; padding: 2px; }
+.g-ultraheist.land .uh-stakebox .bc-stake button { width: 32px; height: 32px; }
+.g-ultraheist.land .uh-stakebox .bc-stake output { min-width: 0; flex: 1; font-size: 15px; }
+.g-ultraheist.land .uh-stakebox .bc-stake output small { font-size: 8.5px; letter-spacing: .04em; }
+.g-ultraheist.land .uh-automenu { bottom: auto; top: -2px; right: calc(100% + 8px); max-height: calc(100vh - 80px); overflow: auto; }
+.g-ultraheist.land .uh-ov .title h2 { font-size: clamp(48px, 16vmin, 90px); }
+.g-ultraheist.land .uh-vault { width: min(70vmin, 260px); }
+.g-ultraheist.land .uh-ov .card { padding: 14px 18px 12px; }
+.g-ultraheist.land .uh-ov .card h2 { font-size: 42px; }
+
+/* ================= reduced motion: same game, calmer pictures ================= */
+.g-ultraheist.rm .uh-layer, .g-ultraheist.rm .uh-beams i, .g-ultraheist.rm .uh-clouds i, .g-ultraheist.rm .uh-flyers svg, .g-ultraheist.rm .uh-fog, .g-ultraheist.rm .uh-logo i, .g-ultraheist.rm .uh-lasers i,
+.g-ultraheist.rm .uh-machine::after, .g-ultraheist.rm .uh-btn.buy::after, .g-ultraheist.rm .uh-spin::before, .g-ultraheist.rm .uh-police i, .g-ultraheist.rm.free .uh-bg::after, .g-ultraheist.rm .l-sky .tw, .g-ultraheist.rm .l-mid .fl { animation: none; }
+.g-ultraheist.rm .uh-tw, .g-ultraheist.rm .uh-scan, .g-ultraheist.rm .uh-beam, .g-ultraheist.rm .uh-dialturn, .g-ultraheist.rm .uh-sway, .g-ultraheist.rm .uh-led, .g-ultraheist.rm .uh-ledglow { animation: none; }
+.g-ultraheist.rm .uh-cell.hit > svg, .g-ultraheist.rm .uh-bandit .b-all, .g-ultraheist.rm .uh-bandit .b-wl, .g-ultraheist.rm .uh-bandit .b-wr, .g-ultraheist.rm .uh-mascot .b-all, .g-ultraheist.rm .uh-mascot .b-wl, .g-ultraheist.rm .uh-mascot .b-wr, .g-ultraheist.rm .uh-mascot .b-leg,
+.g-ultraheist.rm .uh-cell.alarm > svg, .g-ultraheist.rm .uh-reel.tease, .g-ultraheist.rm .uh-dial .aura { animation: none; }
+.g-ultraheist.rm .uh-reel.spinning { filter: none; }
 @media (prefers-reduced-motion: reduce) {
-  .g-ultraheist .uh-bg .search, .g-ultraheist .uh-logo i, .g-ultraheist .uh-lasers i, .g-ultraheist.free .uh-bg::before { animation: none; }
-  .g-ultraheist .uh-cell.hit > svg, .g-ultraheist .uh-bandit.hit > svg, .g-ultraheist .uh-cell.alarm > svg { animation: none; }
+  .g-ultraheist .uh-bg .uh-layer, .g-ultraheist .uh-beams i, .g-ultraheist .uh-clouds i, .g-ultraheist .uh-flyers svg { animation: none; }
 }

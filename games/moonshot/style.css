@@ -8,7 +8,7 @@
   --ms-fd: 'Audiowide', 'Chakra Petch', 'Arial Black', 'Segoe UI', sans-serif;
   --ms-fn: 'Chakra Petch', 'Figtree', 'Segoe UI', system-ui, sans-serif;
   --ms-fb: 'Figtree', 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
-  position: relative; display: flex; min-width: 0; min-height: 540px; max-height: calc(100dvh - var(--bar-h));
+  position: relative; display: flex; min-width: 0; min-height: min(540px, calc(100dvh - var(--bar-h))); height: calc(100dvh - var(--bar-h)); max-height: calc(100dvh - var(--bar-h));
   overflow: hidden; background: var(--ms-bg); color: var(--ms-ink); font-family: var(--ms-fb); user-select: none; -webkit-user-select: none;
 }
 .g-moonshot [hidden] { display: none !important; }
@@ -32,8 +32,11 @@
 .g-moonshot .ms-pill.t-moon { color: #2a1500; background: linear-gradient(180deg, #fff0a8, var(--ms-gold) 50%, var(--ms-gold2)); border-color: #fff0a8; }
 .g-moonshot .ms-pill.t-cosmic { color: #fff; background: linear-gradient(90deg, #ff4f8b, #b05cff, #4aa8ff); border-color: #fff; }
 .g-moonshot .ms-pill.blood::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #ff3b4e; box-shadow: 0 0 6px #ff3b4e; }
-.g-moonshot .ms-pill.new { animation: moonshot-pill .5s cubic-bezier(.2, 1.4, .4, 1); }
-@keyframes moonshot-pill { from { transform: scale(.3); opacity: 0; } }
+.g-moonshot .ms-pill.new { animation: moonshot-pill .55s cubic-bezier(.2, 1.4, .4, 1); box-shadow: 0 0 14px currentColor; }
+@keyframes moonshot-pill { 0% { transform: scale(.2) translateX(-20px); opacity: 0; } 60% { transform: scale(1.18); opacity: 1; } }
+.g-moonshot .ms-rail.shift .ms-pill:not(.new) { animation: moonshot-rail .45s cubic-bezier(.2, .9, .3, 1); }
+@keyframes moonshot-rail { from { transform: translateX(-64px); } }
+.g-moonshot .ms-pill.t-great, .g-moonshot .ms-pill.t-moon, .g-moonshot .ms-pill.t-cosmic { box-shadow: 0 0 10px rgba(255, 215, 106, .35); }
 
 .g-moonshot .ms-cap { position: absolute; top: 42px; left: 50%; translate: -50% 0; z-index: 3; padding: 5px 14px; border-radius: 999px; white-space: nowrap;
   font-family: var(--ms-fn); font-weight: 700; font-size: 12.5px; letter-spacing: .14em; text-transform: uppercase;
@@ -42,7 +45,7 @@
 .g-moonshot .ms-cap.gold { color: var(--ms-gold); border-color: var(--ms-gold); }
 @keyframes moonshot-cap { 0% { opacity: 0; transform: translateY(-10px) scale(.8); } 12%, 80% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-6px); } }
 
-.g-moonshot .ms-hero { --heat: 0; position: absolute; left: 0; right: 0; top: 45%; translate: 0 -50%; z-index: 2; text-align: center; pointer-events: none; padding-inline: 8px; }
+.g-moonshot .ms-hero { --heat: 0; position: absolute; left: 0; right: 0; top: 45%; translate: 0 -50%; z-index: 2; text-align: center; pointer-events: none; padding-inline: 8px; transition: top .45s cubic-bezier(.2, .9, .3, 1); }
 .g-moonshot .ms-kick { font-family: var(--ms-fn); font-weight: 700; font-size: 12.5px; letter-spacing: .24em; text-transform: uppercase; color: #d9d0ff; text-shadow: 0 1px 6px #0b0926, 0 0 14px #0b0926; min-height: 1.3em; }
 .g-moonshot .ms-mult {
   font-family: var(--ms-fd); font-weight: 400; line-height: 1.02; white-space: nowrap; font-variant-numeric: tabular-nums;
@@ -52,22 +55,70 @@
   text-shadow: 0 3px 0 #a8660a, 0 6px 0 rgba(11, 9, 38, .85), 0 0 26px rgba(11, 9, 38, .95), 0 0 calc(20px + var(--heat) * 50px) rgba(255, 190, 80, calc(.35 + var(--heat) * .5));
 }
 .g-moonshot .ms-hero[data-phase="bet"] .ms-mult { color: #f4efff; text-shadow: 0 3px 0 #5b4bb8, 0 6px 0 rgba(11, 9, 38, .85), 0 0 26px rgba(11, 9, 38, .95); }
-.g-moonshot .ms-hero[data-phase="end"] .ms-mult { color: #fff; text-shadow: 0 3px 0 #d8344f, 0 6px 0 rgba(120, 20, 60, .7), 0 0 30px rgba(255, 80, 120, .9); animation: moonshot-slam .45s cubic-bezier(.2, 1.5, .4, 1); }
+.g-moonshot .ms-hero[data-phase="end"] .ms-mult { color: #fff; text-shadow: 0 3px 0 #d8344f, 0 6px 0 rgba(120, 20, 60, .7), 0 0 30px rgba(255, 80, 120, .9); animation: moonshot-slam .45s cubic-bezier(.2, 1.5, .4, 1), moonshot-shake .5s .1s linear; }
+@keyframes moonshot-shake { 10%, 50%, 90% { translate: -5px 1px; } 30%, 70% { translate: 5px -1px; } 100% { translate: 0 0; } }
 .g-moonshot .ms-hero[data-phase="end"] .ms-kick { color: #fff; text-shadow: 0 1px 0 #d8344f, 0 0 12px rgba(160, 30, 70, .9); }
 .g-moonshot .ms-hero.blood .ms-kick { color: #ff9aa6; }
 .g-moonshot .ms-hero.blood[data-phase="fly"] .ms-mult, .g-moonshot .ms-hero.blood[data-phase="lift"] .ms-mult { color: #ffd0c8; text-shadow: 0 3px 0 #a0122e, 0 6px 0 rgba(40, 4, 16, .85), 0 0 26px rgba(40, 4, 16, .95), 0 0 40px rgba(255, 60, 70, .7); }
 .g-moonshot .ms-hero.cashed .ms-mult { animation: moonshot-bump .35s ease; }
 @keyframes moonshot-slam { from { transform: scale(1.9); opacity: 0; } }
 @keyframes moonshot-bump { 40% { transform: scale(1.09); } }
-.g-moonshot .ms-bar { width: 132px; height: 5px; margin: 6px auto 0; border-radius: 3px; background: rgba(255, 255, 255, .16); overflow: hidden; display: none; }
-.g-moonshot .ms-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--ms-pink), var(--ms-gold)); transform-origin: left; }
-.g-moonshot .ms-hero[data-phase="bet"] .ms-bar { display: block; }
 .g-moonshot .ms-sub { margin-top: 6px; min-height: 1.35em; font-size: 13px; font-weight: 600; color: #d9d0ff; text-shadow: 0 1px 6px #0b0926, 0 0 12px #0b0926; }
 .g-moonshot .ms-launch { pointer-events: auto; margin-top: 8px; height: 38px; padding-inline: 18px; border-radius: 999px;
   font-family: var(--ms-fn); font-weight: 700; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--ms-gold);
   background: rgba(11, 9, 38, .74); border: 1.5px solid var(--ms-gold); box-shadow: 0 0 18px rgba(255, 215, 106, .22); transition: background .15s, transform .08s; }
 .g-moonshot .ms-launch:hover { background: rgba(255, 215, 106, .18); }
 .g-moonshot .ms-launch:active { transform: scale(.96); }
+
+/* countdown dial: a draining ring with a hot last three seconds */
+.g-moonshot .ms-dial { position: relative; display: grid; place-items: center; margin-inline: auto; max-width: 100%; }
+.g-moonshot .ms-ring { display: none; }
+.g-moonshot .ms-hero[data-phase="bet"] .ms-dial { --dial: clamp(118px, 25cqw, 176px); width: var(--dial); height: var(--dial); margin-block: 8px 4px; }
+.g-moonshot .ms-hero[data-phase="bet"] .ms-ring { display: block; position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 0 12px rgba(255, 190, 90, .35)); }
+.g-moonshot .ms-ring-bg { fill: rgba(11, 9, 38, .62); stroke: rgba(255, 255, 255, .1); stroke-width: 7; }
+.g-moonshot .ms-ring-ticks line { stroke: rgba(217, 208, 255, .38); stroke-width: 1.4; stroke-linecap: round; }
+.g-moonshot .ms-ring-fg { fill: none; stroke: url(#moonshot-ring-g); stroke-width: 7; stroke-linecap: round; stroke-dasharray: 100; transition: stroke .3s; }
+.g-moonshot .ms-ring-dot circle { fill: #fff; }
+.g-moonshot .ms-hero.hot .ms-ring-fg { stroke: #ff5d7a; }
+.g-moonshot .ms-hero.hot .ms-ring { animation: moonshot-ringhot 1s ease-in-out infinite; filter: drop-shadow(0 0 16px rgba(255, 80, 110, .75)); }
+@keyframes moonshot-ringhot { 50% { transform: scale(1.045); } }
+.g-moonshot .ms-hero[data-phase="bet"] .ms-mult { position: relative; font-size: calc(var(--dial) * .5); line-height: 1; -webkit-text-stroke-width: 2px; }
+.g-moonshot .ms-hero.hot[data-phase="bet"] .ms-mult { color: #ffe1e6; text-shadow: 0 3px 0 #b8264a, 0 6px 0 rgba(11, 9, 38, .85), 0 0 26px rgba(255, 80, 110, .8); }
+.g-moonshot .ms-hero::before { content: ''; position: absolute; left: 50%; top: 50%; width: min(640px, 96%); height: 170%; translate: -50% -50%; z-index: -1; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(8, 6, 30, .5), rgba(8, 6, 30, .22) 55%, rgba(8, 6, 30, 0)); opacity: 0; transition: opacity .5s; }
+.g-moonshot .ms-hero[data-phase="fly"]::before, .g-moonshot .ms-hero[data-phase="end"]::before { opacity: 1; }
+.g-moonshot .ms-hero[data-phase="fly"] .ms-mult { text-shadow: 0 3px 0 #a8660a, 0 6px 0 rgba(11, 9, 38, .85), 0 0 26px rgba(11, 9, 38, .95), 0 0 calc(20px + var(--heat) * 50px) color-mix(in srgb, rgba(255, 190, 80, .6), rgba(255, 70, 160, .9) calc(var(--heat) * 100%)); }
+
+/* my cash-outs: badges spring out under the readout */
+.g-moonshot .ms-wins { position: absolute; left: 0; right: 0; top: 100%; display: grid; justify-items: center; gap: 6px; margin-top: 4px; }
+.g-moonshot .ms-wb { --c: var(--ms-gold); display: inline-flex; align-items: center; gap: 8px; max-width: calc(100% - 16px); padding: 5px 14px 5px 5px; border-radius: 999px; white-space: nowrap;
+  background: linear-gradient(180deg, rgba(22, 66, 54, .94), rgba(9, 34, 30, .94)); border: 1.5px solid var(--ms-green); box-shadow: 0 0 24px rgba(114, 240, 176, .45), 0 8px 20px rgba(0, 0, 0, .4);
+  font-weight: 700; font-size: 13px; color: #e8fff4; animation: moonshot-wb .5s cubic-bezier(.2, 1.5, .4, 1) both; }
+.g-moonshot .ms-wb i { flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-family: var(--ms-fd); font-size: 12px; color: #1a1040; background: var(--c); }
+.g-moonshot .ms-wb-b { --c: var(--ms-ice); }
+.g-moonshot .ms-wb em { font-style: normal; font-family: var(--ms-fn); color: #fff; }
+.g-moonshot .ms-wb b { font-family: var(--ms-fd); font-weight: 400; font-size: 17px; color: var(--ms-green); text-shadow: 0 0 12px rgba(114, 240, 176, .6); }
+.g-moonshot .ms-wb.big { border-color: var(--ms-gold); background: linear-gradient(180deg, rgba(96, 64, 6, .95), rgba(52, 30, 0, .95)); box-shadow: 0 0 30px rgba(255, 215, 106, .6), 0 8px 20px rgba(0, 0, 0, .4); }
+.g-moonshot .ms-wb.big b { color: var(--ms-gold); text-shadow: 0 0 14px rgba(255, 215, 106, .8); }
+.g-moonshot .ms-wb.out { animation: moonshot-wbout .4s ease forwards; }
+@keyframes moonshot-wb { from { opacity: 0; transform: translateY(18px) scale(.5); } }
+@keyframes moonshot-wbout { to { opacity: 0; transform: translateY(-16px) scale(.9); } }
+
+/* everyone else's cash-outs: chips in the corner */
+.g-moonshot .ms-feed { position: absolute; right: 8px; top: 40px; z-index: 3; display: grid; justify-items: end; gap: 5px; pointer-events: none; width: min(250px, 58%); }
+.g-moonshot .ms-fc { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; height: 28px; padding: 0 10px 0 3px; border-radius: 999px; background: rgba(11, 9, 38, .8); border: 1px solid rgba(114, 240, 176, .45);
+  font-size: 12px; font-weight: 700; color: #e4dcff; animation: moonshot-fc .42s cubic-bezier(.2, 1.3, .4, 1) both; }
+.g-moonshot .ms-fc-av { width: 22px; height: 22px; flex: none; display: grid; place-items: center; border-radius: 50%; background: #2a1868; overflow: hidden; }
+.g-moonshot .ms-fc-av svg { width: 22px; height: 22px; display: block; }
+.g-moonshot .ms-fc-av svg:not(.bc-av) { width: 17px; height: auto; fill: #b9aef5; }
+.g-moonshot .ms-fc-n { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.g-moonshot .ms-fc b { font-family: var(--ms-fn); color: var(--ms-green); white-space: nowrap; }
+.g-moonshot .ms-fc em { font-style: normal; font-family: var(--ms-fn); color: var(--ms-gold); white-space: nowrap; }
+.g-moonshot .ms-fc.mid { border-color: rgba(143, 216, 255, .7); }
+.g-moonshot .ms-fc.big { border-color: var(--ms-gold); box-shadow: 0 0 14px rgba(255, 215, 106, .45); }
+.g-moonshot .ms-fc.out { animation: moonshot-fcout .45s ease forwards; }
+@keyframes moonshot-fc { from { opacity: 0; transform: translateX(40px) scale(.8); } }
+@keyframes moonshot-fcout { to { opacity: 0; transform: translateX(30px); } }
 
 .g-moonshot .ms-blood, .g-moonshot .ms-free { position: absolute; left: 0; right: 0; top: 14%; z-index: 4; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 12px 12px;
   text-align: center; pointer-events: none; opacity: 0; }
@@ -123,8 +174,12 @@
   background: linear-gradient(180deg, var(--ms-panel2), var(--ms-panel)); border: 1px solid var(--ms-line); position: relative; }
 .g-moonshot .ms-slot.ms-b { --acc: var(--ms-ice); --acc2: #4f9cf0; --acc-ink: #06223d; --acc-edge: #1f5aa8; }
 .g-moonshot .ms-slot.free { border-color: var(--ms-gold); box-shadow: 0 0 0 1px rgba(255, 215, 106, .35) inset, 0 0 18px rgba(255, 215, 106, .2); }
-.g-moonshot .ms-slot.flash { animation: moonshot-flash .6s ease; }
-@keyframes moonshot-flash { 20% { box-shadow: 0 0 0 2px var(--ms-green), 0 0 30px rgba(114, 240, 176, .6); } }
+.g-moonshot .ms-slot.flash { animation: moonshot-flash .7s ease; }
+.g-moonshot .ms-slot.flash::after { content: ''; position: absolute; inset: -2px; border-radius: 18px; border: 2px solid var(--acc); pointer-events: none; animation: moonshot-ripple .7s ease-out forwards; }
+.g-moonshot .ms-slot.flash .ms-go { animation: moonshot-gopop .45s cubic-bezier(.2, 1.6, .4, 1); }
+@keyframes moonshot-flash { 20% { box-shadow: 0 0 0 2px var(--ms-green), 0 0 36px rgba(114, 240, 176, .7); background: linear-gradient(180deg, #1f4a48, var(--ms-panel)); } }
+@keyframes moonshot-ripple { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(1.08, 1.3); } }
+@keyframes moonshot-gopop { 35% { transform: scale(1.08); } }
 .g-moonshot .ms-ctl { display: grid; gap: 6px; min-width: 0; align-content: center; }
 .g-moonshot .ms-r1, .g-moonshot .ms-r2 { display: flex; align-items: center; gap: 6px; min-width: 0; }
 .g-moonshot .ms-tag { flex: none; width: 26px; height: 38px; border-radius: 9px; display: grid; place-items: center; font-family: var(--ms-fd); font-size: 14px; color: var(--acc-ink); background: linear-gradient(180deg, var(--acc), var(--acc2)); }
@@ -152,7 +207,7 @@
 .g-moonshot .ms-go { min-width: 0; min-height: 78px; border-radius: 13px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 4px 6px; text-align: center;
   color: var(--acc-ink); background: linear-gradient(180deg, color-mix(in srgb, var(--acc) 60%, #fff), var(--acc) 45%, var(--acc2)); box-shadow: 0 4px 0 var(--acc-edge), 0 8px 18px rgba(0, 0, 0, .4);
   transition: transform .07s, box-shadow .07s, filter .15s; margin-bottom: 4px; }
-.g-moonshot .ms-go b { font-family: var(--ms-fd); font-weight: 400; font-size: clamp(15px, 4.6vw, 20px); line-height: 1; letter-spacing: .03em; text-transform: uppercase; white-space: nowrap; }
+.g-moonshot .ms-go b { font-family: var(--ms-fd); font-weight: 400; font-size: clamp(13px, 4vw, 20px); line-height: 1; letter-spacing: .01em; text-transform: uppercase; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: clip; }
 .g-moonshot .ms-go small { font-family: var(--ms-fn); font-weight: 700; font-size: 12px; line-height: 1.1; font-variant-numeric: tabular-nums; opacity: .85; }
 .g-moonshot .ms-go:hover:not(:disabled) { filter: brightness(1.07); }
 .g-moonshot .ms-go:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 var(--acc-edge), 0 3px 8px rgba(0, 0, 0, .4); }
@@ -163,7 +218,7 @@
 .g-moonshot .ms-slot[data-state="live"] .ms-go small { font-size: 15px; opacity: 1; }
 @keyframes moonshot-live { 50% { box-shadow: 0 4px 0 #a31d4c, 0 0 40px rgba(255, 150, 90, .95); filter: brightness(1.1); } }
 .g-moonshot .ms-slot[data-state="banked"] .ms-go { color: var(--ms-green); background: rgba(10, 40, 34, .7); box-shadow: 0 0 0 2px rgba(114, 240, 176, .7) inset; }
-.g-moonshot .ms-slot[data-state="banked"] .ms-go b { font-size: clamp(13px, 3.9vw, 17px); }
+.g-moonshot .ms-slot[data-state="banked"] .ms-go small { font-size: 13px; opacity: 1; color: #d6ffe9; }
 .g-moonshot .ms-slot[data-state="bust"] .ms-go { color: #ff9db4; background: rgba(50, 10, 30, .6); box-shadow: 0 0 0 1px rgba(255, 134, 164, .4) inset; }
 .g-moonshot .ms-slot.free[data-state="idle"] .ms-go { background: linear-gradient(180deg, #fff, var(--ms-gold) 40%, var(--ms-pink)); color: #2a1500; }
 
@@ -200,7 +255,23 @@
 .g-moonshot .ms-side h4 { margin: 0 0 7px; font-family: var(--ms-fn); font-weight: 700; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--ms-ink); display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .g-moonshot .ms-side h4 small { font-family: var(--ms-fb); font-size: 10px; letter-spacing: .04em; text-transform: none; font-weight: 700; color: #1a1040; background: #b9aef5; padding: 1px 7px; border-radius: 999px; white-space: nowrap; }
 .g-moonshot .ms-bots ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
-.g-moonshot .ms-bots li { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto minmax(84px, auto); align-items: center; gap: 6px; height: 30px; padding-inline: 7px 9px; border-radius: 9px; background: rgba(255, 255, 255, .045); font-size: 12.5px; font-weight: 600; }
+.g-moonshot .ms-bots li { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto minmax(84px, auto); align-items: center; gap: 6px; height: 30px; padding-inline: 7px 9px; border-radius: 9px; background: rgba(255, 255, 255, .045); font-size: 12.5px; font-weight: 600; position: relative; overflow: hidden; transition: background .3s, opacity .4s; }
+.g-moonshot .ms-bots li.in { animation: moonshot-row .42s calc(var(--i, 0) * 45ms) cubic-bezier(.2, 1.1, .3, 1) both; }
+@keyframes moonshot-row { from { opacity: 0; transform: translateX(26px); } }
+.g-moonshot .ms-bots li.me { background: linear-gradient(90deg, rgba(255, 215, 106, .16), rgba(255, 215, 106, .04)); box-shadow: inset 2px 0 0 var(--ms-gold); }
+.g-moonshot .ms-bots li.me .ms-bname { color: var(--ms-gold); }
+.g-moonshot .ms-bots li.air .ms-bout { color: #d9d0ff; }
+.g-moonshot .ms-bots li.pop { animation: moonshot-rowpop .7s ease; }
+.g-moonshot .ms-bots li.won.pop::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(114, 240, 176, .45), transparent); animation: moonshot-sweep .7s ease forwards; }
+@keyframes moonshot-rowpop { 25% { transform: scale(1.035); } }
+@keyframes moonshot-sweep { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+.g-moonshot .ms-bots li.lost .ms-bname { text-decoration: line-through; text-decoration-color: rgba(255, 134, 164, .6); }
+.g-moonshot .ms-sum { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin-bottom: 6px; }
+.g-moonshot .ms-sum span { display: grid; padding: 5px 8px; border-radius: 9px; background: rgba(4, 3, 20, .45); border: 1px solid var(--ms-line); min-width: 0; }
+.g-moonshot .ms-sum b { font-family: var(--ms-fn); font-size: 15px; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.g-moonshot .ms-sum span:last-child b { color: var(--ms-green); }
+.g-moonshot .ms-sum b.bump { animation: moonshot-bump .35s ease; }
+.g-moonshot .ms-sum i { font-style: normal; font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--ms-mute); white-space: nowrap; }
 .g-moonshot .ms-bn svg { width: 20px; display: block; fill: #8f82d8; }
 .g-moonshot .ms-bname { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .g-moonshot .ms-bstake { font-family: var(--ms-fn); font-size: 12px; color: var(--ms-mute); font-variant-numeric: tabular-nums; }
@@ -241,7 +312,6 @@
 @media (min-width: 620px) {
   .g-moonshot .ms-slots { grid-template-columns: 1fr 1fr; }
   .g-moonshot .ms-go b { font-size: 19px; }
-  .g-moonshot .ms-slot[data-state="banked"] .ms-go b { font-size: 16px; }
   .g-moonshot .ms-mult { font-size: calc(clamp(72px, 15cqw, 150px) * var(--fit, 1)); -webkit-text-stroke-width: 3px; }
   .g-moonshot .ms-kick { font-size: 14px; }
   .g-moonshot .ms-sub { font-size: 15px; }
@@ -258,7 +328,7 @@
   .g-moonshot .ms-stake output { font-size: 20px; }
   .g-moonshot .ms-auto, .g-moonshot .ms-ins { height: 38px; font-size: 13px; }
   .g-moonshot .ms-go { min-height: 92px; }
-  .g-moonshot .ms-go b { font-size: 22px; }
+  .g-moonshot .ms-go b { font-size: 20px; }
   .g-moonshot .ms-go small { font-size: 13.5px; }
   .g-moonshot .ms-slot[data-state="live"] .ms-go small { font-size: 18px; }
   .g-moonshot .ms-util { flex-direction: column; }
@@ -268,6 +338,7 @@
   .g-moonshot .ms-result { bottom: 18px; }
   .g-moonshot .ms-rail { top: 12px; left: 14px; right: 14px; }
   .g-moonshot .ms-cap { top: 50px; font-size: 14px; }
+  .g-moonshot .ms-feed { top: 46px; right: 14px; }
   .g-moonshot .ms-hero { top: 47%; }
 }
 @media (max-width: 619px) {
@@ -284,10 +355,50 @@
   .g-moonshot .ms-stake, .g-moonshot .ms-tag { height: 34px; }
   .g-moonshot .ms-auto, .g-moonshot .ms-ins { height: 30px; }
 }
+/* landscape phones: sky on the left, the flight deck as a column on the right */
+@media (orientation: landscape) and (max-height: 520px) {
+  .g-moonshot { min-height: 0; }
+  .g-moonshot .ms-main { flex-direction: row; }
+  .g-moonshot .ms-stage { min-height: 0; }
+  .g-moonshot .ms-deck { flex: none; width: min(410px, 47%); grid-template-columns: minmax(0, 1fr); align-content: center; gap: 6px; padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px)) 8px;
+    border-top: 0; border-left: 1px solid rgba(255, 215, 106, .28); box-shadow: -10px 0 30px rgba(0, 0, 0, .35); overflow: hidden; }
+  .g-moonshot .ms-slots { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .g-moonshot .ms-slot { padding: 5px; gap: 6px; border-radius: 13px; grid-template-columns: minmax(0, 1fr) clamp(100px, 36%, 150px); }
+  .g-moonshot .ms-ctl { gap: 5px; }
+  .g-moonshot .ms-stake, .g-moonshot .ms-tag { height: 32px; }
+  .g-moonshot .ms-stake button { width: 32px; }
+  .g-moonshot .ms-stake output { font-size: 16px; }
+  .g-moonshot .ms-auto, .g-moonshot .ms-ins { height: 28px; }
+  .g-moonshot .ms-go { min-height: 60px; margin-bottom: 3px; }
+  .g-moonshot .ms-go b { font-size: 16px; }
+  .g-moonshot .ms-go small { font-size: 11.5px; }
+  .g-moonshot .ms-slot[data-state="live"] .ms-go small { font-size: 14px; }
+  .g-moonshot .ms-stage.res .ms-hero { top: 25%; }
+  .g-moonshot .ms-result li.note { display: none; }
+  .g-moonshot .ms-card { padding: 4px 8px 5px; }
+  .g-moonshot .ms-dots i { max-width: 18px; }
+  .g-moonshot .ms-autobtn, .g-moonshot .ms-quick { height: 40px; min-width: 56px; }
+  .g-moonshot .ms-mult { font-size: calc(clamp(42px, 13cqw, 84px) * var(--fit, 1)); -webkit-text-stroke-width: 2px; }
+  .g-moonshot .ms-hero { top: 47%; }
+  .g-moonshot .ms-hero[data-phase="bet"] .ms-dial { --dial: clamp(92px, 22cqw, 124px); margin-block: 4px 2px; }
+  .g-moonshot .ms-kick { font-size: 11px; }
+  .g-moonshot .ms-sub { font-size: 12px; margin-top: 2px; }
+  .g-moonshot .ms-launch { height: 32px; margin-top: 4px; font-size: 12px; }
+  .g-moonshot .ms-result { bottom: 42px; width: min(320px, calc(100% - 16px)); padding: 6px 10px 8px; }
+  .g-moonshot .ms-result li { min-height: 22px; font-size: 12.5px; }
+  .g-moonshot .ms-cap { top: 38px; }
+  .g-moonshot .ms-feed { top: 38px; }
+  .g-moonshot .ms-wb { font-size: 12px; padding-block: 3px; }
+  .g-moonshot .ms-wb b { font-size: 15px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .g-moonshot .ms-bots li.in, .g-moonshot .ms-bots li.pop, .g-moonshot .ms-wb, .g-moonshot .ms-fc, .g-moonshot .ms-hero.hot .ms-ring, .g-moonshot .ms-rail.shift .ms-pill, .g-moonshot .ms-slot.flash .ms-go { animation: none; }
+  .g-moonshot .ms-wb.out, .g-moonshot .ms-fc.out { animation: moonshot-fade .2s reverse forwards; }
+}
 @media (prefers-reduced-motion: reduce) {
   .g-moonshot .ms-slot[data-state="live"] .ms-go, .g-moonshot .ms-slot[data-state="armed"] .ms-go, .g-moonshot .ms-autobtn.on svg, .g-moonshot .ms-pill.new { animation: none; }
   .g-moonshot .ms-hero[data-phase="end"] .ms-mult, .g-moonshot .ms-hero.cashed .ms-mult { animation: none; }
 }
 .g-moonshot .ms-go.wait { opacity: .75; cursor: progress; }
-.g-moonshot .ms-bots li.ms-none { display: block; color: rgba(255, 255, 255, .55); font-size: 13px; padding: 8px 2px; }
+.g-moonshot .ms-none { margin: 4px 2px 0; color: rgba(255, 255, 255, .55); font-size: 13px; }
 .g-moonshot .ms-bn svg.bc-av { width: 22px; height: 22px; border-radius: 50%; }
