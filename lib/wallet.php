@@ -113,6 +113,9 @@ function after_round(array &$u, string $game, int $stake, int $win, array $f): v
 function uk_day(): string { return (new DateTime('now', new DateTimeZone('Europe/London')))->format('Y-m-d'); }
 
 /* ---------- daily missions ---------- */
+/* Games the daily "play this game" mission can pick: everything on the floor except the level-gated High Roller Lounge. */
+const MISSION_GAMES = ['spin_bunky', 'spin_olympus', 'spin_fishing', 'spin_plachinko', 'spin_moonshot', 'spin_circus', 'spin_bonkers', 'spin_crypt', 'spin_nighttrain',
+    'spin_gummy', 'spin_bookofbats', 'spin_derby', 'spin_ultraheist', 'spin_bonanza', 'spin_starwing', 'spin_batjack'];
 function mission_tier(int $level): int { return 1 + intdiv($level, 5); }
 function mission_defs(): array {
     return [
@@ -122,6 +125,17 @@ function mission_defs(): array {
         'spin_plachinko' => ['Drop 300 balls in Plachinko', 300, 2000],
         'spin_moonshot' => ["Fly 15 times in Batty's Moonshot", 15, 2000],
         'spin_roulette' => ['Play 15 spins of Bat Signal Roulette', 15, 2000],
+        'spin_circus' => ['Spin 40 times on Batty Circus', 40, 2000],
+        'spin_bonkers' => ['Play 15 rounds of Bonkers Time', 15, 2000],
+        'spin_crypt' => ["Spin 40 times in Count Batula's Crypt", 40, 2000],
+        'spin_nighttrain' => ['Spin 40 times on Night Train', 40, 2000],
+        'spin_gummy' => ['Spin 40 times on Gummy Bats', 40, 2000],
+        'spin_bookofbats' => ['Spin 40 times on Book of Bats', 40, 2000],
+        'spin_derby' => ['Back 10 races in Bat Derby', 10, 2000],
+        'spin_ultraheist' => ['Spin 40 times on Bat Bandits UltraNudge', 40, 2000],
+        'spin_bonanza' => ['Spin 40 times on Sugar Fang Bonanza', 40, 2000],
+        'spin_starwing' => ['Spin 40 times on Starwing', 40, 2000],
+        'spin_batjack' => ['Play 15 hands of Bat Jack', 15, 2000],
         'wager' => ['Wager {t} Batty Bucks', 20000, 3000],
         'win' => ['Win {t} Batty Bucks', 15000, 3000],
         'variety' => ['Play 3 different games', 3, 3000],
@@ -137,9 +151,9 @@ function missions_ensure(array $u): string {
     $defs = mission_defs(); $tier = mission_tier((int) $u['level']);
     $h = crc32($u['id'] . '|' . $day);
     $slots = [
-        ['spin_bunky', 'spin_olympus', 'spin_fishing', 'spin_plachinko', 'spin_moonshot', 'spin_roulette'][$h % 6],
-        ['wager', 'win', 'variety'][intdiv($h, 6) % 3],
-        ['big', 'bonus', 'moon5'][intdiv($h, 18) % 3],
+        MISSION_GAMES[$h % count(MISSION_GAMES)],
+        ['wager', 'win', 'variety'][intdiv($h, 16) % 3],
+        ['big', 'bonus', 'moon5'][intdiv($h, 48) % 3],
     ];
     foreach ($slots as $i => $m) {
         [$label, $target, $reward] = $defs[$m];

@@ -80,10 +80,18 @@ function start_session(): void {
 function current_user(): ?array {
     static $u = false;
     if ($u !== false) return $u;
+    /* No session cookie means nobody is logged in; don't start (and hand out) an empty session for that. */
+    $sent = $_COOKIE['battysess'] ?? '';
+    if (!is_string($sent) || $sent === '') { $u = null; return null; }
     start_session();
     $id = (int) ($_SESSION['uid'] ?? 0);
     $ver = (int) ($_SESSION['pv'] ?? 0);
-    session_write_close();
+    if (session_id() !== $sent) {
+        /* Strict mode swapped an unknown id for a fresh, empty session. That happens when a request carrying the old
+           cookie lands just after a login regenerated it (a feed poll in flight). Sending the fresh cookie back would
+           overwrite the new login and log the player out, so drop it and let the browser keep its newer cookie. */
+        session_abort(); header_remove('Set-Cookie');
+    } else session_write_close();
     $u = null;
     if ($id) {
         $row = q1('SELECT * FROM users WHERE id = ?', [$id]);
