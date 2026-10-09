@@ -1,17 +1,22 @@
-BATTY CASINO — COMPLETE REPLACEMENT BUILD — SHOWCASE EDITION — 9 OCTOBER 2026
+BATTY CASINO: FULL SITE BUILD
 
-This ZIP includes the whole current website, including every existing game, casino backend and the enhanced BATTY CIRCUS title. It is a root-level archive.
+This ZIP contains the whole website: the front end, every game and the PHP back end. It is a root-level archive.
 
-Installation:
-1. Back up your entire current website and database.
-2. Extract the contents of this ZIP directly into the folder that contains the live index.html and api.php. Do not extract into a second nested folder.
-3. Overwrite matching included files. Keep server-only config.php, uploaded media, user files and DB untouched.
-4. Confirm lib/games/circus.php, circus/*, sw.js and index.html are present beside your existing lib folder.
-5. Purge Cloudflare HTML/JS/CSS cache and reload.
-6. Find the prominently listed 'Batty Circus' game and open it.
+INSTALLING OVER AN EXISTING SITE
+1. Back up your current website files and your database.
+2. Extract this ZIP directly into the folder that holds the live index.html and api.php (not into a sub-folder).
+   Overwrite everything it contains. Keep your own config.php: it is not in this ZIP.
+3. New folders in this build: games/ (one folder per game), core/ and lib/schema/. Make sure they uploaded.
+   The old circus/ folder is no longer used once the rebuilt Batty Circus is included (games/circus/).
+4. Log in as an admin, open your profile, then "Open the admin panel", and press "Update database".
+   This adds the tables for the live games, the Daily Wheel, the Bat Pass and the shop. It never deletes or changes data.
+5. If you use Cloudflare, purge the cache (HTML, JS and CSS), then reload the site.
 
-Features: animated stage and curtains, brighter bespoke scalable vector reel symbols, 40-line animated winning paths, bonus visuals and confetti, sound cues, two secure virtual-currency buy bonuses, mobile/turbo/reduced motion support and existing server round resume.
+FRESH INSTALL
+Copy config.sample.php to config.php, fill in your MySQL details, then open install.php once in your browser.
 
-Bonus purchase prices: GRAND 75x stake, SPOTLIGHT 175x stake. Virtual Batty Bucks only, no cash value, no guaranteed returns. The server calculates cost and stores the round transaction.
-
-No new database schema or config change is required. Not a certified gambling product.
+NOTES
+- PHP 8.0+ with PDO MySQL is required (MySQL 5.7+/MariaDB 10.3+).
+- There is no cron job. The live games (Bunky Time, Bonkers Time, Moonshot, Bat Derby, the lounge tables)
+  advance whenever anyone is connected.
+- Batty Bucks are virtual play money with no cash value. Nothing can be bought with real money.

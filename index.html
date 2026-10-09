@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="batty-build" content="circus-20261009-showcase">
+<meta name="batty-build" content="20261009b">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#100a1c">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
@@ -1067,7 +1067,8 @@ window.Batty = (function () {
 
   function lobby() {
     const online = srv.on, me = srv.me, loggedOut = online && !me;
-    const ids = ORDER.filter((id) => games[id]).concat(Object.keys(games).filter((id) => !ORDER.includes(id)));
+    /* games still being built register as 'Coming soon'; keep them off the floor until they open */
+    const ids = ORDER.filter((id) => games[id]).concat(Object.keys(games).filter((id) => !ORDER.includes(id))).filter((id) => games[id].tag !== 'Coming soon');
     const play = (id) => {
       const g = games[id];
       if (loggedOut) { ui.toast('Log in or create a free account to play.'); const f = document.querySelector('.ol-auth input'); if (f) { f.scrollIntoView({ block: 'center', behavior: 'smooth' }); f.focus(); } return; }
