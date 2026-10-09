@@ -184,3 +184,16 @@
 .bc-sec .bc-h2 small { white-space: normal; }
 @media (max-width: 760px) { body.has-tabs #bc-lb { display: none; } }
 @media (max-width: 420px) { .bc-brand b { display: none; } }
+
+/* ---------- connection banner, reality check, footer links ---------- */
+.bc-net { position: fixed; z-index: 90; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); translate: -50% 0; display: flex; align-items: center; gap: 10px;
+  padding: 9px 16px; border-radius: 999px; background: #3a0f1f; border: 1px solid rgba(255, 61, 129, .6); color: #ffd1e1; font-weight: 700; font-size: 13.5px; box-shadow: 0 10px 30px rgba(0, 0, 0, .5); animation: bc-fade .2s; }
+.bc-net i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255, 209, 225, .35); border-top-color: #ffd1e1; animation: bc-spin .8s linear infinite; }
+@keyframes bc-spin { to { rotate: 360deg; } }
+.bc-rc { display: grid; gap: 10px; justify-items: start; }
+.bc-rc p { margin: 0; } .bc-rc b { color: var(--moon); font-family: var(--f-num); }
+.bc-rc h3 { margin: 8px 0 0 !important; }
+.bc-rc-act { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+.bc-foot-links { margin-top: 10px; }
+.bc-foot-links button { color: var(--moon); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; font-size: 13px; }
+@media (max-width: 760px) { body.has-tabs .bc-net { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); } }

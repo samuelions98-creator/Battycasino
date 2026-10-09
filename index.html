@@ -505,6 +505,8 @@ window.Batty = (function () {
   const realBal = () => (srv.on ? srv.bal - srv.pending : state.bal);
   function emit() { if (!srv.on) save(); subs.forEach((f) => { try { f(shown, realBal()); } catch (e) { console.error(e); } }); }
   const deferred = [];
+  /* this visit's totals, for the reality check */
+  const session = { t0: Date.now(), bet: 0, won: 0 };
   const wallet = {
     get balance() { return realBal(); },   // real balance (includes winnings not yet shown)
     get shown() { return shown; },         // what the player currently sees
@@ -514,6 +516,7 @@ window.Batty = (function () {
     bet(id, amount) {
       amount = Math.round(amount);
       if (!(amount > 0) || realBal() < amount) return false;
+      session.bet += amount;
       if (srv.on) { srv.pending += amount; shown -= amount; emit(); return true; }
       state.bal -= amount; shown -= amount;
       const s = statOf(id); s.rounds++; s.wagered += amount; state.wagered += amount;
@@ -530,6 +533,7 @@ window.Batty = (function () {
     win(id, amount, opts) {
       amount = Math.round(amount);
       if (!(amount > 0)) return 0;
+      session.won += amount;
       if (!srv.on) { state.bal += amount; const s = statOf(id); s.won += amount; if (amount > s.best) s.best = amount; }
       if (!(opts && opts.silent)) shown = realBal();
       emit(); return amount;
@@ -538,6 +542,7 @@ window.Batty = (function () {
     /* Hand back a stake taken with bet() that was never sent to the server (or never played). */
     unbet(amount) {
       amount = Math.round(amount); if (!(amount > 0)) return;
+      session.bet = Math.max(0, session.bet - amount);
       if (srv.on) srv.pending = Math.max(0, srv.pending - amount); else state.bal += amount;
       shown += amount; emit();
     },
@@ -561,8 +566,10 @@ window.Batty = (function () {
       j = await res.json();
     } catch (e) {
       applyServer(null, o.cost); if (o.cost) { shown += o.cost; emit(); }
+      if (srv.on) net.down();
       const err = new Error('Can’t reach the casino server. Check your connection and try again.'); err.status = 0; throw err;
     }
+    net.up();
     if (!res.ok || j.error) {
       applyServer(null, o.cost); if (o.cost) { shown += o.cost; emit(); }
       const err = new Error(j.error || 'Something went wrong.'); err.status = res.status;
@@ -622,6 +629,51 @@ window.Batty = (function () {
     state.bal += 5000; shown = state.bal; emit();
     sfx('coin'); ui.toast('Emergency bat-signal answered: +5,000 Batty Bucks');
     return true;
+  }
+
+  /* ---------- connection banner: shown while the server can't be reached, cleared as soon as it answers ---------- */
+  const net = {
+    el: null, timer: 0,
+    down() {
+      if (this.el) return;
+      this.el = h('div', { class: 'bc-net', role: 'status' }, h('i'), 'Reconnecting to the casino…');
+      document.body.append(this.el);
+      this.timer = setInterval(() => { fetch('api.php', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json', 'X-Batty': '1' }, body: '{"a":"me"}' }).then((r) => { if (r.status < 500 || r.status === 503) net.up(true); }).catch(() => {}); }, 4000);
+    },
+    up(announce) {
+      if (!this.el) return;
+      clearInterval(this.timer); this.el.remove(); this.el = null;
+      if (announce) ui.toast('Back online.');
+    },
+  };
+  addEventListener('online', () => net.up(true));
+
+  /* ---------- reality check: an optional reminder of time played and this visit's totals ---------- */
+  const RC_CHOICES = [0, 30, 60, 120];
+  let rcLast = Date.now();
+  function rcMinutes() { const v = state.prefs.reality; return RC_CHOICES.includes(v) ? v : 60; }
+  function sessionLine() {
+    const mins = Math.max(1, Math.round((Date.now() - session.t0) / 60000)), net = session.won - session.bet;
+    const dur = mins >= 60 ? Math.floor(mins / 60) + ' h ' + String(mins % 60).padStart(2, '0') + ' min' : mins + ' min';
+    return { dur, html: 'You have been playing for <b>' + dur + '</b>. This visit you have staked <b>' + fmt(session.bet) + ' BB</b> and won <b>' + fmt(session.won) + ' BB</b> (' + (net >= 0 ? '+' : '−') + fmt(Math.abs(net)) + ' BB).' };
+  }
+  setInterval(() => {
+    const m = rcMinutes(); if (!m || !current) return;
+    if (Date.now() - rcLast < m * 60000 || document.querySelector('.bc-win, .bc-veil')) return;
+    rcLast = Date.now();
+    const box = h('div', { class: 'bc-rc' }, h('p', { html: sessionLine().html }), h('p', { class: 'pg-sub' }, 'Batty Bucks are play money with no cash value. Take a break whenever you like.'),
+      h('div', { class: 'bc-rc-act' }, h('button', { class: 'bc-btn', type: 'button', onclick: () => md.close() }, 'Keep playing'), h('button', { class: 'bc-btn ghost', type: 'button', onclick: () => { md.close(); go(''); } }, 'Back to the lobby')));
+    const md = ui.modal('Reality check', box); sfx('ding');
+  }, 30000);
+  function settingsModal() {
+    const sel = h('select', { class: 'ol-select', id: 'bc-rc-sel', 'aria-label': 'Reality check reminder' }, ...RC_CHOICES.map((v) => h('option', { value: String(v), selected: v === rcMinutes() }, v ? 'Every ' + (v >= 60 ? v / 60 + ' hour' + (v > 60 ? 's' : '') : v + ' minutes') : 'Off')));
+    sel.onchange = () => { state.prefs.reality = +sel.value; rcLast = Date.now(); save(); sfx('click'); };
+    const snd = h('button', { class: 'bc-btn ghost', type: 'button' }); const paintSnd = () => { snd.textContent = state.muted ? 'Sound: off' : 'Sound: on'; };
+    snd.onclick = () => { audio.setMuted(!state.muted); paintSnd(); if (!state.muted) sfx('click'); const b = document.getElementById('bc-sound'); if (b) b.innerHTML = state.muted ? ICON.off : ICON.on; }; paintSnd();
+    ui.modal('Play settings', h('div', { class: 'bc-rc' },
+      h('h3', null, 'Sound'), snd,
+      h('h3', null, 'Reality check'), h('p', null, 'A gentle reminder, while you are in a game, of how long you have played and what you have staked and won.'), sel,
+      h('h3', null, 'This visit'), h('p', { html: sessionLine().html })));
   }
 
   /* ---------- formatting ---------- */
@@ -916,7 +968,7 @@ window.Batty = (function () {
   const ORDER = ['circus', 'bonkers', 'crypt', 'nighttrain', 'gummy', 'bookofbats', 'derby', 'bunky', 'olympus', 'fishing', 'plachinko', 'moonshot', 'ultraheist', 'batjack', 'bonanza', 'starwing', 'vault', 'baccarat', 'royale'];
   const games = {}, pages = {};
   let app, bar, stage, current = null, curPage = null, balEl, lvlEl, booted = false;
-  const ext = {}; // filled in by online.js: authCard, lobbyTop, lobbyBottom
+  const ext = { settings: settingsModal }; // filled in by the online features: authCard, lobbyTop, lobbyBottom, lobbyPlatform
 
   function registerGame(def) { games[def.id] = def; if (booted) route(); }
   function registerPage(name, def) { pages[name] = def; }
@@ -1188,7 +1240,8 @@ window.Batty = (function () {
         getApp, plat, top,
         loggedOut ? null : strip,
         filterBar, shelves, bottom,
-        h('p', { class: 'bc-foot', html: '<b>For fun only.</b> Batty Bucks cannot be bought, sold, cashed out or swapped for anything. There are no purchases with real money and no prizes. Every game shows its tested return in its rules panel.' + (online ? '' : ' Practice mode: your balance is saved in this browser.') })));
+        h('p', { class: 'bc-foot', html: '<b>For fun only.</b> Batty Bucks cannot be bought, sold, cashed out or swapped for anything. There are no purchases with real money and no prizes. Every game shows its tested return in its rules panel.' + (online ? '' : ' Practice mode: your balance is saved in this browser.') }),
+        h('p', { class: 'bc-foot bc-foot-links' }, h('button', { type: 'button', onclick: settingsModal }, 'Play settings and reality check'))));
     show(0); restart(); paint(); paintShelves();
     const offs = [wallet.on(paint)];
     if (online && me) api('me').then((r) => { if (r.me) { srv.me = r.me; claimAt = Date.now() + r.me.claimIn * 1000; } paint(); }).catch(() => {});
