@@ -2,7 +2,7 @@
 /* Database tables. install.php runs these; every statement is safe to run twice. */
 if (!defined('BATTY')) { http_response_code(403); exit; }
 
-return [
+$core = [
 "CREATE TABLE IF NOT EXISTS users (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(16) NOT NULL,
@@ -197,3 +197,8 @@ return [
   v TEXT NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
 ];
+
+/* Feature and game modules add their own tables in lib/schema/<name>.php (each returns a list of statements). */
+$extra = [];
+foreach (glob(__DIR__ . '/schema/*.php') ?: [] as $f) $extra = array_merge($extra, require $f);
+return array_merge($core, $extra);
