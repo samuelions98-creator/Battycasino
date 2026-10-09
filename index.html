@@ -14,9 +14,10 @@
 <meta name="apple-mobile-web-app-title" content="Batty">
 <style>:root{color-scheme:dark;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <link rel="stylesheet" href="circus/style.css?v=20261009-showcase">
-</head>
-<body>
 <title>Batty Casino</title>
+<meta name="description" content="Batty Casino: free-to-play slots, live game shows, a High Roller Lounge and leaderboards, all played with Batty Bucks. No real money, just fun.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Titan+One&family=Figtree:wght@400;500;600;700;800&family=Chakra+Petch:wght@500;600;700&family=Monoton&family=Bungee&family=Cinzel:wght@600;800;900&family=Cinzel+Decorative:wght@700;900&family=Lilita+One&family=Dela+Gothic+One&family=Audiowide&family=Bowlby+One&family=Bebas+Neue&display=swap">
 <style>
 /* Layout concept: a night sky that never changes behind a slim casino bar; the lobby is a shelf of tall
@@ -419,6 +420,7 @@ button:disabled { cursor: not-allowed; }
 @media (max-width: 520px) { .ol-lbw > .ol-seg { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 </style>
+<link rel="stylesheet" href="core/shell.css?v=20261009b">
 <link rel="stylesheet" href="games/bunky/style.css?v=20261009b">
 <link rel="stylesheet" href="games/olympus/style.css?v=20261009b">
 <link rel="stylesheet" href="games/fishing/style.css?v=20261009b">
@@ -437,6 +439,8 @@ button:disabled { cursor: not-allowed; }
 <link rel="stylesheet" href="games/vault/style.css?v=20261009b">
 <link rel="stylesheet" href="games/baccarat/style.css?v=20261009b">
 <link rel="stylesheet" href="games/royale/style.css?v=20261009b">
+</head>
+<body>
 <div id="batty-app"></div>
 <script>
 /* Batty Casino core: wallet, RNG, audio, effects, shell and lobby. Games register themselves with Batty.registerGame(). */
@@ -785,24 +789,58 @@ window.Batty = (function () {
         })(t0);
       });
     },
-    /* Full-screen win celebration for wins of 10x stake or more; resolves at once for smaller wins.
+    /* Full-screen win show for wins of 10x stake or more; resolves at once for smaller wins.
+       The count climbs through the tiers (Big, Mega, Batty, Absolutely Batsh!t), each one slamming in with its own
+       colour, sound and effects. Tap or Space skips to the total; a second tap closes.
        celebrate({amount, bet, title?}) -> Promise<boolean shown> */
     celebrate(o) {
       const ratio = o.bet > 0 ? o.amount / o.bet : 0;
       if (!o.title && ratio < 10) return Promise.resolve(false);
-      const title = o.title || (ratio >= 250 ? 'Absolutely Batsh!t' : ratio >= 75 ? 'Batty Win' : ratio >= 25 ? 'Mega Win' : 'Big Win');
+      const TIERS = [[10, 'Big Win'], [25, 'Mega Win'], [75, 'Batty Win'], [250, 'Absolutely Batsh!t']];
+      let top = 0; for (let i = 0; i < TIERS.length; i++) if (ratio >= TIERS[i][0]) top = i;
+      const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
       return new Promise((res) => {
-        const out = h('output', null, '0');
-        const el = h('div', { class: 'bc-win' }, h('div', null, h('h2', null, title), out, h('p', null, fmtX(ratio) + ' your stake · Batty Bucks')));
+        const out = h('output', null, '0'), title = h('h2'), bar = h('i'), sub = h('p', null, fmtX(ratio) + ' your stake · Batty Bucks');
+        const box = h('div', null, h('span', { html: batSvg('bc-win-bat') }), title, out, sub, h('div', { class: 'bar' }, bar), h('div', { class: 'skip' }, 'Tap to skip'));
+        const el = h('div', { class: 'bc-win t1', role: 'dialog', 'aria-label': 'Big win', 'aria-live': 'assertive' }, box);
         document.body.append(el);
-        sfx('bigwin'); fx.rain(ratio >= 75 ? 'confetti' : 'coin', ratio >= 75 ? 3600 : 2400);
-        const dur = ratio >= 75 ? 3200 : 2200;
-        let done = false;
-        const finish = () => { if (done) return; done = true; el.remove(); res(true); };
-        ui.countUp(out, 0, o.amount, dur).then(() => setTimeout(finish, 1300));
-        const tick = setInterval(() => { if (done) return clearInterval(tick); sfx('tick'); }, 90);
-        setTimeout(() => clearInterval(tick), dur);
-        setTimeout(() => el.addEventListener('click', finish), 500);
+        let tier = -1, done = false, ended = false, raf = 0, ticker = 0;
+        const dur = reduce ? 900 : [2400, 3400, 4600, 6000][top];
+        const setTier = (t) => {
+          if (t <= tier) return; tier = t;
+          title.textContent = o.title && t === top ? o.title : TIERS[t][1];
+          el.className = 'bc-win t' + (t + 1); title.classList.remove('re'); void title.offsetWidth; title.classList.add('re');
+          el.classList.remove('up'); void el.offsetWidth; el.classList.add('up');
+          sfx(t === 0 ? 'bigwin' : 'bonus'); if (t >= 2) sfx('thunder');
+          if (!reduce) {
+            fx.rain(t >= 2 ? 'confetti' : 'coin', 1400 + t * 700);
+            fx.burst({ x: innerWidth / 2, y: innerHeight * 0.42, kind: t >= 1 ? 'confetti' : 'coin', count: 30 + t * 18, power: 1 + t * 0.25 });
+          }
+        };
+        const amountAt = (k) => o.amount * (k < 1 ? 1 - Math.pow(1 - k, 2.2) : 1);
+        const t0 = performance.now();
+        const step = (t) => {
+          if (done) return;
+          const k = Math.min(1, (t - t0) / dur), v = amountAt(k), x = o.bet > 0 ? v / o.bet : ratio;
+          out.textContent = fmt(v);
+          let want = 0; for (let i = 0; i <= top; i++) if (x >= TIERS[i][0] || i === 0) want = i; setTier(want);
+          const lo = TIERS[tier][0], hi = tier < top ? TIERS[tier + 1][0] : Math.max(ratio, lo);
+          bar.style.width = (tier < top ? Math.max(0, Math.min(100, (x - lo) / (hi - lo) * 100)) : 100) + '%';
+          if (k < 1) raf = requestAnimationFrame(step); else land();
+        };
+        const land = () => {
+          if (ended) return; ended = true; cancelAnimationFrame(raf); clearInterval(ticker);
+          setTier(top); out.textContent = fmt(o.amount); bar.style.width = '100%';
+          box.querySelector('.skip').textContent = 'Tap to continue';
+          sfx('coin'); setTimeout(finish, 2200);
+        };
+        const finish = () => { if (done) return; done = true; cancelAnimationFrame(raf); clearInterval(ticker); removeEventListener('keydown', onKey, true); el.style.transition = 'opacity .25s'; el.style.opacity = '0'; setTimeout(() => el.remove(), 260); res(true); };
+        const tap = () => { if (!ended) land(); else finish(); };
+        const onKey = (e) => { if (e.key === ' ' || e.key === 'Enter' || e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); tap(); } };
+        let pitch = 900;
+        ticker = setInterval(() => { if (ended) return; audio.tone({ f: pitch, d: 0.03, type: 'square', v: 0.045 }); pitch = Math.min(2400, pitch + 6); }, 85);
+        setTier(0); raf = requestAnimationFrame(step);
+        setTimeout(() => { el.addEventListener('click', tap); addEventListener('keydown', onKey, true); }, 350);
       });
     },
     /* Stake picker. stake(container, {id, stakes?, onChange?}) -> {value, disabled} */
@@ -947,9 +985,106 @@ window.Batty = (function () {
     })(t0);
   });
 
-  const countWord = (n) => (['Zero','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen'][n] || String(n));
+  const countWord = (n) => (['Zero','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen','Twenty'][n] || String(n));
+
+  /* ---------- lobby sections ----------
+     A game picks its shelf with def.section ('slots' | 'live' | 'tables' | 'arcade' | 'highroller'); older games fall back to this map. */
+  const SECTION_OF = { bunky: 'live', bonkers: 'live', moonshot: 'live', batjack: 'tables', baccarat: 'highroller', royale: 'highroller', vault: 'highroller', plachinko: 'arcade', derby: 'arcade' };
+  const secOf = (g) => g.section || SECTION_OF[g.id] || (/table/i.test(g.tag || '') ? 'tables' : 'slots');
+  const HR_LEVEL = 5;
+  const SHELVES = [
+    { id: 'live', name: 'Live Studio', sub: 'One wheel, every player, on air around the clock', test: (g) => secOf(g) === 'live' },
+    { id: 'new', name: 'New on the floor', sub: 'Fresh out of the belfry', test: (g) => !!g.isNew && secOf(g) !== 'highroller' },
+    { id: 'slots', name: 'Slots', sub: 'Reels, features and bonus buys', test: (g) => secOf(g) === 'slots' },
+    { id: 'tables', name: 'Tables & Arcade', sub: 'Cards, races and ball drops', test: (g) => secOf(g) === 'tables' || secOf(g) === 'arcade' },
+    { id: 'highroller', name: 'High Roller Lounge', sub: 'Velvet rope. Big chips. Level ' + HR_LEVEL + ' and up', test: (g) => secOf(g) === 'highroller' },
+  ];
+  const FILTERS = [['all', 'All games'], ['fav', 'Favourites'], ['new', 'New'], ['live', 'Live'], ['slots', 'Slots'], ['tables', 'Tables & Arcade'], ['highroller', 'High Roller']];
+  const favs = () => (Array.isArray(state.prefs.fav) ? state.prefs.fav : (state.prefs.fav = []));
+  const recents = () => (Array.isArray(state.prefs.recent) ? state.prefs.recent : (state.prefs.recent = []));
+  function noteRecent(id) { const r = recents().filter((x) => x !== id); r.unshift(id); state.prefs.recent = r.slice(0, 8); save(); }
+  const hrLocked = (g) => secOf(g) === 'highroller' && (srv.on ? srv.level : state.level) < (g.minLevel || HR_LEVEL);
+  const ICON_HEART = '<svg viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.4-7.5-10.1A4.3 4.3 0 0112 7.7a4.3 4.3 0 017.5 2.7c0 5.7-7.5 10.1-7.5 10.1z"/></svg>';
+  const ICON_LOCK = '<svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 018 0v2.5"/></svg>';
+
   function lobby() {
     const online = srv.on, me = srv.me, loggedOut = online && !me;
+    const ids = ORDER.filter((id) => games[id]).concat(Object.keys(games).filter((id) => !ORDER.includes(id)));
+    const play = (id) => {
+      const g = games[id];
+      if (loggedOut) { ui.toast('Log in or create a free account to play.'); const f = document.querySelector('.ol-auth input'); if (f) { f.scrollIntoView({ block: 'center', behavior: 'smooth' }); f.focus(); } return; }
+      if (hrLocked(g)) { sfx('lose'); ui.toast('The High Roller Lounge opens at level ' + (g.minLevel || HR_LEVEL) + '. Keep playing to climb.'); return; }
+      sfx('pop'); go(id);
+    };
+
+    /* ---- one game card ---- */
+    function card(id, o) {
+      const g = games[id], st = state.stats[id], sec = secOf(g), locked = hrLocked(g);
+      const fav = favs().includes(id);
+      const favBtn = h('button', { class: 'bc-fav' + (fav ? ' on' : ''), type: 'button', 'aria-label': (fav ? 'Remove ' : 'Add ') + g.name + (fav ? ' from' : ' to') + ' favourites', 'aria-pressed': fav ? 'true' : 'false', html: ICON_HEART });
+      favBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const list = favs(), i = list.indexOf(id);
+        if (i >= 0) list.splice(i, 1); else { list.unshift(id); fx.burst({ el: favBtn, kind: 'spark', count: 14, power: 0.5, colors: ['#ff3d81', '#ffd76a', '#fff'] }); }
+        save(); sfx(i >= 0 ? 'click' : 'pop');
+        paintShelves();
+      });
+      const badges = h('span', { class: 'bc-badges' },
+        sec === 'live' ? h('span', { class: 'bc-tag live' }, h('i'), 'Live') : g.tag && g.tag !== 'Coming soon' ? h('span', { class: 'bc-tag' }, g.tag) : null,
+        g.isNew ? h('span', { class: 'bc-tag new' }, 'New') : null,
+        g.featured ? h('span', { class: 'bc-tag star' }, 'Flagship') : null);
+      const btn = h('button', { class: 'bc-card-hit', type: 'button', id: 'bc-play-' + id, 'aria-label': 'Play ' + g.name + (locked ? ' (locked)' : ''), onclick: () => play(id) });
+      const el = h('article', { class: 'bc-card sec-' + sec + (locked ? ' locked' : '') + (o && o.big ? ' big' : '') },
+        h('span', { class: 'art', html: g.poster || '' }),
+        badges, favBtn,
+        locked ? h('span', { class: 'bc-lock', html: ICON_LOCK + '<b>Level ' + (g.minLevel || HR_LEVEL) + '</b>' }) : null,
+        h('span', { class: 'meta' }, h('b', null, g.name), h('span', null, g.tagline || ''),
+          h('em', null, locked ? 'Unlocks at level ' + (g.minLevel || HR_LEVEL) : !online && st && st.best ? 'Your best: ' + fmt(st.best) + ' BB' : sec === 'live' ? 'Join the table' : 'Play now')),
+        btn);
+      return el;
+    }
+
+    /* ---- featured carousel ---- */
+    const featIds = ['circus', 'bonkers', 'crypt', 'nighttrain', 'bunky', 'gummy', 'royale'].filter((id) => games[id] && games[id].tag !== 'Coming soon').slice(0, 5);
+    if (!featIds.length) featIds.push(...ids.slice(0, 3));
+    const FEAT_COPY = {
+      circus: ['The flagship', 'Roll up for the Penguin Cannon. Five acts, one big top, and a ringmaster who never sleeps.'],
+      bonkers: ['Live game show', 'One giant wheel for the whole casino. Top Slot multipliers, four bonus games, round the clock.'],
+      bunky: ['Live disco', 'The Glitterball drops every round. Bet with everyone else in the belfry, or just watch the show.'],
+      crypt: ['New release', 'Up to 117,649 ways, tumbling wins and a multiplier that never stops climbing in free spins.'],
+      nighttrain: ['New release', 'All aboard the midnight express. Collectors, snipers and a necromancer ride the respins.'],
+      gummy: ['New release', 'Clusters, tumbles and multiplier spots doubling all the way to ×1,024.'],
+      royale: ['High Roller Lounge', 'Single-zero roulette for the velvet-rope crowd. Racetrack bets, big chips, live wheel.'],
+    };
+    const track = h('div', { class: 'bc-feat-track' }), dots = h('div', { class: 'bc-feat-dots', role: 'tablist', 'aria-label': 'Featured games' });
+    let slide = 0, featTimer = 0;
+    featIds.forEach((id, i) => {
+      const g = games[id], copy = FEAT_COPY[id] || [g.tag || 'Featured', g.tagline || ''];
+      track.append(h('div', { class: 'bc-feat-slide sec-' + secOf(g), role: 'group', 'aria-roledescription': 'slide', 'aria-label': g.name },
+        h('div', { class: 'bc-feat-bg', html: g.poster || '' }),
+        h('div', { class: 'bc-feat-copy' },
+          h('small', null, secOf(g) === 'live' ? h('i', { class: 'dot' }) : null, copy[0]),
+          h('h2', null, g.name), h('p', null, copy[1]),
+          h('button', { class: 'bc-btn', type: 'button', onclick: () => play(id) }, secOf(g) === 'live' ? 'Join live' : 'Play now')),
+        h('div', { class: 'bc-feat-art', html: g.poster || '' })));
+      const d = h('button', { type: 'button', role: 'tab', 'aria-label': g.name, onclick: () => { show(i); restart(); } });
+      dots.append(d);
+    });
+    const feat = h('section', { class: 'bc-feat', 'aria-label': 'Featured' }, track, dots,
+      h('button', { class: 'bc-feat-nav prev', type: 'button', 'aria-label': 'Previous', onclick: () => { show(slide - 1); restart(); }, html: ICON.back }),
+      h('button', { class: 'bc-feat-nav next', type: 'button', 'aria-label': 'Next', onclick: () => { show(slide + 1); restart(); }, html: ICON.back }));
+    function show(i) {
+      slide = (i + featIds.length) % featIds.length;
+      track.style.transform = 'translate3d(' + (-100 * slide) + '%,0,0)';
+      Array.from(dots.children).forEach((d, k) => { d.classList.toggle('on', k === slide); d.setAttribute('aria-selected', k === slide ? 'true' : 'false'); });
+      Array.from(track.children).forEach((s, k) => s.classList.toggle('on', k === slide));
+    }
+    const restart = () => { clearInterval(featTimer); if (featIds.length > 1) featTimer = setInterval(() => { if (document.visibilityState === 'visible' && !feat.matches(':hover')) show(slide + 1); }, 6500); };
+    let sx = null;
+    feat.addEventListener('pointerdown', (e) => { sx = e.clientX; }, { passive: true });
+    feat.addEventListener('pointerup', (e) => { if (sx == null) return; const dx = e.clientX - sx; sx = null; if (Math.abs(dx) > 40) { show(slide + (dx < 0 ? 1 : -1)); restart(); } });
+
+    /* ---- welcome strip: bonus claim, rescue, stats ---- */
     const strip = h('dl', { class: 'bc-strip' });
     const paintStrip = () => {
       let rounds = 0, best = 0, L = state.level;
@@ -958,62 +1093,143 @@ window.Batty = (function () {
       strip.innerHTML = '<div><dt>Balance</dt><dd>' + fmt(realBal()) + ' BB</dd></div><div><dt>Level</dt><dd>' + L + '</dd></div><div><dt>Rounds played</dt><dd>' + fmt(rounds) + '</dd></div><div><dt>Biggest win</dt><dd>' + (best ? fmt(best) + ' BB' : 'Not yet') + '</dd></div>';
     };
     const claimBtn = h('button', { class: 'bc-btn', type: 'button', id: 'bc-claim' });
+    const claimRing = h('span', { class: 'bc-claim-ring', 'aria-hidden': 'true' });
     const claimNote = h('small');
     const rescueBtn = h('button', { class: 'bc-btn ghost', type: 'button', id: 'bc-rescue', onclick: async () => { rescueBtn.disabled = true; await rescue(); rescueBtn.disabled = false; paint(); } }, 'Skint? Top up 5,000');
     const paint = () => {
       const left = claimReadyIn();
       claimBtn.disabled = left > 0;
+      claimBtn.classList.toggle('ready', left <= 0);
       claimBtn.textContent = left > 0 ? 'Next bonus in ' + Math.ceil(left / 60000) + ' min' : 'Claim ' + fmt(claimAmount()) + ' free';
+      claimRing.style.setProperty('--p', left > 0 ? (100 - (left / CLAIM_MS) * 100).toFixed(1) + '%' : '100%');
       claimNote.innerHTML = left > 0 ? 'Free Batty Bucks every hour. Higher levels claim more.' : 'Your hourly bonus is ready: <b>' + fmt(claimAmount()) + ' BB</b>';
       rescueBtn.hidden = realBal() >= 1000;
       paintStrip();
     };
     claimBtn.addEventListener('click', async () => { claimBtn.disabled = true; await claim(); paint(); });
-    const shelf = h('div', { class: 'bc-shelf' });
-    const ids = ORDER.filter((id) => games[id]).concat(Object.keys(games).filter((id) => !ORDER.includes(id)));
-    for (const id of ids) {
-      const g = games[id], st = state.stats[id];
-      shelf.append(h('button', { class: 'bc-card', type: 'button', id: 'bc-play-' + id, onclick: () => { if (loggedOut) { ui.toast('Log in or create a free account to play.'); const f = document.querySelector('.ol-auth input'); if (f) { f.scrollIntoView({ block: 'center' }); f.focus(); } return; } sfx('pop'); go(id); } },
-        g.tag ? h('span', { class: 'bc-tag' }, g.tag) : null,
-        h('span', { class: 'art', html: g.poster || '' }),
-        h('span', { class: 'meta' }, h('b', null, g.name), h('span', null, g.tagline || ''), h('em', null, !online && st && st.best ? 'Your best: ' + fmt(st.best) + ' BB' : 'Play now'))));
-    }
-    const stars = h('canvas', { class: 'bc-stars', 'aria-hidden': 'true' });
-    const heroText = loggedOut ? countWord(ids.length) + ' proper casino games, zero real money. Make a free account, get <b>' + fmt(srv.site.startBalance) + ' Batty Bucks</b>, and climb the leaderboards.'
-      : online ? 'Welcome back, <b class="ol-name"></b>. Everything here is played with <b>Batty Bucks</b>: free, for fun, and there is always more where they came from.'
-      : countWord(ids.length) + ' proper casino games, zero real money. Everything here is played with <b>Batty Bucks</b>, they are free, and there is always more where they came from.';
-    const heroP = h('p', { html: heroText });
-    if (online && me) heroP.querySelector('.ol-name').textContent = me.name;
+    const hello = online && me ? h('div', { class: 'bc-hello' }, h('span', { class: 'av', html: avatar(me.avatar, 52) }),
+      h('div', null, h('small', null, greeting()), h('b', null, me.name)))
+      : h('div', { class: 'bc-hello' }, h('span', { class: 'av', html: avatar('1-1', 52) }), h('div', null, h('small', null, greeting()), h('b', null, online ? 'Stranger' : 'Practice mode')));
+    const welcome = h('section', { class: 'bc-welcome' }, hello, h('div', { class: 'bc-claim' }, h('span', { class: 'bc-claim-wrap' }, claimRing, claimBtn), rescueBtn, claimNote));
+
+    /* ---- logged-out hero ---- */
+    const heroText = countWord(ids.length) + ' proper casino games, live game shows and a High Roller Lounge, with zero real money. Make a free account, get <b>' + fmt((srv.site && srv.site.startBalance) || START_BALANCE) + ' Batty Bucks</b>, and climb the leaderboards.';
+    const hero = loggedOut ? h('section', { class: 'bc-hero' },
+      h('div', null, h('h1', { html: 'Batty<span>Casino</span>' }), h('p', { html: heroText }), ext.authCard ? ext.authCard() : null),
+      h('div', { class: 'bc-moon', html: batSvg() + batSvg() + batSvg() })) : null;
+
+    /* ---- app install nudge ---- */
     let instGone = false; try { instGone = localStorage.getItem('batty-noinstall') === '1'; } catch (e) {}
     const getApp = canInstall() && !instGone ? h('div', { class: 'bc-getapp', id: 'bc-getapp' },
       h('span', { class: 'ic', html: batSvg() }),
       h('div', null, h('b', null, 'Get the Batty app'), h('span', null, 'Full screen, one tap from your home screen, no app store.')),
       h('button', { class: 'bc-btn', type: 'button', onclick: installApp }, 'Install'),
       h('button', { class: 'x', type: 'button', 'aria-label': 'Hide', onclick: (e) => { try { localStorage.setItem('batty-noinstall', '1'); } catch (er) {} e.target.closest('.bc-getapp').remove(); }, html: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>' })) : null;
-    const top = h('div', { class: 'ol-top' }), bottom = h('div', { class: 'ol-bottom' });
+
+    /* ---- filter bar + shelves ---- */
+    let filter = state.prefs.lobbyFilter || 'all', query = '';
+    if (!FILTERS.some((f) => f[0] === filter)) filter = 'all';
+    const chips = h('div', { class: 'bc-chips', role: 'tablist', 'aria-label': 'Filter games' });
+    const search = h('input', { type: 'search', class: 'bc-search', placeholder: 'Search games', 'aria-label': 'Search games', autocomplete: 'off', enterkeyhint: 'search' });
+    const filterBar = h('div', { class: 'bc-filter' }, chips, h('label', { class: 'bc-search-wrap' }, h('span', { 'aria-hidden': 'true', html: '<svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>' }), search));
+    const shelves = h('div', { class: 'bc-shelves' });
+    const paintChips = () => {
+      chips.textContent = '';
+      for (const [k, n] of FILTERS) {
+        const count = k === 'all' ? ids.length : k === 'fav' ? favs().filter((id) => games[id]).length : ids.filter((id) => (SHELVES.find((s) => s.id === k) || { test: () => false }).test(games[id])).length;
+        if (k === 'fav' && !count) continue;
+        if (k !== 'all' && k !== 'fav' && !count) continue;
+        const b = h('button', { type: 'button', role: 'tab', class: (k === filter ? 'on ' : '') + 'f-' + k, 'aria-selected': k === filter ? 'true' : 'false' }, n, h('small', null, String(count)));
+        b.onclick = () => { filter = k; state.prefs.lobbyFilter = k; save(); sfx('click'); paintShelves(); };
+        chips.append(b);
+      }
+    };
+    function shelf(title, sub, list, cls) {
+      if (!list.length) return null;
+      const grid = h('div', { class: 'bc-shelf' }, ...list.map((id) => card(id)));
+      return h('section', { class: 'bc-sec ' + (cls || '') }, h('h2', { class: 'bc-h2' }, title, sub ? h('small', null, sub) : null), grid);
+    }
+    function paintShelves() {
+      paintChips();
+      shelves.textContent = '';
+      const q = query.trim().toLowerCase();
+      if (q) {
+        const hit = ids.filter((id) => (games[id].name + ' ' + (games[id].tagline || '') + ' ' + (games[id].tag || '')).toLowerCase().includes(q));
+        shelves.append(shelf('Results', hit.length ? hit.length + ' found' : '', hit) || h('p', { class: 'ol-empty bc-none' }, 'No games match “' + query.trim() + '”.'));
+        return;
+      }
+      if (filter === 'fav') { shelves.append(shelf('Favourites', 'Tap the heart on any game to keep it here', favs().filter((id) => games[id])) || h('p', { class: 'ol-empty bc-none' }, 'No favourites yet. Tap the heart on a game.')); return; }
+      if (filter !== 'all') { const s = SHELVES.find((x) => x.id === filter); shelves.append(shelf(s.name, s.sub, ids.filter((id) => s.test(games[id])), 'sec-' + s.id) || h('p', { class: 'ol-empty bc-none' }, 'Nothing here yet.')); return; }
+      const rec = recents().filter((id) => games[id]).slice(0, 6);
+      if (rec.length >= 2) shelves.append(shelf('Jump back in', 'Your recently played', rec, 'sec-recent'));
+      for (const s of SHELVES) {
+        const list = ids.filter((id) => s.test(games[id]));
+        const el = shelf(s.name, s.sub, list, 'sec-' + s.id);
+        if (el && s.id === 'highroller') el.prepend(h('div', { class: 'bc-velvet', 'aria-hidden': 'true' }));
+        if (el) shelves.append(el);
+      }
+    }
+    let qt = 0;
+    search.addEventListener('input', () => { clearTimeout(qt); qt = setTimeout(() => { query = search.value; paintShelves(); }, 120); });
+
+    const stars = h('canvas', { class: 'bc-stars', 'aria-hidden': 'true' });
+    const top = h('div', { class: 'ol-top' }), bottom = h('div', { class: 'ol-bottom' }), plat = h('div', { class: 'bc-plat' });
     const el = h('div', { class: 'bc-lobby' }, stars,
       h('div', { class: 'bc-wrap' },
-        h('section', { class: 'bc-hero' },
-          h('div', null,
-            h('h1', { html: 'Batty<span>Casino</span>' }), heroP,
-            loggedOut && ext.authCard ? ext.authCard() : h('div', { class: 'bc-claim' }, claimBtn, rescueBtn, claimNote)),
-          h('div', { class: 'bc-moon', html: batSvg() + batSvg() + batSvg() })),
-        getApp, top,
+        hero,
+        loggedOut ? null : welcome,
+        feat,
+        getApp, plat, top,
         loggedOut ? null : strip,
-        h('h2', { class: 'bc-h2' }, 'The floor', h('small', null, ids.length + ' games, all open')),
-        shelf, bottom,
-        h('p', { class: 'bc-foot', html: '<b>For fun only.</b> Batty Bucks cannot be bought, sold, cashed out or swapped for anything. There are no purchases and no prizes. Every game shows its tested return in its rules panel.' + (online ? '' : ' Practice mode: your balance is saved in this browser.') })));
-    paint();
+        filterBar, shelves, bottom,
+        h('p', { class: 'bc-foot', html: '<b>For fun only.</b> Batty Bucks cannot be bought, sold, cashed out or swapped for anything. There are no purchases with real money and no prizes. Every game shows its tested return in its rules panel.' + (online ? '' : ' Practice mode: your balance is saved in this browser.') })));
+    show(0); restart(); paint(); paintShelves();
     const offs = [wallet.on(paint)];
     if (online && me) api('me').then((r) => { if (r.me) { srv.me = r.me; claimAt = Date.now() + r.me.claimIn * 1000; } paint(); }).catch(() => {});
     if (online && ext.lobbyTop) offs.push(ext.lobbyTop(top));
     if (online && ext.lobbyBottom) offs.push(ext.lobbyBottom(bottom));
+    if (online && me && ext.lobbyPlatform) offs.push(ext.lobbyPlatform(plat));
     const tick = setInterval(paint, 20000);
-    requestAnimationFrame(() => {
-      const w = stars.width = stars.clientWidth, hh = stars.height = stars.clientHeight, c = stars.getContext('2d');
-      for (let i = 0; i < 150; i++) { const y = Math.random() * hh; c.globalAlpha = (0.25 + Math.random() * 0.7) * (1 - y / hh); c.fillStyle = Math.random() < 0.15 ? '#ffd76a' : '#ffffff'; const r = Math.random() < 0.08 ? 1.6 : 0.8; c.beginPath(); c.arc(Math.random() * w, y, r, 0, 6.3); c.fill(); }
-    });
-    return { el, destroy() { offs.forEach((f) => typeof f === 'function' && f()); clearInterval(tick); } };
+    requestAnimationFrame(() => paintStars(stars));
+    return { el, destroy() { offs.forEach((f) => typeof f === 'function' && f()); clearInterval(tick); clearInterval(featTimer); } };
+  }
+  function greeting() { const hr = new Date().getHours(); return hr < 5 ? 'Up late, night owl' : hr < 12 ? 'Good morning' : hr < 18 ? 'Good afternoon' : 'Good evening'; }
+  /* a twinkling star field behind the lobby header */
+  function paintStars(cv) {
+    if (!cv.isConnected) return;
+    const w = cv.width = cv.clientWidth, hh = cv.height = cv.clientHeight, c = cv.getContext('2d');
+    for (let i = 0; i < 170; i++) { const y = Math.random() * hh; c.globalAlpha = (0.25 + Math.random() * 0.7) * (1 - y / hh); c.fillStyle = Math.random() < 0.15 ? '#ffd76a' : '#ffffff'; const r = Math.random() < 0.08 ? 1.6 : 0.8; c.beginPath(); c.arc(Math.random() * w, y, r, 0, 6.3); c.fill(); }
+  }
+
+
+  /* ---------- mobile tab bar (lobby and pages only; games keep the whole screen) ---------- */
+  const TAB_ICON = {
+    lobby: '<svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v8a1 1 0 01-1 1h-4v-6H9v6H5a1 1 0 01-1-1z"/></svg>',
+    live: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M7.5 7.5a6.4 6.4 0 000 9M16.5 7.5a6.4 6.4 0 010 9M4.6 4.6a10.5 10.5 0 000 14.8M19.4 4.6a10.5 10.5 0 010 14.8"/></svg>',
+    pass: '<svg viewBox="0 0 24 24"><path d="M5 4h14v16l-7-4-7 4z"/><path d="M9 9h6"/></svg>',
+    shop: '<svg viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6z"/><path d="M9 8a3 3 0 016 0"/></svg>',
+    lb: '<svg viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 01-10 0V4zM12 14v4M8 21h8"/></svg>',
+    me: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg>',
+  };
+  let tabsEl = null;
+  function paintTabs() {
+    if (!tabsEl) { tabsEl = h('nav', { class: 'bc-tabs', 'aria-label': 'Sections' }); document.body.append(tabsEl); }
+    const show = !current && !(srv.on && !srv.me);
+    tabsEl.hidden = !show; document.body.classList.toggle('has-tabs', show);
+    if (!show) return;
+    const items = [['', 'Lobby', 'lobby'], ['live', 'Live', 'live']];
+    if (pages.pass) items.push(['pass', 'Bat Pass', 'pass']);
+    if (pages.shop) items.push(['shop', 'Shop', 'shop']);
+    if (srv.on) items.push(['leaderboard', 'Ranks', 'lb']);
+    if (srv.on && srv.me) items.push(['profile/' + srv.me.name, 'Me', 'me']);
+    const here = curPage ? (location.hash || '').replace('#', '').split('/')[0] : '';
+    tabsEl.textContent = '';
+    for (const [href, label, ic] of items) {
+      const on = href === 'live' ? false : (href.split('/')[0] === here && !(href === '' && here));
+      const a = h('a', { href: '#' + href, class: on ? 'on' : '', html: TAB_ICON[ic] + '<span>' + label + '</span>' });
+      if (href === 'live') a.addEventListener('click', (e) => { e.preventDefault(); state.prefs.lobbyFilter = 'live'; save(); go(''); });
+      tabsEl.append(a);
+    }
   }
 
   let lobbyInst = null, pageInst = null, mounted = null, mountedKey = null;
@@ -1035,13 +1251,14 @@ window.Batty = (function () {
     document.querySelectorAll('.bc-veil,.bc-win').forEach((n) => n.remove());
     if (next) {
       const root = h('div', { class: 'g-' + next });
-      stage.append(root); mounted = next;
+      stage.append(root); mounted = next; noteRecent(next);
       try { games[next].mount(root, Batty); } catch (e) { console.error(e); root.textContent = 'This game failed to load.'; }
     } else if (page) {
       const root = h('div', { class: 'pg pg-' + page }); stage.append(root);
       try { pageInst = pages[page].mount(root, param) || null; } catch (e) { console.error(e); root.textContent = 'This page failed to load.'; }
     } else { lobbyInst = lobby(); stage.append(lobbyInst.el); }
     window.scrollTo(0, 0);
+    paintTabs();
   }
   /* Refresh who is logged in (after login, logout, profile edits) and redraw the shell. */
   async function refreshMe(redraw) {
