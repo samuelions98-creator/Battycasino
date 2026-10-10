@@ -35,6 +35,7 @@ function stake_of(array $in, array $ladder): int {
 function resolve_open(array &$u, string $game): void {
     if ($game === 'batjack') { foreach (bjt_open_rounds($u) as $r) batjack_abandon($u, $r); return; }
     if ($game === 'bookofbats') { bob_settle_open($u); return; }   // a held (gambleable) win is paid, never lost
+    if ($game === 'crypt') { cr_settle_open($u); return; }        // held free spins are played and paid, never lost
     while ($r = round_get_open($u, $game)) {
         if ($game === 'bunky') bunky_finish($u, $r, random_int(0, 2));
         elseif ($game === 'fishing') fishing_finish($u, $r, random_int(0, 4));
@@ -48,7 +49,7 @@ function resolve_stale(int $uid): void {
     if (!$n) return;
     tx(function () use ($uid) {
         $u = lock_user($uid);
-        foreach (['bunky', 'fishing', 'moonshot', 'batjack', 'bookofbats'] as $g) resolve_open($u, $g);
+        foreach (['bunky', 'fishing', 'moonshot', 'batjack', 'bookofbats', 'crypt'] as $g) resolve_open($u, $g);
         save_user($u);
     });
 }

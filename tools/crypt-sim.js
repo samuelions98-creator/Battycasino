@@ -5,16 +5,26 @@
      base   normal spins at 1x stake (free spins taken as awarded, no gamble)
      ante   spins with the ante bet (1.25x stake)
      gamble normal spins that always gamble the wheel to the top (shows the gamble does not move the return)
-     buy    bonus buys at 100x stake
+     buy    bonus buys at BUY_X (56x) stake
      fsN    n free spins on their own, for n = 12, 16, 20, 24, 28 (the gamble wheel's fair odds come from these)
    Prints return, hit rate, free-spin frequency, standard deviation (volatility), max win and a 99% confidence band. */
 'use strict';
-const path = require('path');
+const fs = require('fs'), path = require('path');
 const { Worker, isMainThread, parentPort, workerData } = require('worker_threads');
 const MATH = process.env.CRYPT_MATH || path.join(__dirname, '..', 'games', 'crypt', 'game.js');
+/* the maths is the part of game.js before the presentation marker, so this runs the exact code the browser runs */
+function loadMath(file) {
+  const src = fs.readFileSync(file || MATH, 'utf8');
+  const cut = src.indexOf('/* ===== crypt ===== */');
+  const mod = { exports: {} };
+  new Function('module', 'globalThis', cut > 0 ? src.slice(0, cut) : src)(mod, {});
+  return mod.exports;
+}
+module.exports = { loadMath };
+if (require.main !== module && isMainThread) return;
 
 if (!isMainThread) {
-  const M = require(MATH);
+  const M = loadMath();
   const { kind, n, seed } = workerData;
   const rng = M.mulberry(seed);
   const st = { trig: {}, baseWon: 0, n: 0, cost: 0, won: 0, sq: 0, hits: 0, fs: 0, fsSpins: 0, max: 0, capped: 0, casc: 0, retrig: 0, maxMult: 0, gw: 0, gl: 0, buckets: new Array(9).fill(0) };
@@ -49,7 +59,7 @@ const quick = args.includes('--quick');
 const SPINS = arg('spins', quick ? 1000000 : 10000000), BUYS = arg('buys', quick ? 100000 : 10000000), FSR = arg('fs', quick ? 40000 : 400000);
 const WORKERS = arg('workers', 4), SEED = arg('seed', 1);
 const only = (args.find((a) => a.startsWith('--only=')) || '').slice(7);
-const M = require(MATH);
+const M = loadMath();
 
 function run(kind, n, salt) {
   const per = Math.ceil(n / WORKERS), jobs = [];
@@ -109,7 +119,7 @@ function reportFS(n, t) {
   const E = want('fs') ? ev : null;
   if (want('base')) res.base = report('base game, 1x stake', await run('base', SPINS, 1), 1, E);
   if (want('ante')) res.ante = report('ante bet, 1.25x stake', await run('ante', SPINS, 2), 1.25, E);
-  if (want('buy')) res.buy = report('bonus buy, 100x stake', await run('buy', BUYS, 4), M.BUY_X, E);
+  if (want('buy')) res.buy = report('bonus buy, ' + M.BUY_X + 'x stake', await run('buy', BUYS, 4), M.BUY_X, E);
   if (want('gamble')) res.gamble = report('always gamble to the top', await run('gamble', Math.round(SPINS / 2), 3), 1, null);
   console.log('\ndone in ' + ((Date.now() - t0) / 1000).toFixed(0) + 's');
 })();
