@@ -1,7 +1,7 @@
 /* ===== circus ===== */
 /* Batty Circus: every rule is scoped under .g-circus. The art (art.js) carries cz-* class names; the animations live here. */
 .g-circus { flex: none; width: 100%; --gold: #ffd451; --gold2: #f0a020; --crim: #e0262f; --plum: #34102a; --ink: #fff6e4;
-  position: relative; display: flex; flex-direction: column; min-height: 0; height: calc(100dvh - var(--bar-h) - env(safe-area-inset-top, 0px)); overflow: hidden; isolation: isolate; color: var(--ink); background: #1a0510; font-family: var(--f-body); user-select: none; -webkit-user-select: none; }
+  position: relative; display: flex; flex-direction: column; min-height: 0; height: calc(100dvh - var(--bar-h) - env(safe-area-inset-top, 0px)); overflow: hidden; overflow: clip; isolation: isolate; color: var(--ink); background: #1a0510; font-family: var(--f-body); user-select: none; -webkit-user-select: none; }
 .g-circus button { touch-action: manipulation; }
 .g-circus .cz-bg { position: absolute; inset: 0; z-index: -1; overflow: hidden; }
 .g-circus .cz-tent { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -239,7 +239,8 @@
 /* act 4: jester boxes */
 .g-circus .cz-jboxes { position: absolute; inset: 4% 3% 2%; display: flex; gap: 3%; align-items: flex-end; justify-content: center; }
 .g-circus .cz-jb { flex: 1 1 0; max-width: 31%; height: 100%; display: grid; align-items: end; justify-items: center; min-height: 0; color: inherit; transition: translate .2s, filter .3s; }
-.g-circus .cz-jb svg { height: 100%; width: auto; max-width: 100%; overflow: visible; filter: drop-shadow(0 8px 8px rgba(0, 0, 0, .5)); }
+.g-circus .cz-jb { position: relative; }
+.g-circus .cz-jb svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 8px 8px rgba(0, 0, 0, .5)); }
 .g-circus .cz-jb.ready { animation: cz-jig 1.2s ease-in-out infinite alternate; } .g-circus .cz-jb.ready:hover { filter: brightness(1.2); } .g-circus .cz-jb:nth-child(2).ready { animation-delay: -.4s; } .g-circus .cz-jb:nth-child(3).ready { animation-delay: -.8s; }
 @keyframes cz-jig { to { rotate: 1.8deg; translate: 0 -6px; } }
 .g-circus .cz-jb.open .cz-jhead { translate: 0 -16px; transition: translate .4s cubic-bezier(.2, 1.8, .4, 1); } .g-circus .cz-jb.open .cz-jlid { rotate: -70deg; transform-box: fill-box; transform-origin: 0 100%; transition: rotate .3s; }
@@ -254,3 +255,11 @@
 }
 /* rules panel (lives in the shared modal) */
 .cz-rules table { width: 100%; } .cz-rules .cz-lines { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 6px; margin-top: 8px; } .cz-rules .cz-lines svg { width: 100%; height: auto; display: block; } .cz-rules details summary { cursor: pointer; font-weight: 800; color: var(--moon); margin: 8px 0; }
+.g-circus .cz-choice.rec { box-shadow: 0 4px 0 #14020c, 0 0 0 3px #fff, 0 0 22px rgba(255, 255, 255, .55); }
+.g-circus .cz-rec { font-style: normal; font-size: 9.5px; font-weight: 800; letter-spacing: .14em; padding: 1px 8px; border-radius: 8px; background: #2a0b1e; color: #fff6c2; margin-bottom: 2px; }
+/* phones: during the bonus the (disabled) controls give their space to the show */
+@media (max-width: 700px), (max-height: 520px) {
+  .g-circus .cz-main.inscene .cz-ctl, .g-circus .cz-main.inscene .cz-msg { display: none; }
+  .g-circus .cz-main.bonus:not(.inscene) .cz-ctl > :not(.cz-winbox) { display: none; }
+}
+@container (max-height: 330px) and (min-width: 601px) { .g-circus .cz-torches { grid-template-columns: repeat(12, 1fr); grid-template-rows: 1fr; top: 16%; bottom: 10%; left: 24%; } .g-circus .cz-char.bz { height: 78%; } }

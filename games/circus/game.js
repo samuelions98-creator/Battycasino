@@ -67,7 +67,7 @@
       '<h3>Bonus buys</h3><p>Batty Bucks only, no cash value, no guaranteed return. <b>GRAND CANNON</b> costs ' + buy.grand + '× your stake and guarantees a cannon shot that lands on an act or combination (never a cash prize). <b>SPOTLIGHT SHOW</b> costs ' + buy.spotlight + '× and sends the performer straight to the bullseye: three acts. A bought round has no base-game line win. The server works out the price; wins can be less than the cost.</p>' +
       '<h3>Paytable</h3><p>Multiples of your <b>total stake</b>, per winning line, for 3, 4 and 5 in a row.</p><table><tr><th>Symbol</th><th>3</th><th>4</th><th>5</th></tr>' + rows + '</table>' +
       '<details><summary>View all 40 paylines</summary><div class="cz-lines">' + lines + '</div></details>' +
-      '<div class="rtp"><b>Tested return</b> <span class="cz-rtp">about 96% (base game and each buy; see the figures from the 10,000,000-spin simulation in the release notes)</span>. Rounds are drawn on the server with a secure random generator and settle once. Space spins; a tap or Space during a spin stops the reels at once.</div>' +
+      '<div class="rtp"><b>Tested return</b> <span class="cz-rtp">96.5% for the base game (4,000,000 simulated spins; hit rate 1 in 2.5, the Cannon Bonus 1 in 213), 96.0% for GRAND CANNON and 95.6% for SPOTLIGHT SHOW</span>. These figures assume you take the <b>recommended</b> option at the cannon (the panel marks it, and Space and autoplay pick it). Always collecting the first shot returns about 90%. Rounds are drawn on the server with a secure random generator and settle once. Space spins; a tap or Space during a spin stops the reels at once.</div>' +
       '<p>Batty Bucks are play money. They cannot be bought, sold or cashed out.</p></div>';
   }
 
@@ -475,10 +475,11 @@
       if (!cn || !cn.svg.isConnected) cn = buildCannon(o.shots[o.shots.length - 1]);
       const shot = o.shots[o.shots.length - 1], mine = M.shotValueEV(shot), avg = M.shotEV(o.buy || 'base');
       setCap(shotText(shot), 'gold'); paintHud(o);
+      const keep = mine >= avg, rec = '<i class="cz-rec">RECOMMENDED</i>';
       const c = await ask([
-        { val: 'collect', cls: 'gold', html: '<b>COLLECT</b><small>keep this shot</small>' },
-        { val: 'retry', cls: 'teal', html: '<b>RETRY</b><small>one fresh shot, final</small>' },
-      ], { primary: 0, note: 'This shot is worth about <b>' + mine.toFixed(0) + '×</b> your stake on average. A fresh shot averages <b>' + avg.toFixed(0) + '×</b>. A retry must be kept.' });
+        { val: 'collect', cls: 'gold' + (keep ? ' rec' : ''), html: (keep ? rec : '') + '<b>COLLECT</b><small>keep this shot</small>' },
+        { val: 'retry', cls: 'teal' + (keep ? '' : ' rec'), html: (keep ? '' : rec) + '<b>RETRY</b><small>one fresh shot, final</small>' },
+      ], { primary: keep ? 0 : 1, note: 'This shot is worth about <b>' + mine.toFixed(0) + '×</b> your stake on average. A fresh shot averages <b>' + avg.toFixed(0) + '×</b>, so <b>' + (keep ? 'collecting' : 'retrying') + '</b> is the better bet. A retry must be kept.' });
       clearUi();
       const n = await doStep(c); if (!n || n === 'stale') return n;
       if (c === 'retry') { await fly(cn, n.ev.shot); if (!G) return n; }
@@ -600,7 +601,7 @@
     async function phJester(o) {
       if (needIntro(o, 3)) await introCard(3, o); if (!G) return o;
       el.sceneBody.textContent = ''; clearUi();
-      const boxes = [0, 1, 2].map((c) => '<button type="button" class="cz-jb" data-c="' + c + '" aria-label="Box ' + (c + 1) + '"><svg viewBox="-70 -230 140 240" aria-hidden="true">' + A.jesterBox(c) + '</svg></button>').join('');
+      const boxes = [0, 1, 2].map((c) => '<button type="button" class="cz-jb" data-c="' + c + '" aria-label="Box ' + (c + 1) + '"><svg viewBox="-80 -290 160 300" preserveAspectRatio="xMidYMax meet" aria-hidden="true">' + A.jesterBox(c) + '</svg></button>').join('');
       el.sceneBody.insertAdjacentHTML('beforeend', '<div class="cz-sc jest"><div class="cz-jboxes">' + boxes + '</div><div class="cz-popbox"></div></div>');
       const sc = el.sceneBody.querySelector('.cz-sc'), btns = Array.from(sc.querySelectorAll('.cz-jb'));
       note('Pick a box. Each one holds a number of free spins.'); setHudInfo('Pick a box');
