@@ -3,7 +3,7 @@
 The big update is split into small releases. Each one is self-contained, tested on its own, and has its own small
 upload-only zip. Ship them one a day, or one every few days.
 
-Releases are marked by commit on this branch (release 1 = `fdaa5bd`, release 2 = `070a896`; the remote won't accept git tags, so
+Releases are marked by commit on this branch (release 1 = `fdaa5bd`, release 2 = `070a896`, release 3 = `d056236`; the remote won't accept git tags, so
 create local ones with `git tag release-1 fdaa5bd` and so on). Build the zips for any release with:
 
     tools/make-release.sh release-<N-1> release-<N> <out-dir>
