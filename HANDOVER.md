@@ -105,6 +105,8 @@ that agent's full modified versions. Merge them by hand against the current file
 - **Feed etiquette:** only set `feedLabel` in round facts for genuinely notable wins; any non-empty label posts to the
   lobby feed.
 
+See RELEASES.md for the order in which to finish and ship each piece.
+
 ## 4. Deploying
 
 See `UPLOAD-README.txt`.
