@@ -21,6 +21,7 @@ After uploading a release that says **DB**, open Admin → "Update database" onc
 | 2 | **Olympus + Fishing Frenzy animation upgrade** | 114 KB | no |
 | 3 | **Starwing animation upgrade** | ~60 KB | no |
 | 4 | **Batty Circus rebuilt** (Penguin Cannon, five acts, new art; 96.5% return) | ~120 KB | no |
+| 3b | **Bat Jack animation** (live table with Barnaby the croupier: cards fly from the shoe, chips stack and slide; maths unchanged) | ~70 KB | no |
 
 ## Still to build (in the suggested order)
 
@@ -29,7 +30,6 @@ Effort: **S** = a short session, **M** = one solid session, **L** = one large se
 
 | # | Release | Effort | Saved already | Remaining | DB |
 |---|---|---|---|---|---|
-| 3b | **Bat Jack animation** | M | New scene script (`wip/batjack-polish`) | Write its stylesheet: the new script's layout doesn't fit the old CSS, so the table is pushed off the screen | no |
 | 5 | **Bonkers Time** (live Crazy Time-style show) | L | Maths, RTP sim, PHP live engine, tables, parity, client engine | The four bonus scenes, CSS, two-player test | yes |
 | 6 | **Daily Wheel + Bat Pass + Belfry Shop** | L | All server code (`lib/platform/*`), tables, partial `core/platform.js` | Finish the client, write `core/platform.css`, hook into lobby/top bar, test purchases | yes |
 | 7 | **Bunky Time goes live** (shared wheel that spins on its own) | M | Shared-round server and live client loop | Live bonus scenes, two-player test | yes |
