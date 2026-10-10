@@ -19,6 +19,7 @@ After uploading a release that says **DB**, open Admin → "Update database" onc
 |---|---|---|---|
 | 1 | **Lobby + shell.** New lobby (carousel, filters, search, favourites, tab bar), tiered big-win show, play settings, reconnect banner, bug fixes, animation upgrades for Moonshot, Plachinko, Sugar Fang, Bat Bandits | full site | no |
 | 2 | **Olympus + Fishing Frenzy animation upgrade** | 114 KB | no |
+| 3 | **Starwing animation upgrade** | ~60 KB | no |
 
 ## Still to build (in the suggested order)
 
@@ -27,7 +28,7 @@ Effort: **S** = a short session, **M** = one solid session, **L** = one large se
 
 | # | Release | Effort | Saved already | Remaining | DB |
 |---|---|---|---|---|---|
-| 3 | **Starwing + Bat Jack animation** | S | New JS (and CSS for Starwing) | Fix Starwing's low frame rate; write Bat Jack's stylesheet | no |
+| 3b | **Bat Jack animation** | M | New scene script (`wip/batjack-polish`) | Write its stylesheet: the new script's layout doesn't fit the old CSS, so the table is pushed off the screen | no |
 | 4 | **Batty Circus rebuild** (the flagship, Wild Circus equivalent) | L | Maths, reel strips, PHP engine, RTP sim, parity check, most of the art | Finish art, write `game.js` (cannon and all 5 acts), CSS; switch the circus tags in `index.html`/`sw.js` to `games/circus/`; delete old `circus/` | no |
 | 5 | **Bonkers Time** (live Crazy Time-style show) | L | Maths, RTP sim, PHP live engine, tables, parity, client engine | The four bonus scenes, CSS, two-player test | yes |
 | 6 | **Daily Wheel + Bat Pass + Belfry Shop** | L | All server code (`lib/platform/*`), tables, partial `core/platform.js` | Finish the client, write `core/platform.css`, hook into lobby/top bar, test purchases | yes |
