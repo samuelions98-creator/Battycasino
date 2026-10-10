@@ -13,7 +13,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Batty">
 <style>:root{color-scheme:dark;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
-<link rel="stylesheet" href="circus/style.css?v=20261009-showcase">
 <title>Batty Casino</title>
 <meta name="description" content="Batty Casino: free-to-play slots, live game shows, a High Roller Lounge and leaderboards, all played with Batty Bucks. No real money, just fun.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -430,6 +429,7 @@ button:disabled { cursor: not-allowed; }
 <link rel="stylesheet" href="games/batjack/style.css?v=20261009b">
 <link rel="stylesheet" href="games/bonanza/style.css?v=20261009b">
 <link rel="stylesheet" href="games/starwing/style.css?v=20261009b">
+<link rel="stylesheet" href="games/circus/style.css?v=R4">
 <link rel="stylesheet" href="games/crypt/style.css?v=20261009b">
 <link rel="stylesheet" href="games/nighttrain/style.css?v=20261009b">
 <link rel="stylesheet" href="games/gummy/style.css?v=20261009b">
@@ -1735,13 +1735,13 @@ window.Batty = (function () {
 <script src="games/vault/game.js?v=20261009b"></script>
 <script src="games/baccarat/game.js?v=20261009b"></script>
 <script src="games/royale/game.js?v=20261009b"></script>
-<script src="circus/math.js?v=20261009-showcase"></script>
-<script src="circus/art.js?v=20261009-showcase"></script>
-<script src="circus/game.js?v=20261009-showcase"></script>
+<script src="games/circus/math.js?v=R4"></script>
+<script src="games/circus/art.js?v=R4"></script>
+<script src="games/circus/game.js?v=R4"></script>
 <script>
 // This should never occur with a complete deployment; make a partial FTP upload obvious.
 if (!Batty.games.circus) {
-  console.error('Batty Circus could not load. Check circus/math.js, circus/art.js, circus/game.js and their folder paths.');
+  console.error('Batty Circus could not load. Check games/circus/math.js, art.js and game.js and their folder paths.');
 }
 Batty.boot();
 </script>
