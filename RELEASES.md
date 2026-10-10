@@ -21,7 +21,7 @@ After uploading a release that says **DB**, open Admin → "Update database" onc
 | 2 | **Olympus + Fishing Frenzy animation upgrade** | 114 KB | no |
 | 3 | **Starwing animation upgrade** | ~60 KB | no |
 | 4 | **Batty Circus rebuilt** (Penguin Cannon, five acts, new art; 96.5% return) | ~120 KB | no |
-| 3b | **Bat Jack animation** (live table with Barnaby the croupier: cards fly from the shoe, chips stack and slide; maths unchanged) | ~70 KB | no |
+| 3b | **Bat Jack animation** (live table with Barnaby the croupier: cards fly from the shoe, chips stack and slide; maths unchanged) | 94 KB | no |
 
 ## Still to build (in the suggested order)
 
