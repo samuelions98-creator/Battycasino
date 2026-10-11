@@ -1,1 +1,399 @@
-/* Crimson Vault: styles live here, every rule scoped under .g-vault */
+/* ===== vault ===== */
+/* Crimson Vault: every rule is scoped under .g-vault (the rules panel lives in the shared modal, so it uses .vt-rules).
+   The world: a crimson bank vault. Walls of numbered deposit boxes, the great door ring behind the reels, a marble floor, gold
+   bar stacks, sweeping laser grids, bat burglars on ropes, a security camera and the alarm beacon. The reels sit in a steel
+   and gold door frame. Each vault's free spins has its own look: steel and ice for the Safe, brass and amber for the Deposit
+   Box, gold and fire for the Grand Vault. */
+.g-vault { flex: none; width: 100%; --gold: #f5c451; --gold2: #b9780f; --red: #d0142e; --red2: #ff3a50; --ink: #fbeef0; --rose: #f2b8c2; --acc: #ff3a50; --laser: #ff2a3a;
+  position: relative; display: flex; flex-direction: column; min-height: 0; height: calc(100dvh - var(--bar-h) - env(safe-area-inset-top, 0px)); overflow: hidden; overflow: clip; isolation: isolate;
+  color: var(--ink); background: #0a0105; font-family: var(--f-body); user-select: none; -webkit-user-select: none; }
+.g-vault button { touch-action: manipulation; font: inherit; color: inherit; cursor: pointer; }
+.g-vault [hidden] { display: none !important; }
+.g-vault .vt-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+.g-vault.m-safe { --acc: #8fdcff; --laser: #3affc8; }
+.g-vault.m-box { --acc: #ffb34a; --laser: #ffb020; }
+.g-vault.m-grand { --acc: #ffe27a; --laser: #ffd23a; }
+
+/* ---------- the world ---------- */
+.g-vault .vt-bg { position: absolute; inset: 0; z-index: -1; overflow: hidden; background: #0a0105; }
+.g-vault .vt-wall { position: absolute; inset: 0; width: 100%; height: 100%; display: block; transition: filter 1.2s; }
+.g-vault .vt-ring { transform-box: view-box; transform-origin: 800px 420px; animation: vt-ring 90s linear infinite; }
+@keyframes vt-ring { to { rotate: 360deg; } }
+.g-vault .vt-camh { transform-box: fill-box; transform-origin: 90% 50%; animation: vt-cam 9s ease-in-out infinite alternate; }
+@keyframes vt-cam { from { rotate: -14deg; } to { rotate: 18deg; } }
+.g-vault .vt-camled { animation: vt-blink 1.2s steps(2) infinite; }
+@keyframes vt-blink { 50% { opacity: .15; } }
+.g-vault .vt-gold path { filter: drop-shadow(0 0 0 transparent); }
+.g-vault .vt-bg.flare .vt-gold { animation: vt-goldflare 1.2s ease-out; }
+@keyframes vt-goldflare { 25% { filter: brightness(1.8) drop-shadow(0 0 20px #ffd24a); } }
+.g-vault .vt-glare { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 50% 40% at 50% 40%, rgba(255, 90, 110, .18), transparent 70%); mix-blend-mode: screen; animation: vt-breathe 6s ease-in-out infinite alternate; }
+@keyframes vt-breathe { to { opacity: .5; } }
+/* laser grid: thin glowing beams that sweep */
+.g-vault .vt-lasers { position: absolute; inset: 0; pointer-events: none; overflow: hidden; opacity: .75; mix-blend-mode: screen; }
+.g-vault .vt-lasers i { position: absolute; left: -20%; width: 140%; height: 2px; background: linear-gradient(90deg, transparent, var(--laser) 12%, #fff 50%, var(--laser) 88%, transparent); box-shadow: 0 0 8px var(--laser), 0 0 18px var(--laser); border-radius: 2px; transform-origin: 50% 50%; transition: background .8s, box-shadow .8s; }
+.g-vault .vt-lasers i:nth-child(1) { top: 30%; animation: vt-las1 7s ease-in-out infinite alternate; }
+.g-vault .vt-lasers i:nth-child(2) { top: 62%; animation: vt-las2 9s ease-in-out infinite alternate; }
+.g-vault .vt-lasers i:nth-child(3) { top: 48%; animation: vt-las3 11s ease-in-out infinite alternate; opacity: .7; }
+.g-vault .vt-lasers i:nth-child(4) { top: 80%; animation: vt-las1 13s ease-in-out infinite alternate-reverse; opacity: .6; }
+@keyframes vt-las1 { from { rotate: 14deg; translate: 0 -10vh; } to { rotate: -10deg; translate: 0 8vh; } }
+@keyframes vt-las2 { from { rotate: -18deg; translate: 0 6vh; } to { rotate: 8deg; translate: 0 -12vh; } }
+@keyframes vt-las3 { from { rotate: 32deg; } to { rotate: -30deg; } }
+.g-vault .vt-bg.antic .vt-lasers i, .g-vault .vt-bg.alert .vt-lasers i { animation-duration: 1.6s; }
+.g-vault .vt-beacon { position: absolute; left: 3%; top: 2%; width: clamp(26px, 3.4vw, 46px); aspect-ratio: 1; border-radius: 50% 50% 18% 18%; background: radial-gradient(circle at 40% 35%, #ffb0b8, #d0142e 50%, #4a0010); box-shadow: 0 0 0 3px #22262f, 0 6px 0 #14141c; }
+.g-vault .vt-beacon i { position: absolute; left: 50%; top: 50%; width: 60vmax; height: 26vmax; translate: 0 -50%; transform-origin: 0 50%; background: conic-gradient(from 80deg at 0 50%, transparent 0deg, rgba(255, 40, 60, .22) 10deg, transparent 20deg); opacity: 0; pointer-events: none; }
+.g-vault .vt-bg.antic .vt-beacon i, .g-vault .vt-bg.alert .vt-beacon i { opacity: 1; animation: vt-beam 1.1s linear infinite; }
+.g-vault .vt-bg.antic .vt-beacon, .g-vault .vt-bg.alert .vt-beacon { animation: vt-blink .5s steps(2) infinite; }
+@keyframes vt-beam { to { rotate: 360deg; } }
+/* bat burglars on ropes */
+.g-vault .vt-ropes span { position: absolute; top: -15%; width: clamp(60px, 8vw, 130px); transform-origin: 50% 0; filter: drop-shadow(0 10px 12px rgba(0, 0, 0, .7)); transition: top 1.2s cubic-bezier(.3, 1.4, .5, 1); }
+.g-vault .vt-ropes span svg { width: 100%; display: block; overflow: visible; }
+.g-vault .vt-ropes .l { left: 8%; animation: vt-sway 4.6s ease-in-out infinite alternate; }
+.g-vault .vt-ropes .r { right: 7%; top: -21%; animation: vt-sway 5.4s ease-in-out infinite alternate-reverse; }
+@keyframes vt-sway { from { rotate: -5deg; } to { rotate: 5deg; } }
+.g-vault .vt-bg.alert .vt-ropes .l, .g-vault.fs .vt-ropes .l { top: -4%; }
+.g-vault .vt-bg.alert .vt-ropes .r, .g-vault.fs .vt-ropes .r { top: -9%; }
+.g-vault .vt-eyes { transform-box: fill-box; transform-origin: center; animation: vt-wink 5s infinite; }
+@keyframes vt-wink { 90%, 100% { scale: 1 1; } 94% { scale: 1 .1; } }
+.g-vault .vt-dust { position: absolute; inset: 0; pointer-events: none; opacity: .5;
+  background-image: radial-gradient(1.5px 1.5px at 12% 30%, #ffd88a, transparent), radial-gradient(1px 1px at 28% 70%, #fff, transparent), radial-gradient(1.4px 1.4px at 46% 40%, #ffd88a, transparent), radial-gradient(1px 1px at 63% 80%, #fff, transparent), radial-gradient(1.6px 1.6px at 78% 20%, #ffd88a, transparent), radial-gradient(1px 1px at 90% 60%, #fff, transparent);
+  background-size: 360px 420px; animation: vt-dust 40s linear infinite; }
+@keyframes vt-dust { to { background-position: 60px -420px; } }
+.g-vault .vt-flash { position: absolute; inset: 0; pointer-events: none; opacity: 0; background: radial-gradient(ellipse at 50% 30%, rgba(255, 230, 200, .9), rgba(255, 60, 80, .35) 45%, transparent 75%); }
+.g-vault .vt-bg.antic .vt-wall { filter: brightness(.8) saturate(1.3); }
+.g-vault .vt-bg::after { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 1.2s, background 1.2s; mix-blend-mode: color; }
+.g-vault.m-safe .vt-bg::after { opacity: .8; background: radial-gradient(ellipse at 50% 30%, #3a8ab0, #0a2a3e 75%); }
+.g-vault.m-box .vt-bg::after { opacity: .7; background: radial-gradient(ellipse at 50% 30%, #c07a20, #3a1a04 75%); }
+.g-vault.m-grand .vt-bg::after { opacity: .55; background: radial-gradient(ellipse at 50% 30%, #ffd040, #6a1a00 75%); }
+.g-vault.m-grand .vt-dust { opacity: 1; background-size: 220px 260px; animation-duration: 14s; }
+
+/* ---------- layout ---------- */
+.g-vault .vt-main { position: relative; z-index: 2; display: flex; flex-direction: column; height: 100%; min-height: 0; padding: 4px clamp(8px, 3vw, 40px) 8px; gap: 4px; }
+.g-vault .vt-head { flex: none; display: flex; justify-content: center; min-height: 0; }
+.g-vault .vt-title { display: flex; flex-direction: column; align-items: center; line-height: 1; padding-top: 2px; }
+.g-vault .vt-title small { font: 900 clamp(9px, 1.4vh, 11px)/1 'Cinzel', serif; letter-spacing: .42em; color: var(--rose); text-shadow: 0 0 4px #000, 0 0 8px #000; }
+.g-vault .vt-title b { font: 900 clamp(20px, min(4.4vh, 7.6vw), 40px)/1 'Cinzel Decorative', 'Cinzel', serif; letter-spacing: .1em; white-space: nowrap; background: linear-gradient(180deg, #fff6c8, var(--gold) 45%, var(--gold2) 80%, #5a3000); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 2px 0 #3a0010) drop-shadow(0 0 16px rgba(255, 50, 70, .4)); }
+.g-vault .vt-title span { margin-top: 2px; font-size: clamp(9px, 1.4vh, 11px); font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: #ffd8dc; opacity: .8; }
+.g-vault .vt-box { position: relative; flex: 1; min-height: 0; container-type: size; display: grid; place-items: center; }
+
+/* ---------- the door frame around the reels ---------- */
+.g-vault .vt-frame { position: relative; width: min(93cqw, calc(91cqh * 5 / 4)); aspect-ratio: 5 / 4; container-type: inline-size; }
+.g-vault .vt-frame::before { content: ''; position: absolute; inset: -3% -2.6%; z-index: -1; border-radius: 22px; background: linear-gradient(180deg, #eef0f6, #8a90a4 18%, #3a3e4c 50%, #6a7084 82%, #c8ccd8); box-shadow: 0 0 0 2px #08020a, 0 24px 60px rgba(0, 0, 0, .75), inset 0 2px 0 rgba(255, 255, 255, .5), inset 0 -3px 0 rgba(0, 0, 0, .5); transition: background .8s; }
+.g-vault .vt-frame::after { content: ''; position: absolute; inset: -1.2% -1%; z-index: -1; border-radius: 14px; background: linear-gradient(180deg, #fff1b0, var(--gold) 25%, #7a4a0e 60%, #e8b85a); box-shadow: inset 0 0 0 2px #2a1206; transition: background .8s; }
+.g-vault .vt-frame.won::after, .g-vault .vt-frame.antic::after { animation: vt-frameglow .6s ease-in-out infinite alternate; }
+.g-vault .vt-frame.antic::after { animation-duration: .2s; background: linear-gradient(180deg, #ffd0d0, var(--red2) 30%, #5a0010 65%, #ff8a8a); }
+@keyframes vt-frameglow { to { filter: brightness(1.35) drop-shadow(0 0 18px var(--acc)); } }
+.g-vault .vt-frame.jolt { animation: vt-jolt .28s ease-out; }
+@keyframes vt-jolt { 30% { translate: 0 4px; } 60% { translate: 0 -1px; } }
+.g-vault .vt-rivet { position: absolute; width: 4.4%; aspect-ratio: 1; z-index: 6; pointer-events: none; border-radius: 50%; background: radial-gradient(circle at 38% 32%, #fff, #b8bdcc 45%, #3a3e4c 85%); box-shadow: 0 2px 3px #000, inset 0 0 0 1.5px #22262f; }
+.g-vault .vt-rivet::after { content: ''; position: absolute; inset: 30%; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ffb0b8, var(--red) 55%, #3a0008); }
+.g-vault .vt-rivet.tl { left: -3.6%; top: -4.2%; } .g-vault .vt-rivet.tr { right: -3.6%; top: -4.2%; }
+.g-vault .vt-rivet.bl { left: -3.6%; bottom: -4.2%; } .g-vault .vt-rivet.br { right: -3.6%; bottom: -4.2%; }
+.g-vault .vt-reels, .g-vault .vt-stk, .g-vault .vt-lines { position: absolute; inset: 0; border-radius: 8px; }
+.g-vault .vt-reels { display: grid; grid-template-columns: repeat(5, 1fr); overflow: hidden; background: radial-gradient(ellipse at 50% 20%, #4a0a1c, #22040e 60%, #0c0106); box-shadow: inset 0 0 0 2px #08020a, inset 0 0 44px rgba(0, 0, 0, .75); transition: background .8s; }
+.g-vault .vt-col { position: relative; overflow: hidden; border-left: 1px solid rgba(245, 196, 81, .2); }
+.g-vault .vt-col:first-child { border-left: 0; }
+.g-vault .vt-col::after { content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 3; background: linear-gradient(180deg, rgba(0, 0, 0, .5), transparent 12%, transparent 88%, rgba(0, 0, 0, .55)); }
+.g-vault .vt-cell { position: absolute; left: 0; right: 0; display: grid; place-items: center; }
+.g-vault .vt-cell::before { content: ''; position: absolute; inset: 4% 6%; border-radius: 12px; background: radial-gradient(ellipse at 50% 40%, rgba(255, 255, 255, .05), transparent 70%); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .04); }
+.g-vault .vt-sym { position: relative; width: 86%; height: 88%; display: block; overflow: visible; pointer-events: none; filter: drop-shadow(0 3px 3px rgba(0, 0, 0, .55)); }
+.g-vault .vt-cell.under > .vt-sym { opacity: 0; }
+/* spinning */
+.g-vault .vt-roll { position: absolute; left: 0; top: 0; width: 100%; height: 400%; display: flex; flex-direction: column; animation: vt-roll .28s linear infinite; will-change: transform; }
+.g-vault .vt-roll img, .g-vault .vt-roll svg { flex: 0 0 6.25%; width: 86%; height: 6.25%; margin: 0 auto; object-fit: contain; display: block; }
+.g-vault .vt-roll.rm { animation-duration: 1.4s; opacity: .55; }
+@keyframes vt-roll { from { transform: translate3d(0, -50%, 0); } to { transform: translate3d(0, 0, 0); } }
+.g-vault .vt-col.antic { z-index: 2; box-shadow: inset 0 0 0 3px #ffd0d0, inset 0 0 30px rgba(255, 58, 74, .75); animation: vt-antic .16s ease-in-out infinite alternate; }
+.g-vault .vt-col.antic .vt-roll { animation-duration: .5s; }
+@keyframes vt-antic { to { filter: brightness(1.4); translate: 1px -1px; } }
+.g-vault .vt-col.thud { animation: vt-thud .24s ease-out; }
+@keyframes vt-thud { 35% { translate: 0 3px; } 100% { translate: 0 0; } }
+.g-vault .vt-puff { position: absolute; left: 8%; right: 8%; bottom: -4%; height: 16%; z-index: 4; pointer-events: none; border-radius: 50%; background: radial-gradient(ellipse at 50% 70%, rgba(255, 210, 160, .55), transparent 70%); animation: vt-puff .55s ease-out forwards; }
+@keyframes vt-puff { from { opacity: .9; scale: .4 .5; } to { opacity: 0; scale: 1.5 1.2; translate: 0 -30%; } }
+/* wins */
+.g-vault .vt-reels.dim .vt-cell:not(.win) > .vt-sym { opacity: .26; filter: grayscale(.7); transition: opacity .25s; }
+.g-vault .vt-reels.dim .vt-cell.under > .vt-sym { opacity: 0; }
+.g-vault .vt-cell.win { z-index: 2; }
+.g-vault .vt-cell.win::after, .g-vault .vt-sc.win::after { content: ''; position: absolute; inset: 4% 6%; border-radius: 12px; box-shadow: inset 0 0 0 2.5px var(--gold), 0 0 14px var(--gold), inset 0 0 16px rgba(255, 190, 80, .45); animation: vt-glowp .45s ease-in-out infinite alternate; pointer-events: none; }
+.g-vault .vt-cell.win .vt-sym { animation: vt-win .45s ease-in-out infinite alternate; filter: drop-shadow(0 0 8px #ffb02e); }
+@keyframes vt-win { to { scale: 1.12; } }
+@keyframes vt-glowp { to { opacity: .45; } }
+.g-vault .vt-cell.win .vt-s-boss { animation: vt-bounce .38s ease-in-out infinite alternate; }
+@keyframes vt-bounce { to { translate: 0 -7%; scale: 1.1; rotate: -4deg; } }
+.g-vault .vt-cell.win .vt-s-diamond, .g-vault .vt-cell.win .vt-s-bars { animation: vt-gem .42s ease-in-out infinite alternate; }
+@keyframes vt-gem { to { scale: 1.13; filter: brightness(1.5) drop-shadow(0 0 12px #fff0d0); } }
+.g-vault .vt-cell.win .vt-s-dial .vt-dialr { animation: vt-dialspin .9s cubic-bezier(.5, 0, .3, 1) infinite alternate; }
+@keyframes vt-dialspin { to { rotate: 200deg; } }
+.g-vault .vt-cell.win .vt-s-wild .vt-spoke, .g-vault .vt-sc.win .vt-spoke { animation: vt-spokespin .5s linear infinite; }
+@keyframes vt-spokespin { to { rotate: 120deg; } }
+.g-vault .vt-cell.win .vt-shine { animation-duration: .8s; }
+.g-vault .vt-cell.win .vt-spark { animation-duration: .7s; }
+.g-vault .vt-cell.win .vt-s-key .vt-keyb { animation: vt-keyturn .4s ease-in-out infinite alternate; }
+@keyframes vt-keyturn { to { rotate: 18deg; scale: 1.1; } }
+/* idle life */
+.g-vault .vt-sym .vt-pulse { transform-box: fill-box; transform-origin: center; animation: vt-pulse 1.8s ease-in-out infinite alternate; }
+@keyframes vt-pulse { to { opacity: .45; scale: .92; } }
+.g-vault .vt-sym .vt-spark { transform-box: fill-box; transform-origin: 50% 50%; animation: vt-sparkle 2.6s ease-in-out infinite; }
+.g-vault .vt-sym .vt-spark.s2 { animation-delay: -1.3s; }
+@keyframes vt-sparkle { 0%, 60%, 100% { scale: 0; } 80% { scale: 1.2; } }
+.g-vault .vt-sym .vt-shine { animation: vt-shine 3.6s ease-in-out infinite; }
+@keyframes vt-shine { 0%, 55% { translate: 0 0; } 100% { translate: 180px 0; } }
+.g-vault .vt-sym .vt-spoke { transform-box: view-box; transform-origin: 50px 44px; animation: vt-idlespoke 6s ease-in-out infinite; }
+@keyframes vt-idlespoke { 0%, 80%, 100% { rotate: 0deg; } 90% { rotate: 120deg; } }
+.g-vault .vt-sym .vt-dialr { transform-box: view-box; transform-origin: 50px 50px; animation: vt-idledial 7s ease-in-out infinite; }
+@keyframes vt-idledial { 0%, 70%, 100% { rotate: 0deg; } 80% { rotate: -50deg; } 90% { rotate: 30deg; } }
+.g-vault .vt-sym .vt-keyb { transform-box: view-box; transform-origin: 50px 50px; }
+.g-vault .vt-cell.key.landed > .vt-sym { animation: vt-keypop .6s cubic-bezier(.2, 1.6, .4, 1); }
+@keyframes vt-keypop { 40% { scale: 1.35; filter: drop-shadow(0 0 18px #ff3a50) brightness(1.3); } }
+.g-vault .vt-cell.key.trig > .vt-sym { animation: vt-trig .45s ease-in-out infinite alternate; }
+.g-vault .vt-cell.key.trig::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle, rgba(255, 58, 80, .55), transparent 65%); animation: vt-glowp .45s ease-in-out infinite alternate; }
+@keyframes vt-trig { to { scale: 1.2; rotate: 12deg; filter: drop-shadow(0 0 20px #ff3a50) brightness(1.25); } }
+/* the win lines */
+.g-vault .vt-lines { z-index: 5; pointer-events: none; }
+.g-vault .vt-lines svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.g-vault .vt-lines polyline { fill: none; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.g-vault .vt-lines .sh { stroke: rgba(0, 0, 0, .65); stroke-width: 8; stroke-dasharray: 2000; stroke-dashoffset: 2000; animation: vt-draw .45s ease-out forwards; }
+.g-vault .vt-lines .ln { stroke-width: 4; filter: drop-shadow(0 0 4px currentColor); stroke-dasharray: 2000; stroke-dashoffset: 2000; animation: vt-draw .45s ease-out forwards; }
+@keyframes vt-draw { to { stroke-dashoffset: 0; } }
+/* sticky wilds */
+.g-vault .vt-stk { z-index: 4; pointer-events: none; }
+.g-vault .vt-sc { position: absolute; width: 20%; height: 25%; display: grid; place-items: center; }
+.g-vault .vt-sc::before { content: ''; position: absolute; inset: 4% 6%; border-radius: 12px; background: radial-gradient(ellipse at 50% 45%, color-mix(in srgb, var(--acc) 45%, transparent), rgba(20, 2, 8, .85) 75%); box-shadow: inset 0 0 0 2px var(--acc), 0 0 14px color-mix(in srgb, var(--acc) 60%, transparent); }
+.g-vault .vt-sc .vt-sym { width: 82%; height: 84%; }
+.g-vault .vt-badge { position: absolute; right: 5%; top: 5%; z-index: 2; padding: 2px 6px; border-radius: 999px; font: 400 clamp(9px, 3cqw, 18px)/1.1 'Bungee', var(--f-display); color: #2a0a06; background: linear-gradient(180deg, #fff6c8, var(--gold) 55%, #a8680a); box-shadow: 0 0 0 1.5px #3a1a00, 0 3px 6px rgba(0, 0, 0, .6); }
+.g-vault .vt-sc.plain .vt-badge { font: 800 clamp(6px, 1.7cqw, 10px)/1.4 var(--f-body); letter-spacing: .1em; color: #08202c; background: linear-gradient(180deg, #e8f8ff, #8fdcff 55%, #2a7aa0); }
+.g-vault .vt-sc.x3 .vt-badge { background: linear-gradient(180deg, #ffe0c0, #ff8a2a 55%, #8a3000); color: #fff; text-shadow: 0 1px 0 #4a1a00; }
+.g-vault .vt-sc.x5 .vt-badge { background: linear-gradient(180deg, #ffd0d8, #ff2a48 55%, #6a0010); color: #fff; text-shadow: 0 1px 0 #3a0008; box-shadow: 0 0 0 1.5px #3a0008, 0 0 14px #ff3a50; animation: vt-x5 .7s ease-in-out infinite alternate; }
+@keyframes vt-x5 { to { scale: 1.12; } }
+.g-vault .vt-sc .vt-spoke { animation-duration: 3s; }
+/* chips and floating amounts */
+.g-vault .vt-chips { position: absolute; left: 50%; bottom: 2%; z-index: 7; translate: -50% 0; display: flex; gap: 4px; max-width: 98%; pointer-events: none; opacity: 0; transition: opacity .2s, translate .25s; }
+.g-vault .vt-chips.in { opacity: 1; translate: -50% -4px; }
+.g-vault .vt-chip { display: flex; align-items: center; gap: 3px; padding: 2px 8px 2px 3px; border-radius: 999px; white-space: nowrap; background: rgba(20, 2, 8, .9); box-shadow: 0 0 0 1px rgba(245, 196, 81, .7), 0 4px 10px rgba(0, 0, 0, .6); font-size: clamp(9px, 2.2cqw, 13px); line-height: 1; }
+.g-vault .vt-chip .vt-ci { width: clamp(16px, 4.4cqw, 26px); height: clamp(16px, 4.4cqw, 26px); display: block; }
+.g-vault .vt-chip .vt-ci svg { width: 100%; height: 100%; display: block; animation: none !important; }
+.g-vault .vt-chip .vt-ci svg * { animation: none !important; }
+.g-vault .vt-chip b { font: 400 1.25em 'Bungee', var(--f-display); color: var(--gold); }
+.g-vault .vt-chip small { font-weight: 700; color: var(--rose); font-size: .85em; }
+.g-vault .vt-chip em { font-style: normal; font-weight: 800; color: #fff6d0; }
+.g-vault .vt-chip.more { padding: 4px 8px; font-weight: 800; }
+.g-vault .vt-pops { position: absolute; inset: 0; z-index: 8; pointer-events: none; }
+.g-vault .vt-pop { position: absolute; translate: -50% -50%; font: 400 clamp(18px, 8cqw, 46px)/1 'Bungee', var(--f-display); color: #fff6d0; text-shadow: 0 3px 0 #4a0010, 0 0 16px #ff4a5a; white-space: nowrap; animation: vt-float 1.4s ease-out forwards; }
+.g-vault .vt-pop.big { font-size: clamp(24px, 11cqw, 64px); color: var(--gold); }
+.g-vault .vt-pop.mult { font-size: clamp(20px, 9cqw, 54px); color: var(--acc); text-shadow: 0 3px 0 #2a0008, 0 0 20px var(--acc); }
+@keyframes vt-float { 0% { opacity: 0; scale: .5; } 15% { opacity: 1; scale: 1.15; } 30% { scale: 1; } 75% { opacity: 1; } 100% { opacity: 0; translate: -50% -130%; } }
+
+/* ---------- banner and summary ---------- */
+.g-vault .vt-banner { position: absolute; inset: 0; z-index: 9; display: grid; place-content: center; text-align: center; pointer-events: none; padding: 0 6%; background: radial-gradient(ellipse at 50% 50%, rgba(24, 0, 8, .9), rgba(24, 0, 8, .3) 75%); opacity: 0; border-radius: 10px; }
+.g-vault .vt-banner.in { animation: vt-banin .5s cubic-bezier(.2, 1.5, .4, 1) forwards; }
+.g-vault .vt-banner.out { opacity: 1; animation: vt-banout .26s forwards; }
+.g-vault .vt-banner small { display: block; font: 900 clamp(10px, 3.2cqw, 18px) 'Cinzel', serif; letter-spacing: .3em; text-transform: uppercase; color: #ffc8d0; }
+.g-vault .vt-banner b { display: block; margin: 6px 0; font: 900 clamp(26px, 10cqw, 76px)/1 'Cinzel Decorative', 'Cinzel', serif; background: linear-gradient(180deg, #fff, #ffe9a0 30%, var(--gold) 60%, #8a4a00); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 4px 0 #2a0008) drop-shadow(0 0 24px rgba(255, 60, 70, .7)); }
+.g-vault .vt-banner span { font-weight: 800; font-size: clamp(11px, 3cqw, 16px); letter-spacing: .04em; color: #ffe8e0; }
+.g-vault .vt-banner.m-safe b { background-image: linear-gradient(180deg, #fff, #d8f4ff 30%, #8fdcff 60%, #1a5a80); }
+.g-vault .vt-banner.m-box b { background-image: linear-gradient(180deg, #fff, #ffe0b0 30%, #ffb34a 60%, #7a3a00); }
+@keyframes vt-banin { from { opacity: 0; scale: 2; } to { opacity: 1; scale: 1; } }
+@keyframes vt-banout { to { opacity: 0; scale: .85; } }
+.g-vault .vt-outro { position: absolute; left: 50%; top: 50%; translate: -50% -50%; z-index: 10; width: min(440px, 92cqw); max-height: 96cqh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(3px, 1.4cqh, 10px); text-align: center; padding: clamp(12px, 4cqh, 28px) 16px; border-radius: 18px; cursor: pointer;
+  background: radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--acc) 40%, transparent), transparent 60%), linear-gradient(180deg, #2e0614, #0e0206); box-shadow: 0 0 0 3px var(--gold), 0 0 0 6px #14060f, 0 24px 60px rgba(0, 0, 0, .75), 0 0 60px color-mix(in srgb, var(--acc) 40%, transparent);
+  opacity: 0; scale: .7; transition: opacity .25s, scale .4s cubic-bezier(.2, 1.5, .4, 1); }
+.g-vault .vt-outro.in { opacity: 1; scale: 1; }
+.g-vault .vt-outro small { font: 900 clamp(10px, 3cqh, 15px) 'Cinzel', serif; letter-spacing: .26em; color: #ffc8d0; }
+.g-vault .vt-outro b { font: 400 clamp(30px, 13cqh, 66px)/1 'Bebas Neue', var(--f-num); letter-spacing: .04em; color: var(--gold); text-shadow: 0 3px 0 #3a0010, 0 0 24px rgba(255, 190, 80, .6); }
+.g-vault .vt-outro span { font-weight: 700; color: #f6e6ea; font-size: clamp(11px, 3.4cqh, 16px); }
+
+/* ---------- the free-spin HUD ---------- */
+.g-vault .vt-hud { display: flex; align-items: stretch; justify-content: center; gap: clamp(6px, 1.5vw, 14px); padding: 5px 10px; border-radius: 14px; background: linear-gradient(180deg, rgba(60, 8, 22, .92), rgba(16, 2, 8, .92)); box-shadow: 0 0 0 1px var(--acc), 0 6px 18px rgba(0, 0, 0, .5), 0 0 24px color-mix(in srgb, var(--acc) 35%, transparent); }
+.g-vault .vt-hud-c { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-width: clamp(76px, 14vw, 150px); line-height: 1; }
+.g-vault .vt-hud-c small { font-size: 9.5px; font-weight: 800; letter-spacing: .16em; color: #ffc8d0; white-space: nowrap; }
+.g-vault .vt-hud-c output { font: 700 clamp(18px, 3.4vh, 28px)/1 var(--f-num); color: var(--gold); font-variant-numeric: tabular-nums; }
+.g-vault .vt-hud-c.m output { font: 900 clamp(14px, 2.8vh, 22px)/1 'Cinzel Decorative', 'Cinzel', serif; color: var(--acc); text-shadow: 0 0 12px color-mix(in srgb, var(--acc) 70%, transparent); white-space: nowrap; }
+
+/* ---------- message and controls ---------- */
+.g-vault .vt-msg { flex: none; min-height: 1.4em; padding-inline: 8px; text-align: center; font-weight: 800; font-size: clamp(12px, 2vh, 15px); letter-spacing: .03em; color: #ffe2e6; text-shadow: 0 2px 6px rgba(0, 0, 0, .8); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.g-vault .vt-msg.gold { color: var(--gold); } .g-vault .vt-msg.red { color: #ff9aa6; }
+.g-vault .vt-ctl { flex: none; position: relative; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: clamp(6px, 1.1vw, 12px); padding: 6px 12px; border-radius: 18px; background: linear-gradient(180deg, rgba(44, 8, 20, .9), rgba(12, 2, 6, .94)); box-shadow: 0 0 0 1px rgba(245, 196, 81, .35); align-self: center; }
+.g-vault .vt-stakebox .bc-stake button { background: rgba(255, 255, 255, .1); }
+.g-vault .vt-winbox { min-width: 118px; text-align: center; padding: 4px 14px; border-radius: 12px; background: rgba(10, 1, 5, .82); box-shadow: inset 0 0 0 1px rgba(245, 196, 81, .45); line-height: 1.05; }
+.g-vault .vt-winbox small { display: block; font-size: 10px; letter-spacing: .18em; font-weight: 800; color: var(--rose); }
+.g-vault .vt-winbox output { font: 700 clamp(20px, 3.6vh, 28px)/1.1 var(--f-num); color: var(--gold); font-variant-numeric: tabular-nums; }
+.g-vault .vt-winbox.hot { animation: vt-hot .3s 4 alternate; }
+@keyframes vt-hot { to { box-shadow: inset 0 0 0 2px var(--gold), 0 0 22px var(--gold); } }
+.g-vault .vt-btn { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; min-width: 64px; padding: 6px 12px; border-radius: 12px; border: 0; font-weight: 800; font-size: 13px; letter-spacing: .06em; line-height: 1.1;
+  background: linear-gradient(180deg, #4a1424, #1e060e); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), 0 0 0 1px rgba(245, 196, 81, .45), 0 3px 0 #060104; transition: transform .1s, filter .15s; }
+.g-vault .vt-btn small { font-size: 9.5px; letter-spacing: .12em; color: var(--rose); white-space: nowrap; }
+.g-vault .vt-btn:hover:not(:disabled) { filter: brightness(1.15); }
+.g-vault .vt-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), 0 0 0 1px rgba(245, 196, 81, .45), 0 1px 0 #060104; }
+.g-vault .vt-btn:disabled { opacity: .4; cursor: default; }
+.g-vault .vt-btn.on { background: linear-gradient(180deg, #c0182e, #4a0614); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), 0 0 0 1px #ff8a8a, 0 0 14px rgba(255, 58, 74, .5), 0 3px 0 #060104; }
+.g-vault .vt-btn.on small { color: #ffd0d0; }
+.g-vault .vt-btn.gold { color: #2a0a06; background: linear-gradient(180deg, #fff1b0, var(--gold) 45%, #a8680a); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6), 0 0 0 1px #5a3000, 0 3px 0 #4a2600; }
+.g-vault .vt-btn.gold small { color: #5a2006; }
+.g-vault .vt-spin { position: relative; width: clamp(58px, 9vh, 78px); aspect-ratio: 1; border-radius: 50%; border: 0; display: grid; place-items: center; color: #2a0a06;
+  background: radial-gradient(circle at 38% 30%, #fff6c8, var(--gold) 40%, #b8700c 75%, #5a3000); box-shadow: 0 0 0 3px #2a1206, 0 0 0 6px rgba(200, 205, 220, .7), 0 0 0 8px #22262f, 0 8px 18px rgba(0, 0, 0, .6), 0 0 26px rgba(255, 70, 90, .35); transition: transform .12s, filter .15s; }
+.g-vault .vt-spin svg { width: 58%; height: 58%; }
+.g-vault .vt-spin .st { display: none; }
+.g-vault .vt-spin.stop .go { display: none; } .g-vault .vt-spin.stop .st { display: inline; }
+.g-vault .vt-spin.stop { background: radial-gradient(circle at 38% 30%, #ffb0b0, #e2243f 45%, #5a0614); color: #fff; }
+.g-vault .vt-spin:hover { filter: brightness(1.1); }
+.g-vault .vt-spin:active { transform: scale(.94); }
+.g-vault .vt-spin .go { transform-box: view-box; transform-origin: 24px 24px; }
+.g-vault .vt-main:not(.busy) .vt-spin .go { animation: vt-spinidle 3.4s ease-in-out infinite; }
+.g-vault .vt-main.busy .vt-spin:not(.stop) .go { animation: vt-spokespin .6s linear infinite; }
+@keyframes vt-spinidle { 0%, 70%, 100% { rotate: 0deg; } 85% { rotate: 240deg; } }
+.g-vault .vt-autowrap { position: relative; }
+.g-vault .vt-automenu { position: absolute; bottom: calc(100% + 8px); right: 0; z-index: 20; display: flex; gap: 6px; padding: 8px; border-radius: 12px; background: #2a0612; box-shadow: 0 0 0 1px rgba(245, 196, 81, .6), 0 10px 24px rgba(0, 0, 0, .6); }
+.g-vault .vt-automenu button { min-width: 44px; padding: 8px 6px; border-radius: 9px; border: 0; background: #52142a; font-weight: 800; }
+.g-vault .vt-automenu button:hover { background: #72203c; }
+
+/* ---------- overlays: the buy menu, the vault door ---------- */
+.g-vault .vt-ov { position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; padding: 12px; background: rgba(8, 0, 4, .76); backdrop-filter: blur(4px); animation: vt-fade .2s ease-out; }
+@keyframes vt-fade { from { opacity: 0; } }
+.g-vault .vt-buybox { width: min(520px, 100%); max-height: 100%; overflow: auto; text-align: center; padding: 14px 14px 12px; border-radius: 18px; background: radial-gradient(ellipse at 50% 0%, rgba(210, 30, 50, .45), transparent 65%), linear-gradient(180deg, #2e0614, #0e0206); box-shadow: 0 0 0 3px var(--gold), 0 0 0 6px #14060f, 0 24px 60px rgba(0, 0, 0, .75); animation: vt-pop .35s cubic-bezier(.2, 1.5, .4, 1); }
+@keyframes vt-pop { from { scale: .8; opacity: 0; } }
+.g-vault .vt-buybox h3 { margin: 2px 0 10px; font: 900 clamp(18px, 3.4vh, 24px) 'Cinzel Decorative', 'Cinzel', serif; color: var(--gold); }
+.g-vault .vt-buybox p { margin: 10px 0; font-size: clamp(11px, 1.8vh, 13px); color: #f0dce2; line-height: 1.4; }
+.g-vault .vt-buyrow2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.g-vault .vt-buyopt { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 8px; border-radius: 14px; border: 0; background: linear-gradient(180deg, #4a1424, #1a040c); box-shadow: inset 0 0 0 1.5px rgba(245, 196, 81, .6), 0 4px 0 #060104; transition: transform .12s, filter .15s; }
+.g-vault .vt-buyopt.inside { background: linear-gradient(180deg, #6a0a20, #22030c); box-shadow: inset 0 0 0 2px var(--gold), 0 0 18px rgba(255, 60, 80, .35), 0 4px 0 #060104; }
+.g-vault .vt-buyopt:hover:not(:disabled) { filter: brightness(1.15); transform: translateY(-2px); }
+.g-vault .vt-buyopt:disabled { opacity: .4; cursor: default; }
+.g-vault .vt-buyopt .art svg { width: clamp(48px, 10vh, 76px); height: clamp(48px, 10vh, 76px); display: block; }
+.g-vault .vt-buyopt b { font: 900 clamp(13px, 2.2vh, 16px) 'Cinzel', serif; color: #fff1d0; }
+.g-vault .vt-buyopt small { font-size: 11px; color: var(--rose); line-height: 1.25; }
+.g-vault .vt-buyopt em { margin-top: 4px; font-style: normal; font-weight: 800; font-size: 13px; padding: 4px 10px; border-radius: 999px; color: #2a0a06; background: linear-gradient(180deg, #fff1b0, var(--gold) 50%, #a8680a); }
+/* the vault door and the pick */
+.g-vault .vt-ov.door { background: radial-gradient(ellipse at 50% 50%, rgba(40, 2, 12, .9), rgba(4, 0, 2, .96)); padding: 8px; }
+.g-vault .vt-pickwrap { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; gap: 6px; min-height: 0; }
+.g-vault .vt-pickhead { flex: none; display: flex; flex-direction: column; align-items: center; text-align: center; line-height: 1.05; }
+.g-vault .vt-pickhead small { font: 900 clamp(9px, 1.6vh, 12px) 'Cinzel', serif; letter-spacing: .32em; color: var(--rose); }
+.g-vault .vt-pickhead b { font: 900 clamp(20px, 4.4vh, 38px) 'Cinzel Decorative', 'Cinzel', serif; background: linear-gradient(180deg, #fff6c8, var(--gold) 45%, var(--gold2)); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 2px 0 #3a0010); }
+.g-vault .vt-pickhead span { font-size: clamp(10px, 1.7vh, 13px); font-weight: 700; color: #ffe2e6; opacity: .85; }
+.g-vault .vt-scene { position: relative; flex: 1; min-height: 0; width: 100%; max-width: 980px; display: grid; place-items: center; perspective: 1400px; container-type: size; }
+.g-vault .vt-door { position: absolute; left: 50%; top: 50%; width: min(86cqh, 86cqw); aspect-ratio: 1; translate: -50% -50%; z-index: 3; transform-origin: 0% 50%; transition: transform 1.3s cubic-bezier(.55, 0, .3, 1), opacity 1.3s; filter: drop-shadow(0 20px 40px rgba(0, 0, 0, .8)); }
+.g-vault .vt-door svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.g-vault .vt-door .vt-ddial { transform-box: view-box; transform-origin: 200px 200px; }
+.g-vault .vt-door .vt-dspoke { transform-box: view-box; transform-origin: 200px 200px; }
+.g-vault .vt-door .vt-bolt { transition: transform .45s cubic-bezier(.5, 0, .3, 1); }
+.g-vault .vt-door.unbolt .vt-bolt { transform: translate(var(--bx), var(--by)); }
+.g-vault .vt-door.swing { transform: rotateY(-104deg); opacity: .25; }
+.g-vault .vt-doorlight { position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: 0; background: radial-gradient(ellipse 55% 60% at 50% 50%, rgba(255, 220, 140, .55), rgba(255, 120, 60, .15) 50%, transparent 75%); transition: opacity 1s; }
+.g-vault .vt-doorlight.on { opacity: 1; }
+.g-vault .vt-picks { position: relative; z-index: 4; display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(6px, 1.6vw, 16px); width: min(100%, 900px); padding: 0 4px; opacity: 0; pointer-events: none; }
+.g-vault .vt-picks.in { opacity: 1; pointer-events: auto; }
+.g-vault .vt-pick { position: relative; display: flex; flex-direction: column; align-items: center; gap: clamp(1px, .6cqh, 5px); padding: clamp(6px, 2cqh, 14px) clamp(4px, 1vw, 10px); border-radius: 16px; border: 0; text-align: center; line-height: 1.15;
+  background: linear-gradient(180deg, rgba(60, 8, 22, .95), rgba(14, 2, 6, .95)); box-shadow: inset 0 0 0 2px var(--pc), 0 0 22px color-mix(in srgb, var(--pc) 35%, transparent), 0 6px 0 #060104; transition: transform .15s, filter .2s, opacity .3s;
+  animation: vt-pickin .55s cubic-bezier(.2, 1.4, .4, 1) backwards; animation-delay: calc(var(--i) * .12s); }
+@keyframes vt-pickin { from { opacity: 0; translate: 0 30px; scale: .85; } }
+.g-vault .vt-pick.m-safe { --pc: #8fdcff; } .g-vault .vt-pick.m-box { --pc: #ffb34a; } .g-vault .vt-pick.m-grand { --pc: #ffe27a; }
+.g-vault .vt-pick:hover { transform: translateY(-4px); filter: brightness(1.12); }
+.g-vault .vt-pick .art svg { width: clamp(44px, 22cqh, 120px); height: clamp(44px, 22cqh, 120px); display: block; filter: drop-shadow(0 6px 8px rgba(0, 0, 0, .6)); }
+.g-vault .vt-pick i { font-style: normal; font-size: clamp(8px, 1.4vh, 10px); font-weight: 800; letter-spacing: .2em; text-transform: uppercase; color: var(--pc); }
+.g-vault .vt-pick b { font: 900 clamp(13px, 2.6vh, 20px) 'Cinzel', serif; color: #fff1d8; }
+.g-vault .vt-pick em { font: 400 clamp(15px, 3.2vh, 26px)/1 'Bebas Neue', var(--f-num); letter-spacing: .04em; font-style: normal; color: var(--pc); }
+.g-vault .vt-pick small { font-size: clamp(10px, 1.6vh, 12.5px); color: #f6dfe4; opacity: .9; }
+.g-vault .vt-pick .stat { margin-top: 2px; font-size: clamp(9px, 1.4vh, 11px); font-weight: 800; color: #2a0a06; background: var(--pc); padding: 2px 8px; border-radius: 999px; }
+.g-vault .vt-picks.chosen .vt-pick:not(.chosen) { opacity: .25; filter: grayscale(.8); }
+.g-vault .vt-pick.chosen { transform: scale(1.06); box-shadow: inset 0 0 0 3px #fff, 0 0 40px var(--pc), 0 6px 0 #060104; }
+/* the level gate */
+.g-vault .vt-gate { position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; padding: 16px; background: rgba(8, 0, 4, .78); backdrop-filter: blur(3px); }
+.g-vault .vt-gate .box { max-width: 420px; text-align: center; padding: 20px 24px 24px; border-radius: 20px; background: radial-gradient(ellipse at 50% 0%, #6a0a20, #1c030a 75%); border: 2px solid var(--gold); box-shadow: 0 20px 50px rgba(0, 0, 0, .7); }
+.g-vault .vt-gate .art svg { width: min(160px, 30vh); display: block; margin: 0 auto 8px; filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .7)); }
+.g-vault .vt-gate h2 { margin: 0 0 8px; font: 900 26px 'Cinzel Decorative', 'Cinzel', serif; color: var(--gold); letter-spacing: .04em; }
+.g-vault .vt-gate p { margin: 0 0 18px; line-height: 1.5; color: rgba(250, 236, 240, .88); }
+.g-vault .vt-gate .vt-btn { padding: 12px 26px; font-size: 15px; }
+
+/* ---------- free-spin modes: each vault its own look ---------- */
+.g-vault.m-safe .vt-frame::after { background: linear-gradient(180deg, #ffffff, #b8e8ff 25%, #2a5a7a 60%, #9ad4f0); }
+.g-vault.m-safe .vt-frame::before { background: linear-gradient(180deg, #f4fbff, #8aa4b8 18%, #26323e 50%, #5a7488 82%, #d0e4f0); }
+.g-vault.m-safe .vt-reels { background: radial-gradient(ellipse at 50% 20%, #1c3a4e, #0a1a26 60%, #04080c); }
+.g-vault.m-box .vt-frame::after { background: linear-gradient(180deg, #ffe8c0, #ffb34a 25%, #6a3204 60%, #f0b060); }
+.g-vault.m-box .vt-frame::before { background: linear-gradient(180deg, #f6dcb0, #a8743a 18%, #4a2a0c 50%, #8a5a24 82%, #e8c890); }
+.g-vault.m-box .vt-reels { background: radial-gradient(ellipse at 50% 20%, #4a2a0c, #24120a 60%, #0c0602); }
+.g-vault.m-grand .vt-frame::after { background: linear-gradient(180deg, #fffbe0, #ffe27a 25%, #b8780e 55%, #fff1b0); box-shadow: inset 0 0 0 2px #2a1206, 0 0 30px rgba(255, 210, 80, .55); }
+.g-vault.m-grand .vt-frame::before { background: linear-gradient(180deg, #fff6c8, #d0942a 18%, #6a0a1a 50%, #b8780e 82%, #ffe9a0); }
+.g-vault.m-grand .vt-reels { background: radial-gradient(ellipse at 50% 20%, #6a1a0a, #300806 60%, #100202); }
+.g-vault.fs .vt-hud { animation: vt-hudin .5s cubic-bezier(.2, 1.5, .4, 1); }
+@keyframes vt-hudin { from { scale: .7; opacity: 0; } }
+
+/* ---------- sizes ---------- */
+@media (max-height: 560px) {
+  .g-vault .vt-title span, .g-vault .vt-title small { display: none; }
+  .g-vault .vt-title b { font-size: clamp(16px, 4.6vh, 24px); }
+  .g-vault .vt-main { padding-top: 3px; padding-bottom: 4px; gap: 2px; }
+  .g-vault .vt-msg { font-size: 12px; }
+  .g-vault .vt-pick small { display: none; }
+}
+/* landscape phone: the controls go down the right-hand side so the reels can be as big as possible */
+@media (max-height: 480px) and (min-aspect-ratio: 3/2) {
+  .g-vault .vt-main { display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto 1fr auto; column-gap: 10px; padding-top: 8px; }
+  .g-vault .vt-head { grid-column: 1; grid-row: 1; }
+  .g-vault .vt-box { grid-column: 1; grid-row: 2; }
+  .g-vault .vt-msg { grid-column: 1; grid-row: 3; }
+  .g-vault .vt-ctl { grid-column: 2; grid-row: 1 / 4; display: grid; grid-template-columns: 1fr 1fr; grid-template-areas: 'stake stake' 'win win' 'spin spin' 'buy buy' 'turbo auto'; gap: 5px; padding: 6px; align-self: stretch; align-content: center; justify-items: stretch; }
+  .g-vault .vt-stakebox { grid-area: stake; } .g-vault .vt-winbox { grid-area: win; min-width: 0; padding: 2px 8px; } .g-vault .vt-spin { grid-area: spin; justify-self: center; width: 56px; }
+  .g-vault #vt-buy { grid-area: buy; } .g-vault #vt-turbo { grid-area: turbo; } .g-vault .vt-autowrap { grid-area: auto; }
+  .g-vault .vt-ctl .bc-stake { flex-direction: row; justify-content: center; }
+  .g-vault .vt-ctl .bc-stake button { width: 28px; height: 28px; font-size: 16px; }
+  .g-vault .vt-ctl .bc-stake output { min-width: 70px; font-size: 14px; }
+  .g-vault .vt-winbox output { font-size: 17px; }
+  .g-vault .vt-ctl .vt-btn { min-width: 0; width: 100%; padding: 4px 4px; font-size: 11px; }
+  .g-vault .vt-ctl .vt-btn small { font-size: 8px; letter-spacing: .06em; }
+  .g-vault .vt-autowrap .vt-btn { width: 100%; }
+  .g-vault .vt-automenu { bottom: auto; top: 50%; right: calc(100% + 8px); translate: 0 -50%; }
+  .g-vault .vt-hud { padding: 2px 8px; }
+  .g-vault .vt-hud-c output { font-size: 17px; }
+  .g-vault .vt-hud-c small { font-size: 8px; }
+  .g-vault .vt-frame { width: min(94cqw, calc(93cqh * 5 / 4)); }
+  .g-vault .vt-title { display: none; }
+  .g-vault .vt-ropes, .g-vault .vt-gold { display: none; }
+  .g-vault .vt-pickhead span { display: none; }
+  .g-vault .vt-pick .art svg { width: clamp(36px, 18cqh, 70px); height: clamp(36px, 18cqh, 70px); }
+  .g-vault .vt-pick .stat { display: none; }
+}
+/* portrait phone */
+@media (max-width: 600px) and (min-height: 561px) {
+  .g-vault .vt-main { padding-inline: 8px; }
+  .g-vault .vt-msg { white-space: normal; line-height: 1.25; min-height: 2.5em; display: flex; align-items: center; justify-content: center; }
+  .g-vault .vt-ctl { width: 100%; padding: 8px; display: grid; grid-template-columns: 1fr 1fr auto 1fr; grid-template-areas: 'stake stake win win' 'buy turbo spin auto'; align-items: center; justify-items: stretch; gap: 8px 6px; }
+  .g-vault .vt-stakebox { grid-area: stake; justify-self: start; } .g-vault .vt-winbox { grid-area: win; min-width: 0; padding: 4px 6px; }
+  .g-vault #vt-buy { grid-area: buy; } .g-vault #vt-turbo { grid-area: turbo; } .g-vault .vt-spin { grid-area: spin; width: 72px; } .g-vault .vt-autowrap { grid-area: auto; }
+  .g-vault .vt-ctl .vt-btn { min-width: 0; width: 100%; padding: 6px 2px; font-size: 12px; }
+  .g-vault .vt-ctl .vt-btn small { font-size: 8.5px; letter-spacing: .06em; }
+  .g-vault .vt-autowrap .vt-btn { width: 100%; }
+  .g-vault .vt-ctl .bc-stake output { min-width: 76px; }
+  .g-vault .vt-hud { width: 100%; padding: 5px 6px; gap: 4px; }
+  .g-vault .vt-hud-c { min-width: 0; flex: 1; }
+  .g-vault .vt-hud-c.m output { font-size: clamp(11px, 3.6vw, 16px); white-space: normal; text-align: center; }
+  .g-vault .vt-hud-c output { font-size: clamp(16px, 5vw, 22px); }
+  .g-vault .vt-winbox output { font-size: clamp(16px, 5vw, 22px); }
+  .g-vault .vt-frame { width: min(92cqw, calc(91cqh * 5 / 4)); }
+  .g-vault .vt-ropes span { width: 22vw; }
+  .g-vault .vt-ropes .l { left: -4%; } .g-vault .vt-ropes .r { right: -4%; }
+  .g-vault .vt-gold { display: none; }
+  .g-vault .vt-picks { grid-template-columns: 1fr; gap: 8px; max-width: 420px; }
+  .g-vault .vt-pick { display: grid; grid-template-columns: auto 1fr auto; grid-template-areas: 'art tag em' 'art name em' 'art how how'; text-align: left; align-items: center; column-gap: 10px; row-gap: 1px; padding: 8px 12px; }
+  .g-vault .vt-pick .art { grid-area: art; } .g-vault .vt-pick i { grid-area: tag; } .g-vault .vt-pick b { grid-area: name; } .g-vault .vt-pick em { grid-area: em; text-align: right; } .g-vault .vt-pick small { grid-area: how; }
+  .g-vault .vt-pick .stat { display: none; }
+  .g-vault .vt-pick .art svg { width: 62px; height: 62px; }
+  .g-vault .vt-buyrow2 { gap: 8px; }
+}
+
+/* ---------- reduced motion: shorter, simpler, everything still works ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .g-vault .vt-ring, .g-vault .vt-camh, .g-vault .vt-glare, .g-vault .vt-lasers i, .g-vault .vt-ropes span, .g-vault .vt-dust, .g-vault .vt-beacon, .g-vault .vt-beacon i { animation: none !important; }
+  .g-vault .vt-sym *, .g-vault .vt-spin .go, .g-vault .vt-roll, .g-vault .vt-sc .vt-badge { animation: none !important; }
+  .g-vault .vt-cell.win .vt-sym, .g-vault .vt-col.antic, .g-vault .vt-col.thud, .g-vault .vt-cell.win::after, .g-vault .vt-sc.win::after, .g-vault .vt-frame::after, .g-vault .vt-frame.jolt, .g-vault .vt-cell.key.trig > .vt-sym, .g-vault .vt-cell.key.landed > .vt-sym, .g-vault .vt-pick { animation: none !important; }
+  .g-vault .vt-cell.win .vt-sym { filter: drop-shadow(0 0 8px #ffb02e) brightness(1.25); }
+  .g-vault .vt-lines .ln, .g-vault .vt-lines .sh { animation: none; stroke-dashoffset: 0; }
+  .g-vault .vt-banner.in, .g-vault .vt-banner.out, .g-vault .vt-buybox, .g-vault .vt-ov { animation-duration: .01s !important; }
+  .g-vault .vt-door, .g-vault .vt-door .vt-bolt, .g-vault .vt-outro, .g-vault .vt-ropes span { transition-duration: .2s !important; }
+  .g-vault .vt-pop { animation-duration: 1s; }
+}
+
+/* ---------- rules panel (lives in the shared modal) ---------- */
+.vt-rules table { width: 100%; }
+.vt-rules td:first-child { display: flex; align-items: center; gap: 6px; text-align: left; }
+.vt-rules .vt-ri { width: 30px; height: 30px; flex: none; display: inline-block; }
+.vt-rules .vt-ri svg { width: 100%; height: 100%; display: block; }
+.vt-rules ul { margin: 4px 0 8px; padding-left: 18px; }
+.vt-rules li { margin: 3px 0; }
