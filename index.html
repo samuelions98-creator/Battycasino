@@ -108,6 +108,8 @@ button:disabled { cursor: not-allowed; }
 .bc-lvl i { display: block; width: 44px; height: 5px; border-radius: 3px; background: rgba(255, 255, 255, .14); overflow: hidden; }
 .bc-lvl i::after { content: ''; display: block; height: 100%; width: var(--p, 0%); background: var(--ecto); border-radius: 3px; transition: width .4s; }
 @media (max-width: 560px) { .bc-lvl, .bc-brand b.long { display: none; } .bc-bar { gap: 7px; padding-inline: 10px; } .bc-back span { display: none; } .bc-back { padding-inline: 10px; } }
+/* a nine-figure balance plus the page buttons (Bat Pass, wheel, sound, avatar) is a few px too wide for a 390px phone */
+@media (max-width: 420px) { .bc-bal { gap: 6px; padding-inline: 5px 10px; font-size: 15px; } .bc-bar { gap: 6px; } }
 
 /* ---------- stage (a game owns everything in here) ---------- */
 .bc-stage { flex: 1; display: flex; flex-direction: column; min-height: 0; position: relative; }
@@ -419,12 +421,12 @@ button:disabled { cursor: not-allowed; }
 @media (max-width: 520px) { .ol-lbw > .ol-seg { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 </style>
-<link rel="stylesheet" href="core/shell.css?v=20261009b">
+<link rel="stylesheet" href="core/shell.css?v=20261011q">
 <link rel="stylesheet" href="games/bunky/style.css?v=20261011g">
 <link rel="stylesheet" href="games/olympus/style.css?v=20261009b">
 <link rel="stylesheet" href="games/fishing/style.css?v=20261009b">
 <link rel="stylesheet" href="games/plachinko/style.css?v=20261009b">
-<link rel="stylesheet" href="games/moonshot/style.css?v=20261009b">
+<link rel="stylesheet" href="games/moonshot/style.css?v=20261011q">
 <link rel="stylesheet" href="games/ultraheist/style.css?v=20261009b">
 <link rel="stylesheet" href="games/batjack/style.css?v=20261010a">
 <link rel="stylesheet" href="games/bonanza/style.css?v=20261009b">
@@ -434,8 +436,8 @@ button:disabled { cursor: not-allowed; }
 <link rel="stylesheet" href="games/nighttrain/style.css?v=20261010b">
 <link rel="stylesheet" href="games/gummy/style.css?v=20261011a">
 <link rel="stylesheet" href="games/bookofbats/style.css?v=20261010b">
-<link rel="stylesheet" href="games/derby/style.css?v=20261011e">
-<link rel="stylesheet" href="games/bonkers/style.css?v=20261011d">
+<link rel="stylesheet" href="games/derby/style.css?v=20261011q">
+<link rel="stylesheet" href="games/bonkers/style.css?v=20261011q">
 <link rel="stylesheet" href="games/vault/style.css?v=20261011h">
 <link rel="stylesheet" href="games/baccarat/style.css?v=20261011c">
 <link rel="stylesheet" href="games/royale/style.css?v=20261011b">
@@ -1728,7 +1730,7 @@ window.Batty = (function () {
 <script src="games/olympus/game.js?v=20261009b"></script>
 <script src="games/fishing/game.js?v=20261009b"></script>
 <script src="games/plachinko/game.js?v=20261009b"></script>
-<script src="games/moonshot/game.js?v=20261009b"></script>
+<script src="games/moonshot/game.js?v=20261011q"></script>
 <script src="games/ultraheist/game.js?v=20261009b"></script>
 <script src="games/batjack/game.js?v=20261010a"></script>
 <script src="games/bonanza/game.js?v=20261009b"></script>
@@ -1737,8 +1739,8 @@ window.Batty = (function () {
 <script src="games/nighttrain/game.js?v=20261010b"></script>
 <script src="games/gummy/game.js?v=20261011a"></script>
 <script src="games/bookofbats/game.js?v=20261010b"></script>
-<script src="games/derby/game.js?v=20261011e"></script>
-<script src="games/bonkers/game.js?v=20261011d"></script>
+<script src="games/derby/game.js?v=20261011q"></script>
+<script src="games/bonkers/game.js?v=20261011q"></script>
 <script src="games/vault/game.js?v=20261011h"></script>
 <script src="games/baccarat/game.js?v=20261011c"></script>
 <script src="games/royale/game.js?v=20261011b"></script>

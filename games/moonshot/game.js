@@ -1035,7 +1035,8 @@
       '<tr><td>Any cash-out point, by hand or auto</td><td>' + p(T.base) + '</td></tr>' +
       '<tr><td>Always cashing at exactly ' + X(M.STAMP.needC) + ' (best case for Moon Stamps)</td><td>' + p(T.base + T.stamps(M.STAMP.needC)) + '</td></tr>' +
       '<tr><td>Any cash-out point with Eclipse Cover</td><td>' + p(T.withInsurance(T.base)) + '</td></tr></table>' +
-      '<p class="rtp">' + RTP_LINE + '</p>';
+      '<p class="rtp">' + RTP_LINE + '</p>' +
+      '<p>Batty Bucks are play money with no cash value.</p>';
   }
   const RTP_LINE = 'Tested return: 95.6% to 96.4% whatever your strategy, over 19 simulated strategies (up to 400,000,000 flights each). Any single cash-out target returns 95.66% (91.1% / x chance to reach x, Blood Moon 1 flight in 10 pays ×1.5). Eclipse Insurance on its own returns 96.3%.';
 
