@@ -118,10 +118,19 @@
 .g-derby .dy-map .ln::after { content: ''; position: absolute; right: -2px; top: -5px; width: 4px; height: 13px; background: #d0102b; border-radius: 1px; }
 .g-derby .dy-map .fm { position: absolute; top: 4px; width: 1px; height: 9px; background: rgba(255, 255, 255, .5); }
 .g-derby .dy-map .dt { position: absolute; top: 0; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: var(--c); color: var(--t); font: 800 9px/16px var(--f-n); text-align: center; font-style: normal; box-shadow: 0 1px 3px rgba(0, 0, 0, .6), 0 0 0 1px rgba(0, 0, 0, .35); }
-.g-derby .dy-lb { position: absolute; right: 8px; top: calc(52px + 16px * var(--vu)); z-index: 7; width: calc(120px + 60px * var(--vu)); height: calc(8 * (14px + 6px * var(--vu))); opacity: 0; transition: opacity .3s; pointer-events: none; }
+.g-derby .dy-lb { position: absolute; right: 8px; top: calc(52px + 16px * var(--vu)); z-index: 7; width: calc(120px + 60px * var(--vu)); height: calc(8 * (14px + 6px * var(--vu))); opacity: 0; transition: opacity .3s; pointer-events: none;
+  /* an opaque panel: rows slide past each other when the order changes, so nothing behind (the moon, another row) may show through */
+  background: #0d0a22; border-radius: 6px; overflow: hidden; box-shadow: 0 4px 14px rgba(0, 0, 0, .45), 0 0 0 1px rgba(255, 255, 255, .07); }
 .g-derby .dy-lb.on { opacity: 1; }
-.g-derby .dy-lb .r { position: absolute; left: 0; right: 0; top: 0; height: calc(14px + 6px * var(--vu)); display: flex; align-items: center; gap: 5px; padding: 0 6px 0 2px; background: rgba(8, 6, 26, .74); border-bottom: 1px solid rgba(255, 255, 255, .06); font: 600 calc(9px + 3px * var(--vu))/1 var(--f-n); transition: transform .35s cubic-bezier(.3, .8, .3, 1); }
-.g-derby .dy-lb .r:first-child { border-radius: 6px 6px 0 0; }
+.g-derby .dy-lb .r { position: absolute; left: 0; right: 0; top: 0; height: calc(14px + 6px * var(--vu)); display: flex; align-items: center; gap: 5px; padding: 0 6px 0 2px; background: #0d0a22; box-shadow: inset 0 -1px rgba(255, 255, 255, .07); font: 600 calc(9px + 3px * var(--vu))/1 var(--f-n); overflow: hidden; }
+/* a new bat taking a place slides in from the side it came from */
+.g-derby .dy-lb .r.up .c, .g-derby .dy-lb .r.up .n { animation: derby-lbup .26s cubic-bezier(.3, .8, .3, 1); }
+.g-derby .dy-lb .r.dn .c, .g-derby .dy-lb .r.dn .n { animation: derby-lbdn .26s cubic-bezier(.3, .8, .3, 1); }
+.g-derby .dy-lb .r.up, .g-derby .dy-lb .r.dn { animation: derby-lbflash .6s ease-out; }
+@keyframes derby-lbup { from { transform: translateY(60%); opacity: 0; } }
+@keyframes derby-lbdn { from { transform: translateY(-60%); opacity: 0; } }
+@keyframes derby-lbflash { from { background: #2a2050; } }
+.g-derby .dy-lb .c { display: flex; }
 .g-derby .dy-lb .p { width: 1.3em; text-align: center; color: var(--gold-hi); font-weight: 800; }
 .g-derby .dy-lb .r.ph .p { color: #14141c; background: #fff; border-radius: 3px; }
 .g-derby .dy-lb .n { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -387,6 +396,7 @@
   .g-derby .dy-clouds i, .g-derby .dy-standsvg .cr, .g-derby .dy-skysvg .tw, .g-derby .dy-place.go, .g-derby .dy-phase, .g-derby .dy-result li.p1, .g-derby .dy-timer.hot b { animation: none !important; }
   .g-derby.dy-roar .dy-standsvg .fl { animation: none; }
   .g-derby .dy-lb .r, .g-derby .dy-result, .g-derby .dy-photo { transition-duration: .01s; }
+  .g-derby .dy-lb .r, .g-derby .dy-lb .c, .g-derby .dy-lb .n { animation: none !important; }
   .g-derby .dy-call.on { animation-duration: 1.2s; animation-timing-function: linear; }
   .g-derby .dy-bet { animation: none; }
 }

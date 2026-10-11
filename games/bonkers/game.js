@@ -857,7 +857,7 @@
     const pb = [0, 1, 2].map((k) => { const b = h('button', { type: 'button', class: 'bk-pb k' + k, 'aria-label': 'Back the ' + FLAP_NAME[k].toLowerCase() + ' flapper' }, h('i'), h('b', null, FLAP_NAME[k])); b.onclick = () => ctx.pick(k); b.onpointerdown = (e) => e.preventDefault(); picks.append(b); return b; });
     sh.el.append(rays, wheelBox, hub, ...fl, ...av, ...rb, picks);
     let baked = 0;
-    const bake = () => { const px = Math.min(1400, Math.round(WR * 2 * Math.max(1, ctx.scale() * (window.devicePixelRatio || 1)))); if (Math.abs(px - baked) > 40) { baked = px; drawBigFace(cv, px); } };
+    const bake = () => { const px = Math.min(1400, Math.round(WR * 2 * Math.max(1, ctx.scale() * Math.min(2, window.devicePixelRatio || 1)))); if (Math.abs(px - baked) > 40) { baked = px; drawBigFace(cv, px); } };
     bake();
     const ang = smoother(5, true), a0 = -(rngFor(ctx.id, 9)() * 64) * BSEG;
     const jit = (i) => (rngFor(ctx.id, 40 + i)() - 0.5) * 0.6;

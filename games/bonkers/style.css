@@ -16,9 +16,11 @@
 /* ---------- the studio ---------- */
 .g-bonkers .bn-room { flex: 1; position: relative; min-height: 0; overflow: hidden; overflow: clip; }
 .g-bonkers .bn-studio, .g-bonkers .bn-st-bulbs, .g-bonkers .bn-st-crowd { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
-.g-bonkers .bn-st-bulbs { animation: bonkers-bulb 1.2s steps(1) infinite; will-change: opacity; }
-.g-bonkers .bn-st-bulbs.l1 { animation-delay: -.4s; } .g-bonkers .bn-st-bulbs.l2 { animation-delay: -.8s; }
-.g-bonkers[data-ph="spin"] .bn-st-bulbs, .g-bonkers[data-ph="intro"] .bn-st-bulbs { animation-duration: .36s; }
+/* the arch bulbs blink one by one (each a tiny layer) rather than as three full-screen layers: in a software compositor
+   those big layers had to be redrawn under the spinning wheel every frame. Same timing, same look. */
+.g-bonkers .bn-st-bulbs circle { animation: bonkers-bulb 1.2s steps(1) infinite; }
+.g-bonkers .bn-st-bulbs.l1 circle { animation-delay: -.4s; } .g-bonkers .bn-st-bulbs.l2 circle { animation-delay: -.8s; }
+.g-bonkers[data-ph="spin"] .bn-st-bulbs circle, .g-bonkers[data-ph="intro"] .bn-st-bulbs circle { animation-duration: .36s; }
 @keyframes bonkers-bulb { 0% { opacity: 1; } 33% { opacity: .2; } 66% { opacity: .55; } }
 .g-bonkers .bn-st-crowd { will-change: transform; }
 .g-bonkers .bn-st-crowd.c1 { animation-delay: -1.3s; }
@@ -490,6 +492,6 @@
 
 /* ---------- reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {
-  .g-bonkers .bn-st-crowd, .g-bonkers .bn-st-bulbs, .g-bonkers .bn-wlights circle, .g-bonkers .bn-host *, .g-bonkers .bn-intro .rays, .g-bonkers .bk-rays, .g-bonkers .hu-fog, .g-bonkers .bn-desk::before { animation: none !important; }
+  .g-bonkers .bn-st-crowd, .g-bonkers .bn-st-bulbs, .g-bonkers .bn-st-bulbs circle, .g-bonkers .bn-wlights circle, .g-bonkers .bn-host *, .g-bonkers .bn-intro .rays, .g-bonkers .bk-rays, .g-bonkers .hu-fog, .g-bonkers .bn-desk::before { animation: none !important; }
   .g-bonkers .bn-spot.won, .g-bonkers .fl-box.win, .g-bonkers .bk-rb.ride { animation: none; }
 }

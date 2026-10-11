@@ -803,8 +803,9 @@
       el.lb.textContent = ''; el.lbRows = [];
       card.runners.forEach((r, i) => {
         const dot = h('i', { class: 'dt', style: '--c:' + CLOTH[i][0] + ';--t:' + CLOTH[i][1] }, String(i + 1)); el.map.append(dot); el.mapDots.push(dot);
-        const row = h('div', { class: 'r' }, h('span', { class: 'p' }), h('span', { html: clothHtml(i) }), h('span', { class: 'n' }, r.name), h('span', { class: 'g' }));
-        el.lb.append(row); el.lbRows.push(row);
+        /* one row per place (not per runner): the rows never move, so they can never stack up on each other */
+        const row = h('div', { class: 'r', style: 'transform:translateY(' + (i * 100) + '%)' }, h('span', { class: 'p' }, String(i + 1)), h('span', { class: 'c', html: clothHtml(i) }), h('span', { class: 'n' }, r.name), h('span', { class: 'g' }));
+        row.dataset.i = i; el.lb.append(row); el.lbRows.push(row);
       });
       el.offs.textContent = '';
       el.offEls = card.runners.map((r, i) => { const o = h('div', { class: 'o', html: clothHtml(i) + '<em></em>' }); el.offs.append(o); return o; });
@@ -1365,7 +1366,7 @@
       drawMapAndBoard(s, ph, t, rt, m, xs, lead);
       root.classList.toggle('dy-roar', (ph === 'run' && m && rt > m.T - 4) || ph === 'photo');
     }
-    let lbKey = '';
+    let lbKey = '', lbHold = null, lbPend = null, lbAt = 0, lbPrev = null;
     function drawMapAndBoard(s, ph, t, rt, m, xs, lead) {
       const Dm = s.card.dist * FURLONG;
       const running = (ph === 'run' || ph === 'photo' || ph === 'judge') && m;
@@ -1376,22 +1377,34 @@
         d.style.left = (x * 100).toFixed(2) + '%';
       }
       let order;
-      if (running) order = rankAt(m, rt, xs);
-      else if (ph === 'result' && m) order = m.res.order;
-      else order = [0, 1, 2, 3, 4, 5, 6, 7];
+      if (running) {
+        /* show a new running order only once it has held for a moment, and at most every 0.6 s, so two bats
+           flying neck and neck don't make their names flicker between places */
+        const now = rankAt(m, rt, xs), nk = now.join(''), ms = performance.now();
+        if (!lbHold || ph !== 'run' || nk === lbHold.k) { lbHold = { k: nk, o: now }; lbPend = null; }
+        else if (!lbPend) lbPend = ms;
+        else if (ms - lbPend > 200 && ms - lbAt > 600) { lbHold = { k: nk, o: now }; lbPend = null; lbAt = ms; }
+        order = lbHold.o;
+      } else { lbHold = lbPend = null; order = ph === 'result' && m ? m.res.order : [0, 1, 2, 3, 4, 5, 6, 7]; }
       el.lb.classList.toggle('on', ph !== 'bet' && ph !== 'gate' && ph !== 'result');
       const photoHide = ph === 'photo' || (running && m.res.photo && rt >= m.T - 0.2);
       const k = order.join('') + (photoHide ? 'p' : '') + ph;
       for (let p = 0; p < 8; p++) {
-        const i = order[p], row = el.lbRows[i]; if (!row) continue;
-        row.style.transform = 'translateY(' + (p * 100) + '%)';
-        if (k !== lbKey) { row.querySelector('.p').textContent = photoHide && p < 2 ? '?' : String(p + 1); row.classList.toggle('ph', photoHide && p < 2); }
+        const i = order[p], row = el.lbRows[p]; if (!row) continue;
+        if (k !== lbKey) {
+          row.querySelector('.p').textContent = photoHide && p < 2 ? '?' : String(p + 1); row.classList.toggle('ph', photoHide && p < 2);
+          const was = +row.dataset.i;
+          if (was !== i) {   /* a new bat in this place: swap the name in, sliding from the direction it came from */
+            row.dataset.i = i; row.querySelector('.c').innerHTML = clothHtml(i); row.querySelector('.n').textContent = s.card.runners[i].name;
+            if (!reduce) { const up = lbPrev ? lbPrev.indexOf(i) > p : false; row.classList.remove('up', 'dn'); void row.offsetWidth; row.classList.add(up ? 'up' : 'dn'); }
+          }
+        }
         let gtxt = '';
         if (running && p > 0) { const ld = xs[order[0]], gl = (ld - xs[i]) / LEN; gtxt = gl < 0.1 ? '' : '+' + (lengthsStr(gl) || '–'); }
         else if (ph === 'result' && m && p > 0 && p < 4) gtxt = M.marginStr(m.res.margins[p - 1]);
         const ge = row.querySelector('.g'); if (ge.textContent !== gtxt) ge.textContent = gtxt;
       }
-      lbKey = k;
+      lbKey = k; lbPrev = order;
     }
 
     /* HUD: race name, the phase, and the commentary */
