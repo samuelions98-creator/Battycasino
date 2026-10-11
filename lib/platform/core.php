@@ -118,6 +118,13 @@ function plat_crate_odds(string $crate): array {
 }
 const PLAT_SLOTS = ['head', 'face', 'back', 'frame', 'name', 'title', 'emote', 'effect', 'badge'];
 
+/* Run a platform read or hook from shared code (me_payload, public_user, after_round). Until the platform tables exist
+   (Admin -> "Update database" not pressed yet) it returns $fallback instead of breaking the whole request. */
+function plat_safe(callable $fn, $fallback) {
+    try { return $fn(); }
+    catch (PDOException $e) { if ((int) ($e->errorInfo[1] ?? 0) === 1146) return $fallback; throw $e; }
+}
+
 /* ---------- player rows ---------- */
 function plat_profile_row(int $uid, bool $lock = false): array {
     $r = q1('SELECT * FROM plat_profile WHERE user_id = ?' . ($lock ? ' FOR UPDATE' : ''), [$uid]);

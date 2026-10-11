@@ -3,7 +3,9 @@
 if (!defined('BATTY')) { http_response_code(403); exit; }
 
 function public_user(array $u): array {
-    return ['id' => (int) $u['id'], 'name' => $u['username'], 'avatar' => $u['avatar'], 'level' => (int) $u['level'], 'motto' => $u['motto']];
+    return ['id' => (int) $u['id'], 'name' => $u['username'], 'avatar' => $u['avatar'], 'level' => (int) $u['level'], 'motto' => $u['motto'],
+        /* Platform: equipped cosmetics (frame, name style, title, accessories, effect, badge) */
+        'cos' => function_exists('plat_cosmetics') ? (object) plat_safe(fn() => plat_cosmetics((int) $u['id']), []) : (object) []];
 }
 function me_payload(array $u): array {
     $u = q1('SELECT * FROM users WHERE id = ?', [$u['id']]);
@@ -14,6 +16,8 @@ function me_payload(array $u): array {
         'bestWin' => $u['best_win'], 'bestX' => (float) $u['best_x'], 'streak' => $u['streak'], 'admin' => (bool) $u['is_admin'],
         'claimIn' => max(0, $next), 'claimAmount' => claim_amount($u['level']),
         'missionsReady' => (int) qv('SELECT COUNT(*) FROM missions WHERE user_id = ? AND day = ? AND claimed = 0 AND progress >= target', [$u['id'], uk_day()]),
+        /* Platform: wheel, Bat Pass and boost status for the lobby and top bar */
+        'plat' => function_exists('plat_status') ? plat_safe(fn() => plat_status($u), null) : null,
     ];
 }
 function site_payload(): array {

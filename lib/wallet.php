@@ -109,6 +109,8 @@ function after_round(array &$u, string $game, int $stake, int $win, array $f): v
     missions_progress($u, $game, $stake, $win, $bigX, $f);
     rtp_record($game, $stake, $win);
     achievements_check($u, $game, $bigX, $f);
+    /* Platform: Bat Pass XP and pass challenges (lib/platform/pass.php) */
+    if (function_exists('plat_after_round')) plat_safe(function () use (&$u, $game, $stake, $win, $f, $bigX) { plat_after_round($u, $game, $stake, $win, $f, $bigX); }, null);
 }
 function uk_day(): string { return (new DateTime('now', new DateTimeZone('Europe/London')))->format('Y-m-d'); }
 

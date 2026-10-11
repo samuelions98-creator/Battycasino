@@ -16,6 +16,8 @@ require __DIR__ . '/lib/tables.php';
 require __DIR__ . '/lib/bjtable.php';
 require __DIR__ . '/lib/social.php';
 require __DIR__ . '/lib/admin.php';
+/* Platform: Daily Prize Wheel, Bat Pass, Belfry Shop (actions are all named plat_*) */
+foreach (['core', 'wheel', 'pass', 'shop'] as $p) require __DIR__ . "/lib/platform/$p.php";
 
 function respond(array $data, int $status = 200): void {
     http_response_code($status);
@@ -57,6 +59,7 @@ try {
         case 'play': respond(play($in));
         default:
             if (str_starts_with($a, 'admin_')) respond(admin_api($a, $in));
+            if (str_starts_with($a, 'plat_')) respond(plat_api($a, $in)); // Platform: lib/platform/core.php
             throw new ApiError('Unknown action.', 404);
     }
 } catch (ApiError $e) {

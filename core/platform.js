@@ -24,6 +24,8 @@
     if (m) return m + 'm ' + (s % 60) + 's';
     return (s % 60) + 's';
   }
+  /* h:mm:ss for live cooldowns */
+  const clock = (s) => { s = Math.max(0, Math.round(s)); return Math.floor(s / 3600) + ':' + String(Math.floor((s % 3600) / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
   const coinSvg = () => '<span class="pl-coin">' + B.batSvg() + '</span>';
 
   /* ---------- server calls ----------
@@ -168,7 +170,7 @@
       cos[slot || cat] = id;
       return '<span class="pl-art av">' + B.avatar(me.avatar || '3-0', size, cos) + '</span>';
     }
-    if (cat === 'name') return '<span class="pl-art nm"><b class="pl-ns ' + id + '">' + esc(me.name || 'Batty') + '</b></span>';
+    if (cat === 'name') return '<span class="pl-art nm' + (size <= 64 ? ' aa' : '') + '"><b class="pl-ns ' + id + '">' + (size <= 64 ? 'Aa' : esc(me.name || 'Batty')) + '</b></span>';
     if (cat === 'title') return '<span class="pl-art ti"><b class="pl-ti r-' + (it.rarity || 'common') + '">' + esc(it.name) + '</b></span>';
     if (cat === 'emote') return '<span class="pl-art em"><i class="pl-emote ' + id + '">' + (EMOTE[id] || '') + '</i></span>';
     if (cat === 'badge') return '<span class="pl-art ic">' + ICON.key + '</span>';
@@ -455,7 +457,8 @@
         h('section', { class: 'wl-card wl-streakcard' }, streakTxt, cal),
         h('div', { class: 'wl-btns' }, btnMain, btnAlt), note,
         h('section', { class: 'wl-card' }, h('header', null, h('b', null, 'Recent spins'), odds), recent));
-      root.append(h('div', { class: 'wl-page' }, h('div', { class: 'wl-sky', 'aria-hidden': 'true' }), stage, side));
+      const page = h('div', { class: 'wl-page' }, h('div', { class: 'wl-sky', 'aria-hidden': 'true' }), stage, side);
+      root.append(page);
 
       /* ---- wheel motion state ---- */
       let ang = 0, omega = 0, phase = 'idle', plan = null, t0 = 0, ptr = 0, ptrV = 0, tip = 0, tipV = 0, lastPeg = 0, lastTick = 0, chase = 0, idleT = 0, flash = 0;
@@ -625,13 +628,15 @@
         }
         const s = st.streak;
         streakTxt.innerHTML = s.spunToday
-          ? '<b>Day ' + s.day + '</b> of your streak is banked. Come back tomorrow for <b>Day ' + (s.day % 7 + 1) + ' ×' + (s.day === 7 ? 1 : s.calendar[s.day].mult) + '</b>. Next free spin in <b class="wl-cd">' + dur(s.nextIn) + '</b>.'
+          ? '<b>Day ' + s.day + '</b> of your streak is banked. Come back tomorrow for <b>Day ' + (s.day % 7 + 1) + ' ×' + (s.day === 7 ? 1 : s.calendar[s.day].mult) + '</b>. Next free spin in <b class="wl-cd">' + clock(s.nextIn) + '</b>.'
           : s.streak > 1 ? 'You are on a <b>' + s.streak + '-day streak</b>. Today is <b>Day ' + s.day + ' ×' + s.mult + '</b>' + (s.golden ? ': the <b>Golden Spin</b>, with the jackpot four times as likely.' : '.') : 'Spin every day to build a streak: prizes grow each day, and <b>Day 7 is the Golden Spin</b>.';
         cal.textContent = '';
         for (const c of s.calendar) cal.append(h('div', { class: 'wl-day ' + c.state + (c.golden ? ' gold' : '') }, h('small', null, 'Day ' + c.d), h('b', null, '×' + c.mult), h('i', { 'aria-hidden': 'true', html: c.state === 'done' ? '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>' : c.golden ? '<svg viewBox="0 0 24 24"><path d="M3 18L2 7l5.5 4.5L12 3l4.5 8.5L22 7l-1 11z"/></svg>' : '' })));
         const free = !s.spunToday;
         if (kind === 'daily') {
-          btnMain.textContent = free ? 'Spin free · Day ' + s.day : st.spins > 0 ? 'Bonus spin (' + st.spins + ' left)' : 'Next free spin in ' + dur(s.nextIn);
+          btnMain.textContent = free ? 'Spin free · Day ' + s.day : st.spins > 0 ? 'Bonus spin (' + st.spins + ' left)' : '';
+          btnMain.classList.toggle('cool', !free && !st.spins);
+          if (!free && !st.spins) btnMain.append(h('small', null, 'Next free spin in'), h('b', { class: 'wl-cd' }, clock(s.nextIn)));
           btnMain.disabled = busy || (!free && !st.spins);
           btnMain.onclick = () => spin(free ? 'free' : 'bonus');
           btnMain.classList.toggle('ready', !busy && (free || st.spins > 0));
@@ -659,7 +664,17 @@
       odds.onclick = oddsModal;
       S.on(document, 'keydown', (e) => { if ((e.code === 'Space' || e.key === ' ') && !e.repeat && document.activeElement === document.body) { e.preventDefault(); if (!reveal.hidden) collect(); else if (!btnMain.disabled) btnMain.click(); } });
       S.on(reveal, 'click', (e) => { if (e.target === reveal) collect(); });
-      S.interval(() => { if (st && !busy) { st.streak.nextIn = Math.max(0, st.streak.nextIn - 30); paintSide(); } }, 30000);
+      /* the cooldown ticks every second; at UK midnight the free spin comes back */
+      let reloading = false;
+      S.interval(() => {
+        if (!st) return;
+        st.streak.nextIn = Math.max(0, st.streak.nextIn - 1);
+        page.querySelectorAll('.wl-cd').forEach((el) => { el.textContent = clock(st.streak.nextIn); });
+        if (st.streak.nextIn <= 0 && st.streak.spunToday && !busy && !reloading) {
+          reloading = true;
+          call('plat_wheel', null, { quiet: true }).then((r) => { if (S.dead) return; st = r; draw(); paintSide(); paintRecent(); refreshStatus(true); }).catch(() => {}).then(() => { reloading = false; });
+        }
+      }, 1000);
 
       wrap.innerHTML = '<div class="bc-loading"><span>' + B.batSvg() + '</span>Fetching the wheel</div>';
       call('plat_wheel', null).then((r) => {
@@ -732,7 +747,7 @@
         /* ---- hero ---- */
         const bar = h('div', { class: 'bp-xpbar' }, h('i', { style: { width: (fromXp === st.xp ? frac * 100 : 0) + '%' } }), h('span', null));
         const medal = h('div', { class: 'bp-medal' + (st.gold ? ' gold' : '') }, h('small', null, 'Tier'), h('b', null, String(tier)));
-        const claimAll = h('button', { class: 'bc-btn bp-claimall' + (claimable ? ' ready' : ''), type: 'button', id: 'bp-claimall', disabled: !claimable }, claimable ? 'Claim all (' + claimable + ')' : 'All claimed');
+        const claimAll = h('button', { class: 'bc-btn bp-claimall' + (claimable ? ' ready' : ''), type: 'button', id: 'bp-claimall', disabled: !claimable }, claimable ? 'Claim all (' + claimable + ')' : tier ? 'All claimed' : 'Nothing to claim yet');
         claimAll.onclick = () => claimEverything(claimAll);
         const hero = h('section', { class: 'bp-hero' },
           h('div', { class: 'bp-hero-l' },

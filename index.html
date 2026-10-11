@@ -439,6 +439,8 @@ button:disabled { cursor: not-allowed; }
 <link rel="stylesheet" href="games/vault/style.css?v=20261009b">
 <link rel="stylesheet" href="games/baccarat/style.css?v=20261011c">
 <link rel="stylesheet" href="games/royale/style.css?v=20261011b">
+<!-- Platform: Daily Prize Wheel, Bat Pass, Belfry Shop -->
+<link rel="stylesheet" href="core/platform.css?v=20261011f">
 </head>
 <body>
 <div id="batty-app"></div>
@@ -599,6 +601,7 @@ window.Batty = (function () {
         if (e.type === 'level') { ui.toast('Level ' + e.level + '! +' + fmt(e.amount) + ' Batty Bucks'); sfx('level'); }
         else if (e.type === 'achievement') { ui.toast('Achievement unlocked: ' + e.name + ' · +' + fmt(e.reward) + ' BB', 4200); sfx('bonus'); fx.burst({ x: innerWidth / 2, y: 120, kind: 'confetti', count: 40 }); }
         else if (e.type === 'mission') { ui.toast('Mission complete: ' + e.label + '. Claim ' + fmt(e.reward) + ' BB in the lobby', 4200); sfx('ding'); }
+        else if (e.type === 'pass' && ext.passEvent) ext.passEvent(e); // Platform: Bat Pass tier-ups and challenges (core/platform.js)
       }, t);
       t += 900;
     }
@@ -945,7 +948,8 @@ window.Batty = (function () {
   /* ---------- avatars: a bat on a coloured disc with one of eight accessories. code "colour-accessory", e.g. "3-5" ---------- */
   const AV_COL = ['#ff3d81', '#ffd76a', '#58f0c8', '#6b3fd1', '#4aa8ff', '#ff8a3c', '#a6ec2a', '#c44dff', '#ff5d5d', '#18b5a6', '#d9d4ff', '#c58b4c'];
   const AV_ACC = ['None', 'Top hat', 'Crown', 'Party hat', 'Shades', 'Bow tie', 'Headphones', 'Halo'];
-  function avatar(code, size) {
+  /* cos (optional): the player's equipped platform cosmetics (accessories, frame, effect); core/platform.js draws them */
+  function avatar(code, size, cos) {
     const m = /^(\d+)-(\d)$/.exec(code || '') || [0, 0, 0];
     const col = AV_COL[(+m[1]) % AV_COL.length], acc = (+m[2]) % 8;
     const accs = [
@@ -958,17 +962,19 @@ window.Batty = (function () {
       '<path d="M24 52 Q24 18 50 18 Q76 18 76 52" fill="none" stroke="#1a1030" stroke-width="6"/><rect x="18" y="46" width="12" height="18" rx="5" fill="#ff3d81"/><rect x="70" y="46" width="12" height="18" rx="5" fill="#ff3d81"/>',
       '<ellipse cx="50" cy="12" rx="20" ry="6" fill="none" stroke="#ffd76a" stroke-width="4"/>',
     ];
-    return '<svg class="bc-av" viewBox="0 0 100 100" width="' + (size || 40) + '" height="' + (size || 40) + '" aria-hidden="true"><circle cx="50" cy="50" r="49" fill="' + col + '"/>' +
+    const parts = cos && ext.avatarParts ? ext.avatarParts(cos, acc, accs[acc]) : null; // Platform: {under, acc, wrap}
+    const svg = '<svg class="bc-av" data-av="' + (+m[1]) + '-' + (+m[2]) + '" viewBox="0 0 100 100" width="' + (size || 40) + '" height="' + (size || 40) + '" aria-hidden="true"><circle cx="50" cy="50" r="49" fill="' + col + '"/>' + (parts ? parts.under : '') +
       '<path d="M22 40 L30 20 L40 34 Q50 30 60 34 L70 20 L78 40 Q84 62 70 76 Q50 90 30 76 Q16 62 22 40 Z" fill="#1a1030"/>' +
       '<circle cx="40" cy="52" r="8" fill="#fff"/><circle cx="60" cy="52" r="8" fill="#fff"/><circle cx="41.5" cy="53.5" r="3.6" fill="#1a1030"/><circle cx="61.5" cy="53.5" r="3.6" fill="#1a1030"/>' +
-      '<path d="M42 68 Q50 74 58 68" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M44 69 l2 5 l2 -4 M52 70 l2 4 l2 -5" fill="#fff"/>' + accs[acc] + '</svg>';
+      '<path d="M42 68 Q50 74 58 68" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M44 69 l2 5 l2 -4 M52 70 l2 4 l2 -5" fill="#fff"/>' + (parts && parts.acc != null ? parts.acc : accs[acc]) + '</svg>';
+    return parts ? parts.wrap(svg, size || 40) : svg;
   }
 
   /* ---------- registry, shell, lobby ---------- */
   const ORDER = ['circus', 'bonkers', 'crypt', 'nighttrain', 'gummy', 'bookofbats', 'derby', 'bunky', 'olympus', 'fishing', 'plachinko', 'moonshot', 'ultraheist', 'batjack', 'bonanza', 'starwing', 'vault', 'baccarat', 'royale'];
   const games = {}, pages = {};
   let app, bar, stage, current = null, curPage = null, balEl, lvlEl, booted = false;
-  const ext = { settings: settingsModal }; // filled in by the online features: authCard, lobbyTop, lobbyBottom, lobbyPlatform
+  const ext = { settings: settingsModal }; // filled in by the online features: authCard, lobbyTop, lobbyBottom; core/platform.js: lobbyPlatform, barPlatform, avatarParts, passEvent
 
   function registerGame(def) { games[def.id] = def; if (booted) route(); }
   function registerPage(name, def) { pages[name] = def; }
@@ -1016,8 +1022,9 @@ window.Batty = (function () {
     if (!g && !pg && canInstall()) bar.append(h('button', { class: 'bc-icon bc-inst-btn', type: 'button', id: 'bc-install', 'aria-label': 'Install the app', title: 'Install the app', html: ICON.install, onclick: installApp }));
     if (srv.on && !g) bar.append(h('button', { class: 'bc-icon', type: 'button', id: 'bc-lb', 'aria-label': 'Leaderboards', html: ICON.trophy, onclick: () => go('leaderboard') }));
     const snd = h('button', { class: 'bc-icon', type: 'button', id: 'bc-sound', 'aria-label': 'Sound on or off', html: state.muted ? ICON.off : ICON.on, onclick: () => { audio.setMuted(!state.muted); snd.innerHTML = state.muted ? ICON.off : ICON.on; if (!state.muted) sfx('click'); } });
+    if (srv.on && srv.me && ext.barPlatform) ext.barPlatform(bar, !!g); // Platform: Bat Pass chip, wheel and shop buttons (core/platform.js)
     bar.append(snd);
-    if (srv.on && srv.me && !g) bar.append(h('button', { class: 'bc-me', type: 'button', id: 'bc-me', 'aria-label': 'Your profile', html: avatar(srv.me.avatar, 34), onclick: () => go('profile/' + srv.me.name) }));
+    if (srv.on && srv.me && !g) bar.append(h('button', { class: 'bc-me', type: 'button', id: 'bc-me', 'aria-label': 'Your profile', html: avatar(srv.me.avatar, 34, srv.me.cos), onclick: () => go('profile/' + srv.me.name) }));
     paintLevel();
   }
   function paintLevel() {
@@ -1278,8 +1285,8 @@ window.Batty = (function () {
     tabsEl.hidden = !show; document.body.classList.toggle('has-tabs', show);
     if (!show) return;
     const items = [['', 'Lobby', 'lobby'], ['live', 'Live', 'live']];
-    if (pages.pass) items.push(['pass', 'Bat Pass', 'pass']);
-    if (pages.shop) items.push(['shop', 'Shop', 'shop']);
+    if (pages.pass && srv.on && srv.me) items.push(['pass', 'Bat Pass', 'pass']);
+    if (pages.shop && srv.on && srv.me) items.push(['shop', 'Shop', 'shop']);
     if (srv.on) items.push(['leaderboard', 'Ranks', 'lb']);
     if (srv.on && srv.me) items.push(['profile/' + srv.me.name, 'Me', 'me']);
     const here = curPage ? (location.hash || '').replace('#', '').split('/')[0] : '';
@@ -1738,6 +1745,8 @@ window.Batty = (function () {
 <script src="games/circus/math.js?v=R4"></script>
 <script src="games/circus/art.js?v=R4"></script>
 <script src="games/circus/game.js?v=R4"></script>
+<!-- Platform: Daily Prize Wheel, Bat Pass, Belfry Shop (online mode only) -->
+<script src="core/platform.js?v=20261011f"></script>
 <script>
 // This should never occur with a complete deployment; make a partial FTP upload obvious.
 if (!Batty.games.circus) {
