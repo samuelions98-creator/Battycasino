@@ -4,6 +4,8 @@
    XP from wagering: per round 1 + sqrt(stake) / 4 (20 BB -> 2, 1,000 BB -> 9, 10,000 BB -> 26), so it grows far
    slower than the stake, and within a UK day the rate halves after 3,000 XP and quarters after 6,000 XP.
    Double Pass XP boosts double the XP from play (not challenges).
+   Economy: the Gold track pays 225,000 BB in total, under its 250,000 price, so Gold is bought for the cosmetics and perks,
+   never as a source of Batty Bucks.
    Two tracks: Free, and Gold (250,000 BB, or 500,000 BB for Gold + 10 tiers). Each (season, tier, track) reward
    can be claimed once (primary key on plat_pass_claims). */
 if (!defined('BATTY')) { http_response_code(403); exit; }
@@ -49,16 +51,16 @@ function pass_rewards(): array {
         46 => [['bb', 8000]], 47 => [['item', 'tk_premium', 1]], 48 => [['bb', 8000]], 49 => [['item', 'tk_spin', 3]], 50 => [['item', 'ti_passmaster', 1], ['bb', 25000]],
     ];
     $gold = [
-        1 => [['item', 'ns_sunset', 1]], 2 => [['bb', 8000]], 3 => [['item', 'tk_premium', 1]], 4 => [['bb', 8000]], 5 => [['item', 'fr_gold', 1]],
-        6 => [['bb', 10000]], 7 => [['item', 'bo_xp24h', 1]], 8 => [['bb', 10000]], 9 => [['item', 'cr_night', 1]], 10 => [['item', 'acc_wizard', 1]],
-        11 => [['bb', 12000]], 12 => [['item', 'tk_spin', 3]], 13 => [['bb', 12000]], 14 => [['item', 'tk_premium', 2]], 15 => [['item', 'em_cheers', 1]],
-        16 => [['bb', 14000]], 17 => [['item', 'cr_night', 1]], 18 => [['bb', 14000]], 19 => [['item', 'bo_xp24h', 1]], 20 => [['item', 'fx_sparkle', 1]],
-        21 => [['bb', 16000]], 22 => [['item', 'tk_premium', 2]], 23 => [['bb', 16000]], 24 => [['item', 'cr_blood', 1]], 25 => [['item', 'ns_disco', 1]],
-        26 => [['bb', 18000]], 27 => [['item', 'tk_spin', 3]], 28 => [['bb', 18000]], 29 => [['item', 'bo_xp24h', 1]], 30 => [['item', 'fr_neon', 1]],
-        31 => [['bb', 20000]], 32 => [['item', 'tk_premium', 3]], 33 => [['bb', 20000]], 34 => [['item', 'cr_blood', 1]], 35 => [['item', 'acc_starcape', 1]],
-        36 => [['bb', 22000]], 37 => [['item', 'tk_spin', 5]], 38 => [['bb', 22000]], 39 => [['item', 'bo_xp24h', 1]], 40 => [['item', 'ti_count', 1]],
-        41 => [['bb', 25000]], 42 => [['item', 'tk_premium', 3]], 43 => [['bb', 25000]], 44 => [['item', 'cr_blood', 1]], 45 => [['item', 'em_bow', 1]],
-        46 => [['bb', 30000]], 47 => [['item', 'tk_spin', 5]], 48 => [['bb', 30000]], 49 => [['item', 'cr_blood', 1]], 50 => [['item', 'fx_eclipse', 1], ['item', 'ti_belfry', 1], ['bb', 100000]],
+        1 => [['item', 'ns_sunset', 1]], 2 => [['bb', 4000]], 3 => [['item', 'tk_premium', 1]], 4 => [['bb', 4000]], 5 => [['item', 'fr_gold', 1]],
+        6 => [['bb', 5000]], 7 => [['item', 'bo_xp24h', 1]], 8 => [['bb', 5000]], 9 => [['item', 'cr_night', 1]], 10 => [['item', 'acc_wizard', 1]],
+        11 => [['bb', 6000]], 12 => [['item', 'tk_spin', 3]], 13 => [['bb', 6000]], 14 => [['item', 'tk_premium', 2]], 15 => [['item', 'em_cheers', 1]],
+        16 => [['bb', 7000]], 17 => [['item', 'cr_night', 1]], 18 => [['bb', 7000]], 19 => [['item', 'bo_xp24h', 1]], 20 => [['item', 'fx_sparkle', 1]],
+        21 => [['bb', 8000]], 22 => [['item', 'tk_premium', 2]], 23 => [['bb', 8000]], 24 => [['item', 'cr_blood', 1]], 25 => [['item', 'ns_disco', 1]],
+        26 => [['bb', 9000]], 27 => [['item', 'tk_spin', 3]], 28 => [['bb', 9000]], 29 => [['item', 'bo_xp24h', 1]], 30 => [['item', 'fr_neon', 1]],
+        31 => [['bb', 10000]], 32 => [['item', 'tk_premium', 3]], 33 => [['bb', 10000]], 34 => [['item', 'cr_blood', 1]], 35 => [['item', 'acc_starcape', 1]],
+        36 => [['bb', 11000]], 37 => [['item', 'tk_spin', 5]], 38 => [['bb', 11000]], 39 => [['item', 'bo_xp24h', 1]], 40 => [['item', 'ti_count', 1]],
+        41 => [['bb', 12500]], 42 => [['item', 'tk_premium', 3]], 43 => [['bb', 12500]], 44 => [['item', 'cr_blood', 1]], 45 => [['item', 'em_bow', 1]],
+        46 => [['bb', 15000]], 47 => [['item', 'tk_spin', 5]], 48 => [['bb', 15000]], 49 => [['item', 'cr_blood', 1]], 50 => [['item', 'fx_eclipse', 1], ['item', 'ti_belfry', 1], ['bb', 50000]],
     ];
     $r = [];
     for ($t = 1; $t <= PASS_TIERS; $t++) $r[$t] = ['f' => $free[$t], 'g' => $gold[$t]];
