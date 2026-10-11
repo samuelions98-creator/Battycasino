@@ -8,7 +8,8 @@
    2. Simulated: the table exactly as the server runs it (BattyMath.baccarat.newShoe/deal/settle), one unit on every
       bet every hand, with mulberry32. Shows that dealing deep into a persisted shoe barely moves the edges. */
 'use strict';
-const M = require('../games/baccarat/game.js');
+/* the maths is the part of game.js before the presentation marker: the exact code the browser runs */
+const M = (() => { const src = require('fs').readFileSync(require('path').join(__dirname, '..', 'games', 'baccarat', 'game.js'), 'utf8'), cut = src.indexOf('/* ===== baccarat ===== */'), mod = { exports: {} }; new Function('module', 'globalThis', cut > 0 ? src.slice(0, cut) : src)(mod, {}); return mod.exports; })();
 
 const N = 416, CNT = [128, 32, 32, 32, 32, 32, 32, 32, 32, 32];
 

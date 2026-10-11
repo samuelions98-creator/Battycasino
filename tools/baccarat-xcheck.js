@@ -3,7 +3,8 @@
    bet validator on random (often illegal) bet sets. The two JSON transcripts must be identical.
    Usage: node tools/baccarat-xcheck.js [hands=20000] [seed=7]   (runs php tools/baccarat-xcheck.php itself) */
 'use strict';
-const M = require('../games/baccarat/game.js');
+/* the maths is the part of game.js before the presentation marker: the exact code the browser runs */
+const M = (() => { const src = require('fs').readFileSync(require('path').join(__dirname, '..', 'games', 'baccarat', 'game.js'), 'utf8'), cut = src.indexOf('/* ===== baccarat ===== */'), mod = { exports: {} }; new Function('module', 'globalThis', cut > 0 ? src.slice(0, cut) : src)(mod, {}); return mod.exports; })();
 const { execFileSync } = require('child_process');
 const path = require('path');
 
