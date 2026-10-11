@@ -429,7 +429,7 @@ button:disabled { cursor: not-allowed; }
 <link rel="stylesheet" href="games/moonshot/style.css?v=20261011q">
 <link rel="stylesheet" href="games/ultraheist/style.css?v=20261009b">
 <link rel="stylesheet" href="games/batjack/style.css?v=20261010a">
-<link rel="stylesheet" href="games/bonanza/style.css?v=20261009b">
+<link rel="stylesheet" href="games/bonanza/style.css?v=20261011s">
 <link rel="stylesheet" href="games/starwing/style.css?v=20261009b">
 <link rel="stylesheet" href="games/circus/style.css?v=R4">
 <link rel="stylesheet" href="games/crypt/style.css?v=20261011a">
@@ -1066,6 +1066,9 @@ window.Batty = (function () {
     { id: 'tables', name: 'Tables & Arcade', sub: 'Cards, races and ball drops', test: (g) => secOf(g) === 'tables' || secOf(g) === 'arcade' },
     { id: 'highroller', name: 'High Roller Lounge', sub: 'Velvet rope. Big chips. Level ' + HR_LEVEL + ' and up', test: (g) => secOf(g) === 'highroller' },
   ];
+  /* the Live filter also lists the shared live tables that sit on other shelves */
+  const LIVE_SHARED = ['batjack', 'derby', 'royale', 'baccarat'];
+  const isLiveAny = (id) => secOf(games[id]) === 'live' || LIVE_SHARED.includes(id);
   const FILTERS = [['all', 'All games'], ['fav', 'Favourites'], ['new', 'New'], ['live', 'Live'], ['slots', 'Slots'], ['tables', 'Tables & Arcade'], ['highroller', 'High Roller']];
   const favs = () => (Array.isArray(state.prefs.fav) ? state.prefs.fav : (state.prefs.fav = []));
   const recents = () => (Array.isArray(state.prefs.recent) ? state.prefs.recent : (state.prefs.recent = []));
@@ -1204,7 +1207,7 @@ window.Batty = (function () {
     const paintChips = () => {
       chips.textContent = '';
       for (const [k, n] of FILTERS) {
-        const count = k === 'all' ? ids.length : k === 'fav' ? favs().filter((id) => games[id]).length : ids.filter((id) => (SHELVES.find((s) => s.id === k) || { test: () => false }).test(games[id])).length;
+        const count = k === 'all' ? ids.length : k === 'live' ? ids.filter(isLiveAny).length : k === 'fav' ? favs().filter((id) => games[id]).length : ids.filter((id) => (SHELVES.find((s) => s.id === k) || { test: () => false }).test(games[id])).length;
         if (k === 'fav' && !count) continue;
         if (k !== 'all' && k !== 'fav' && !count) continue;
         const b = h('button', { type: 'button', role: 'tab', class: (k === filter ? 'on ' : '') + 'f-' + k, 'aria-selected': k === filter ? 'true' : 'false' }, n, h('small', null, String(count)));
@@ -1227,6 +1230,7 @@ window.Batty = (function () {
         return;
       }
       if (filter === 'fav') { shelves.append(shelf('Favourites', 'Tap the heart on any game to keep it here', favs().filter((id) => games[id])) || h('p', { class: 'ol-empty bc-none' }, 'No favourites yet. Tap the heart on a game.')); return; }
+      if (filter === 'live') { shelves.append(shelf('Live', 'Every player at the same table, on air around the clock', ids.filter(isLiveAny), 'sec-live') || h('p', { class: 'ol-empty bc-none' }, 'Nothing here yet.')); return; }
       if (filter !== 'all') { const s = SHELVES.find((x) => x.id === filter); shelves.append(shelf(s.name, s.sub, ids.filter((id) => s.test(games[id])), 'sec-' + s.id) || h('p', { class: 'ol-empty bc-none' }, 'Nothing here yet.')); return; }
       const rec = recents().filter((id) => games[id]).slice(0, 6);
       if (rec.length >= 2) shelves.append(shelf('Jump back in', 'Your recently played', rec, 'sec-recent'));
@@ -1733,7 +1737,7 @@ window.Batty = (function () {
 <script src="games/moonshot/game.js?v=20261011q"></script>
 <script src="games/ultraheist/game.js?v=20261009b"></script>
 <script src="games/batjack/game.js?v=20261010a"></script>
-<script src="games/bonanza/game.js?v=20261009b"></script>
+<script src="games/bonanza/game.js?v=20261011s"></script>
 <script src="games/starwing/game.js?v=20261009b"></script>
 <script src="games/crypt/game.js?v=20261011a"></script>
 <script src="games/nighttrain/game.js?v=20261010b"></script>

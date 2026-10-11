@@ -542,11 +542,11 @@
     return new Promise((res) => {
       let done = false, off = null;
       const fin = () => { if (done) return; done = true; if (off) off(); res(); };
-      off = onSkip(fin); S.timeout(fin, T(ms));
+      off = onSkip(fin); if (S) S.timeout(fin, T(ms));   // after leaving the game the wait simply never ends, like any cleared timer
     });
   }
   /* cosmetic callbacks (sounds, particles) that a slam-stop simply cancels */
-  function later(fn, ms) { const id = S.timeout(() => { pend.delete(id); fn(); }, ms); pend.add(id); return id; }
+  function later(fn, ms) { if (!S) return 0; const id = S.timeout(() => { pend.delete(id); fn(); }, ms); pend.add(id); return id; }
   /* hurry: finish every running tween at once (slam-stop), resolve every wait, and speed up the rest of this spin */
   function doSkip() {
     if (!S) return;

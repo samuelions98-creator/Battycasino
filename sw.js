@@ -2,7 +2,7 @@
    Network-first for all local GET assets (especially index.html, CSS and JS) so a new
    deployment cannot be hidden indefinitely by the previous service worker cache.
    API requests are NEVER intercepted; bets and balances always use the server. */
-const V = 'batty-20261011q';
+const V = 'batty-20261011r';
 /* Precached for offline start-up: the shell, every game's JS and CSS and the platform pages, with the exact ?v= tags
    index.html requests (keep them in step when a tag is bumped). Anything else is cached as it is fetched. */
 const SHELL = [
@@ -15,7 +15,7 @@ const SHELL = [
   'games/moonshot/style.css?v=20261011q',
   'games/ultraheist/style.css?v=20261009b',
   'games/batjack/style.css?v=20261010a',
-  'games/bonanza/style.css?v=20261009b',
+  'games/bonanza/style.css?v=20261011s',
   'games/starwing/style.css?v=20261009b',
   'games/circus/style.css?v=R4',
   'games/crypt/style.css?v=20261011a',
@@ -34,7 +34,7 @@ const SHELL = [
   'games/moonshot/game.js?v=20261011q',
   'games/ultraheist/game.js?v=20261009b',
   'games/batjack/game.js?v=20261010a',
-  'games/bonanza/game.js?v=20261009b',
+  'games/bonanza/game.js?v=20261011s',
   'games/starwing/game.js?v=20261009b',
   'games/crypt/game.js?v=20261011a',
   'games/nighttrain/game.js?v=20261010b',
@@ -44,6 +44,8 @@ const SHELL = [
   'games/bonkers/game.js?v=20261011q',
   'games/baccarat/game.js?v=20261011c',
   'games/royale/game.js?v=20261011b',
+  'games/vault/style.css?v=20261011h',
+  'games/vault/game.js?v=20261011h',
   'games/circus/math.js?v=R4',
   'games/circus/art.js?v=R4',
   'games/circus/game.js?v=R4',
