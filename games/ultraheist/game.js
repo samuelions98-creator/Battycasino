@@ -1510,7 +1510,7 @@
       const s = splashes[i]; s.r += 46 * dt; s.a -= 1.5 * dt;
       if (s.a <= 0) { splashes.splice(i, 1); continue; }
       c.strokeStyle = free ? 'rgba(255,150,170,' + s.a.toFixed(2) + ')' : 'rgba(200,225,255,' + s.a.toFixed(2) + ')';
-      c.beginPath(); c.ellipse(s.x, s.y, s.r, s.r * 0.28, 0, 0, Math.PI * 2); c.stroke();
+      c.beginPath(); c.ellipse(s.x, s.y, Math.max(0, s.r), Math.max(0, s.r * 0.28), 0, 0, Math.PI * 2); c.stroke();
     }
   }
   function startRain() { if (RM) return; S.loop((dt, t) => { if (!document.hidden) drawRain(dt, t); }); }

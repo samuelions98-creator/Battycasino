@@ -931,9 +931,9 @@
         for (const q of pparts) {
           q.life += dt; if (q.life >= q.max) continue; keep.push(q);
           const k = q.life / q.max;
-          if (q.k === 'ring') { q.r += q.vr * dt; pctx.globalAlpha = 0.8 * (1 - k); pctx.strokeStyle = q.c; pctx.lineWidth = 2.4; pctx.beginPath(); pctx.ellipse(q.x, q.y, q.r, q.r * 0.32, 0, 0, 6.283); pctx.stroke(); continue; }
+          if (q.k === 'ring') { q.r += q.vr * dt; pctx.globalAlpha = 0.8 * (1 - k); pctx.strokeStyle = q.c; pctx.lineWidth = 2.4; pctx.beginPath(); pctx.ellipse(q.x, q.y, Math.max(0, q.r), Math.max(0, q.r * 0.32), 0, 0, 6.283); pctx.stroke(); continue; }
           q.vy += q.g * dt; q.x += q.vx * dt; q.y += q.vy * dt;
-          if (q.k === 'd') { pctx.globalAlpha = 1 - k * k; pctx.fillStyle = q.c; pctx.beginPath(); pctx.ellipse(q.x, q.y, q.r * 0.8, q.r * 1.25, Math.atan2(q.vy, q.vx) + 1.57, 0, 6.283); pctx.fill(); }
+          if (q.k === 'd') { pctx.globalAlpha = 1 - k * k; pctx.fillStyle = q.c; pctx.beginPath(); pctx.ellipse(q.x, q.y, Math.max(0, q.r * 0.8), Math.max(0, q.r * 1.25), Math.atan2(q.vy, q.vx) + 1.57, 0, 6.283); pctx.fill(); }
           else if (q.k === 's') {
             const tw = 0.6 + 0.4 * Math.sin(q.life * 22 + q.ph), r = q.r * (1 - k * 0.5) * tw;
             pctx.globalAlpha = 1 - k; pctx.fillStyle = q.c; pctx.beginPath();

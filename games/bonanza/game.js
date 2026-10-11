@@ -1519,7 +1519,7 @@
         c.fillStyle = p.c; c.strokeStyle = '#2a0620'; c.lineWidth = 1.5;
         c.beginPath(); c.moveTo(-p.r * 2.1, -p.r * 0.7); c.lineTo(-p.r * 0.9, 0); c.lineTo(-p.r * 2.1, p.r * 0.7); c.closePath(); c.fill(); c.stroke();
         c.beginPath(); c.moveTo(p.r * 2.1, -p.r * 0.7); c.lineTo(p.r * 0.9, 0); c.lineTo(p.r * 2.1, p.r * 0.7); c.closePath(); c.fill(); c.stroke();
-        c.beginPath(); c.ellipse(0, 0, p.r, p.r * 0.8, 0, 0, 6.283); c.fill(); c.stroke();
+        c.beginPath(); c.ellipse(0, 0, Math.max(0, p.r), Math.max(0, p.r * 0.8), 0, 0, 6.283); c.fill(); c.stroke();
         c.fillStyle = 'rgba(255,255,255,.55)'; c.beginPath(); c.ellipse(-p.r * 0.3, -p.r * 0.3, p.r * 0.35, p.r * 0.2, -0.5, 0, 6.283); c.fill();
       } else {
         c.fillStyle = '#f4e4ee'; c.fillRect(-1.5, 0, 3, p.r * 2.4);

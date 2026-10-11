@@ -1346,7 +1346,7 @@
       } else if (p.k === 'blob') {
         c.globalAlpha = Math.max(0, 1 - t * t); c.fillStyle = p.c;
         const sp = Math.min(1.8, Math.hypot(p.vx, p.vy) / 260), ang = Math.atan2(p.vy, p.vx);
-        c.rotate(ang); c.beginPath(); c.ellipse(0, 0, p.r * (1 + sp * 0.5), p.r / (1 + sp * 0.3), 0, 0, 6.283); c.fill();
+        c.rotate(ang); c.beginPath(); c.ellipse(0, 0, Math.max(0, p.r * (1 + sp * 0.5)), Math.max(0, p.r / (1 + sp * 0.3)), 0, 0, 6.283); c.fill();
         c.globalAlpha *= 0.7; c.fillStyle = '#fff'; c.beginPath(); c.ellipse(-p.r * 0.2, -p.r * 0.3, p.r * 0.35, p.r * 0.2, 0, 0, 6.283); c.fill();
       } else if (p.k === 'star') {
         c.globalAlpha = Math.max(0, 1 - t); c.rotate(p.rot); c.fillStyle = p.c; c.beginPath();
