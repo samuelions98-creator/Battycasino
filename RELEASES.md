@@ -3,7 +3,7 @@
 The big update is split into small releases. Each one is self-contained, tested on its own, and has its own small
 upload-only zip. Ship them one a day, or one every few days.
 
-Releases are marked by commit on this branch (release 1 = `fdaa5bd`, release 2 = `070a896`, release 3 = `d056236`, release 4 = `e810bdc`, release 3b = `13ef5be`, release 8 = `b24e744`, release 9 = `913d42b`, release 11 = `abcddea`, release 10 = `3a65539`, release 13 = `0bb3830`, release 14 = `6469b58`; the remote won't accept git tags, so
+Releases are marked by commit on this branch (release 1 = `fdaa5bd`, release 2 = `070a896`, release 3 = `d056236`, release 4 = `e810bdc`, release 3b = `13ef5be`, release 8 = `b24e744`, release 9 = `913d42b`, release 11 = `abcddea`, release 10 = `3a65539`, release 13 = `0bb3830`, release 14 = `6469b58`, release 12 = `62f1bef`; the remote won't accept git tags, so
 create local ones with `git tag release-1 fdaa5bd` and so on). Build the zips for any release with:
 
     tools/make-release.sh release-<N-1> release-<N> <out-dir>
@@ -28,6 +28,7 @@ After uploading a release that says **DB**, open Admin → "Update database" onc
 | 10 | **Gummy Bats** (new 7×7 cluster-pays slot: tumbles, multiplier spots, Night Shift free spins, two bonus buys; 96.4% return) | 83 KB | no |
 | 13 | **Roulette Royale** (live European roulette with racetrack; opens the High Roller Lounge, level 5+; 97.3% return) + lobby feed fix for big stakes | 86 KB | **yes** |
 | 14 | **Velvet Baccarat** (live High Roller baccarat: card squeeze, five roadmaps, pairs and dragon side bets; level 5+; standard paytables, Banker 98.9%) | 92 KB | **yes** |
+| 12 | **Bat Derby** (live bat racing: race card, win/each-way/forecast/tricast, animated races with photo finish; 96.0% every bet) | 95 KB | **yes** |
 
 ## Still to build (in the suggested order)
 
@@ -39,7 +40,6 @@ Effort: **S** = a short session, **M** = one solid session, **L** = one large se
 | 5 | **Bonkers Time** (live Crazy Time-style show) | L | Maths, RTP sim, PHP live engine, tables, parity, client engine | The four bonus scenes, CSS, two-player test | yes |
 | 6 | **Daily Wheel + Bat Pass + Belfry Shop** | L | All server code (`lib/platform/*`), tables, partial `core/platform.js` | Finish the client, write `core/platform.css`, hook into lobby/top bar, test purchases | yes |
 | 7 | **Bunky Time goes live** (shared wheel that spins on its own) | M | Shared-round server and live client loop | Live bonus scenes, two-player test | yes |
-| 12 | **Bat Derby** (live bat racing) | L | Server live race flow, odds model, sim, parity | The presentation | yes |
 | 15 | **Crimson Vault** | L | Early PHP only | Most of it | no |
 
 The High Roller Lounge shelf appears in the lobby automatically as soon as one lounge game (release 13) goes live.
