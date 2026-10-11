@@ -100,7 +100,7 @@ function after_round(array &$u, string $game, int $stake, int $win, array $f): v
         $u['streak_day'] = $today;
     }
     /* big-wins feed */
-    if (($bigX >= 25 && $bigWin >= 2500) || $bigWin >= 50000 || !empty($f['feedLabel'])) {
+    if (($bigX >= 25 && $bigWin >= 2500) || ($bigWin >= 50000 && $bigX >= 5) || !empty($f['feedLabel'])) {   // big amounts count only when the win is also big for the stake (High Roller stakes are large)
         if ($bigWin >= 1000) {
             q('INSERT INTO feed (user_id, game, amount, x, label, created_at) VALUES (?,?,?,?,?,?)', [$u['id'], $game, $bigWin, round($bigX, 2), mb_substr($f['feedLabel'] ?? '', 0, 60), now_sql()]);
         }
