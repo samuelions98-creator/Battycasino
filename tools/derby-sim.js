@@ -82,7 +82,8 @@ function work(seed, races) {
     for (let i = 1; i < 8; i++) { if (R[i].oi < R[fav].oi) fav = i; if (R[i].oi > R[out].oi) out = i; }
     for (let i = 0; i < 8; i++) if (i !== fav && (fav2 < 0 || R[i].oi < R[fav2].oi)) fav2 = i;
     for (let i = 0; i < 8; i++) if (i !== fav && i !== fav2 && (fav3 < 0 || R[i].oi < R[fav3].oi)) fav3 = i;
-    const unit = (t, sel) => M.settleBet({ t, sel, stake: 10000 }, race, res) / 10000;
+    /* per BB of what the bet costs (each way and reverse forecasts are two bets, so they cost twice the stake) */
+    const unit = (t, sel) => { const b = { t, sel, stake: 10000 }; return M.settleBet(b, race, res) / M.costOf(b); };
     S.favWin.n++; S.favWin.ret += unit('win', [fav]); S.outWin.n++; S.outWin.ret += unit('win', [out]);
     S.favEW.n++; S.favEW.ret += unit('ew', [fav]); S.outEW.n++; S.outEW.ret += unit('ew', [out]);
     S.favFC.n++; S.favFC.ret += unit('fc', [fav, fav2]); S.favRFC.n++; S.favRFC.ret += unit('rfc', [fav, fav2]); S.favTC.n++; S.favTC.ret += unit('tc', [fav, fav2, fav3]);
