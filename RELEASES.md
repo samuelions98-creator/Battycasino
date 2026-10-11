@@ -3,7 +3,7 @@
 The big update is split into small releases. Each one is self-contained, tested on its own, and has its own small
 upload-only zip. Ship them one a day, or one every few days.
 
-Releases are marked by commit on this branch (release 1 = `fdaa5bd`, release 2 = `070a896`, release 3 = `d056236`, release 4 = `e810bdc`, release 3b = `13ef5be`, release 8 = `b24e744`, release 9 = `913d42b`, release 11 = `abcddea`, release 10 = `3a65539`, release 13 = `0bb3830`, release 14 = `6469b58`, release 12 = `62f1bef`, release 5 = `ac51ca9`, release 6 = `99fd1ef`; the remote won't accept git tags, so
+Releases are marked by commit on this branch (release 1 = `fdaa5bd`, release 2 = `070a896`, release 3 = `d056236`, release 4 = `e810bdc`, release 3b = `13ef5be`, release 8 = `b24e744`, release 9 = `913d42b`, release 11 = `abcddea`, release 10 = `3a65539`, release 13 = `0bb3830`, release 14 = `6469b58`, release 12 = `62f1bef`, release 5 = `ac51ca9`, release 6 = `99fd1ef`, release 7 = `19d7393`; the remote won't accept git tags, so
 create local ones with `git tag release-1 fdaa5bd` and so on). Build the zips for any release with:
 
     tools/make-release.sh release-<N-1> release-<N> <out-dir>
@@ -31,6 +31,7 @@ After uploading a release that says **DB**, open Admin → "Update database" onc
 | 12 | **Bat Derby** (live bat racing: race card, win/each-way/forecast/tricast, animated races with photo finish; 96.0% every bet) | 95 KB | **yes** |
 | 5 | **Bonkers Time** (live game show: money wheel, Top Slot, Coin Flap, Crypt Hunt, Drop Zone and BONKERS TIME bonus scenes; 96.0% every spot) | 93 KB | **yes** |
 | 6 | **Daily Wheel + Bat Pass + Belfry Shop** (daily prize wheel with streaks, Premium Wheel, 50-tier season pass with Free and Gold tracks, cosmetics shop and Locker; Bat Pass and Shop tabs) | 113 KB | **yes** |
+| 7 | **Bunky Time goes live** (one shared wheel on a clock: live betting, players rail, live Blood Bar / Hangin' Alive / Belfry Disco / VIP Crypt Disco; fixes a result leak in the saved server; 96.0%) | 111 KB | **yes** |
 
 ## Still to build (in the suggested order)
 
@@ -39,7 +40,6 @@ Effort: **S** = a short session, **M** = one solid session, **L** = one large se
 
 | # | Release | Effort | Saved already | Remaining | DB |
 |---|---|---|---|---|---|
-| 7 | **Bunky Time goes live** (shared wheel that spins on its own) | M | Shared-round server and live client loop | Live bonus scenes, two-player test | yes |
 | 15 | **Crimson Vault** | L | Early PHP only | Most of it | no |
 
 The High Roller Lounge shelf appears in the lobby automatically as soon as one lounge game (release 13) goes live.
