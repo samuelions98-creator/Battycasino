@@ -14,6 +14,7 @@ function play(array $in): array {
     if ($game === 'moonshot' && $op === 'state') return moon_state_api($u0);
     if ($game === 'roulette' && $op === 'state') return rl_state_api($u0);
     if ($game === 'batjack' && $op === 'state') return bjt_state_api($u0);
+    if ($game === 'bunky' && $op === 'state') return bk_state_api($u0, $in);
     return tx(function () use ($u0, $game, $op, $in, $fn) {
         $u = lock_user((int) $u0['id']);
         $out = $fn($u, $op, $in);
@@ -37,7 +38,7 @@ function resolve_open(array &$u, string $game): void {
     if ($game === 'bookofbats') { bob_settle_open($u); return; }   // a held (gambleable) win is paid, never lost
     if ($game === 'crypt') { cr_settle_open($u); return; }        // held free spins are played and paid, never lost
     while ($r = round_get_open($u, $game)) {
-        if ($game === 'bunky') bunky_finish($u, $r, random_int(0, 2));
+        if ($game === 'bunky') { bk_tidy($u, microtime(true)); return; }   // live rounds settle once their result is out (old private-wheel rounds at once)
         elseif ($game === 'fishing') fishing_finish($u, $r, random_int(0, 4));
         elseif ($game === 'moonshot') moon_finish($u, $r, true);
         else q("UPDATE rounds SET state = 'done' WHERE id = ?", [$r['id']]);
@@ -117,48 +118,27 @@ function fishing_finish(array &$u, array $r, int $pick): array {
 }
 
 /* ================= Bunky Time ================= */
+/* A live show: one shared wheel for the whole casino on a fixed rhythm (the engine is in lib/games/bunky.php).
+   'state' is the poll (the fast path in play()), 'bet' replaces the player's chips on the betting round, 'pick' is a
+   bartender or team inside a bonus. Rounds left over from the old private wheel still settle (bunky_finish). */
 function play_bunky(array &$u, string $op, array $in): array {
-    $D = bk_D();
-    if ($op === 'spin') {
-        resolve_open($u, 'bunky');
-        $raw = $in['bets'] ?? null;
-        if (!is_array($raw) || !$raw) throw new ApiError('Chips on the table first.');
-        $bets = []; $total = 0;
-        foreach ($raw as $spot => $amt) {
-            if (!in_array($spot, $D['SPOTS'], true)) throw new ApiError('Unknown bet spot.');
-            if (!is_int($amt) || $amt <= 0 || $amt % 10) throw new ApiError('Bad chip amount.');
-            if ($amt > $D['SPOT_MAX'][bk_kind($spot)]) throw new ApiError('That spot is at its limit.');
-            $bets[$spot] = $amt; $total += $amt;
-        }
-        if ($u['balance'] < $total) throw new ApiError('Not enough Batty Bucks.', 402);
-        $o = bk_spin(batty_rng());
-        $mine = $bets[$o['spot']] ?? 0;
-        if (bk_needsPick($o) && $mine > 0) {
-            $rid = round_open($u, 'bunky', $total, ['o' => $o, 'bets' => $bets]);
-            return ['o' => bk_masked($o), 'round' => $rid, 'pending' => true];
-        }
-        $won = bk_settle($bets, $o, 0)['total'];
-        $rid = round_quick($u, 'bunky', $total, $won, bunky_facts($o, $mine, $won));
-        return ['o' => $o, 'won' => $won, 'round' => $rid];
-    }
-    if ($op === 'pick') {
-        $r = round_get_open($u, 'bunky', in_int($in, 'round', 1, PHP_INT_MAX));
-        if (!$r) throw new ApiError('That round has already finished.', 409);
-        return bunky_finish($u, $r, in_int($in, 'pick', 0, 2));
-    }
+    if ($op === 'bet') return bk_bet_op($u, $in);
+    if ($op === 'pick') return bk_pick_op($u, $in);
+    if ($op === 'devforce') return bk_devforce_op($in);
     throw new ApiError('Unknown action.');
 }
-function bunky_facts(array $o, int $mine, int $won): array {
+/* Feed etiquette: only a genuinely notable win (100x the round's stake or more) gets a label of its own. */
+function bunky_facts(array $o, int $mine, int $won, int $staked): array {
     $f = ['bonus' => ($o['kind'] === 'bonus' && $mine > 0) ? 1 : 0];
-    if ($o['spot'] === 'vip' && $won > 0) { $f['vip'] = true; $f['feedLabel'] = 'VIP Crypt Disco'; }
-    elseif ($o['kind'] === 'bonus' && $won > 0) $f['feedLabel'] = ['bar' => 'The Blood Bar', 'hang' => "Hangin' Alive", 'disco' => 'Belfry Disco'][$o['spot']] ?? '';
-    if (($f['feedLabel'] ?? null) === '') unset($f['feedLabel']);
+    if ($o['spot'] === 'vip' && $won > 0) $f['vip'] = true;
+    if ($won > 0 && $staked > 0 && $won >= 100 * $staked)
+        $f['feedLabel'] = ['bar' => 'The Blood Bar', 'hang' => "Hangin' Alive", 'disco' => 'Belfry Disco', 'vip' => 'VIP Crypt Disco'][$o['spot']] ?? 'Glitterball ' . $o['boost'] . '×';
     return $f;
 }
 function bunky_finish(array &$u, array $r, int $pick): array {
     $o = $r['data']['o']; $bets = $r['data']['bets'];
     $won = bk_settle($bets, $o, $pick)['total'];
-    round_close($u, $r, $won, bunky_facts($o, $bets[$o['spot']] ?? 0, $won));
+    round_close($u, $r, $won, bunky_facts($o, $bets[$o['spot']] ?? 0, $won, (int) $r['stake']));
     return ['o' => $o, 'won' => $won, 'pick' => $pick, 'round' => (int) $r['id']];
 }
 
