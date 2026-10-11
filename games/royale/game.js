@@ -9,15 +9,15 @@
    PAYS        A spot covering k numbers returns 36/k times its stake, stake included (straight 35:1, split 17:1,
                street 11:1, corner 8:1, six line 5:1, dozen/column 2:1, even chances 1:1). Zero loses every outside bet.
                Every bet therefore returns 36/37 = 97.297% (house edge 2.703%).
-   LIMITS      Chips 2,000 to 250,000. A spot holds a whole number of thousands, at least 2,000 and at most 250,000 per
-               number it covers. At most 10,000,000 on the table per spin. */
+   LIMITS      A spot holds a whole number of thousands, at least 2,000. There is no table limit beyond the site-wide
+               ceiling of 1,000,000,000 BB on the table per spin (and the player's balance). */
 (function (root, factory) { const M = factory(); if (typeof module !== 'undefined' && module.exports) module.exports = M; (root.BattyMath = root.BattyMath || {}).royale = M; })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
 
   const WHEEL = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
   const RED = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
   const CHIPS = [2000, 5000, 10000, 25000, 50000, 100000, 250000];
-  const UNIT = 1000, SPOT_MIN = 2000, SPOT_MAX_PER_NUMBER = 250000, TABLE_MAX = 10000000, MAX_SPOTS = 200;
+  const UNIT = 1000, SPOT_MIN = 2000, SPOT_MAX_PER_NUMBER = 1e9, TABLE_MAX = 1e9, MAX_SPOTS = 200;
   const TIMING = { bet: 15, spin: 10, rest: 5 };
   const isRed = (n) => RED.indexOf(n) >= 0;
   const colour = (n) => (n === 0 ? 'green' : isRed(n) ? 'red' : 'black');
@@ -72,7 +72,7 @@
       if (s > spotMax(k)) return 'That bet is over the ' + spotMax(k).toLocaleString('en-GB') + ' spot limit';
       total += s;
     }
-    if (total > TABLE_MAX) return 'That is over the table limit of ' + TABLE_MAX.toLocaleString('en-GB');
+    if (total > TABLE_MAX) return 'The most on the table per spin is ' + TABLE_MAX.toLocaleString('en-GB') + ' BB';
     return null;
   }
   const draw = (rng) => WHEEL[Math.floor(rng() * 37)];
@@ -148,7 +148,7 @@
   const KEY = 'batty-royale-v1', MIN_LEVEL = 5, TAU = Math.PI * 2;
   const esc = (s) => String(s).replace(/[<>&"']/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' }[c]));
   const clone = (o) => Object.assign({}, o || {});
-  const abbr = (n) => n >= 1e6 ? (Math.round(n / 1e5) / 10) + 'M' : n >= 1000 ? (Math.round(n / 100) / 10) + 'K' : String(n);
+  const abbr = (n) => B.fmtChip(n);
   const colName = (n) => (n === 0 ? 'Green' : M.isRed(n) ? 'Red' : 'Black');
   const colCls = (n) => M.colour(n);
   function mulberry(a) { return function () { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
@@ -167,7 +167,7 @@
       '<circle cx="24" cy="24" r="19.5" fill="none" stroke="' + st[1] + '" stroke-width="6" stroke-dasharray="6 7.6"/>' +
       '<circle cx="24" cy="24" r="14" fill="' + st[0] + '" stroke="' + st[1] + '" stroke-width="1.3"/>' +
       '<circle cx="24" cy="24" r="12" fill="none" stroke="' + st[1] + '" stroke-width=".6" stroke-dasharray="1.5 1.5" opacity=".8"/>' +
-      '<text x="24" y="' + (t.length > 3 ? 27.6 : 28.4) + '" text-anchor="middle" font-family="\'Chakra Petch\',\'Arial Narrow\',sans-serif" font-weight="700" font-size="' + (t.length > 3 ? 9.5 : 12) + '" fill="' + st[2] + '">' + t + '</text>' +
+      '<text x="24" y="' + (t.length > 4 ? 27.2 : t.length > 3 ? 27.6 : 28.4) + '" text-anchor="middle" font-family="\'Chakra Petch\',\'Arial Narrow\',sans-serif" font-weight="700" font-size="' + (t.length > 4 ? 8 : t.length > 3 ? 9.5 : 12) + '" fill="' + st[2] + '">' + t + '</text>' +
       '<circle cx="24" cy="24" r="23" fill="url(#ry-flat-shine)"/></svg>';
   }
   /* a chip lying on the felt at the camera's angle: an elliptical top and a striped edge */
@@ -179,7 +179,7 @@
       '<ellipse cx="22" cy="12" rx="21" ry="11.5" fill="' + st[0] + '" stroke="rgba(0,0,0,.35)" stroke-width=".6"/>' +
       '<ellipse cx="22" cy="12" rx="17.4" ry="9.5" fill="none" stroke="' + st[1] + '" stroke-width="3.4" stroke-dasharray="4.6 5.9"/>' +
       '<ellipse cx="22" cy="12" rx="12.4" ry="6.8" fill="' + st[0] + '" stroke="' + st[1] + '" stroke-width=".9"/>' +
-      '<text x="22" y="15.4" text-anchor="middle" transform="translate(0 4.6) scale(1 .62)" font-family="\'Chakra Petch\',\'Arial Narrow\',sans-serif" font-weight="700" font-size="' + (t.length > 3 ? 9.6 : 12) + '" fill="' + st[2] + '">' + t + '</text>' +
+      '<text x="22" y="15.4" text-anchor="middle" transform="translate(0 4.6) scale(1 .62)" font-family="\'Chakra Petch\',\'Arial Narrow\',sans-serif" font-weight="700" font-size="' + (t.length > 4 ? 8.2 : t.length > 3 ? 9.6 : 12) + '" fill="' + st[2] + '">' + t + '</text>' +
       '<ellipse cx="22" cy="12" rx="21" ry="11.5" fill="url(#ry-cshine)"/></svg>';
   }
   /* a 3D stack, largest chip at the bottom; the top chip carries the spot's total */
@@ -549,13 +549,13 @@
   function rules() {
     const kinds = ['straight', 'split', 'street', 'corner', 'line', 'column', 'dozen', 'even'];
     const cover = { straight: 1, split: 2, street: 3, corner: 4, line: 6, column: 12, dozen: 12, even: 18 };
-    const rows = kinds.map((k) => '<tr><td>' + KIND_NAME[k] + '</td><td>' + (36 / cover[k] - 1) + ' to 1</td><td>' + fmt(M.SPOT_MAX_PER_NUMBER * cover[k]) + '</td><td>' + cover[k] + ' in 37</td></tr>').join('');
+    const rows = kinds.map((k) => '<tr><td>' + KIND_NAME[k] + '</td><td>' + (36 / cover[k] - 1) + ' to 1</td><td>No limit</td><td>' + cover[k] + ' in 37</td></tr>').join('');
     const ann = Object.keys(M.ANNOUNCED).map((id) => { const a = M.ANNOUNCED[id]; return '<tr><td>' + a.name + '</td><td>' + a.chips + ' chips</td><td>' + a.parts.map(([k, c]) => (c > 1 ? c + '× ' : '') + M.SPOTS[k].join('/')).join(', ') + '</td></tr>'; }).join('');
     const live = B.online ? '<h3>The live wheel</h3><p>Everyone in the lounge plays the same wheel at the same time. Bets are open for <b>15 seconds</b>; then the croupier calls “no more bets” and the ball runs for 10 seconds. The number is drawn by the server when the spin is created and is never sent to anyone until betting has closed. The result stays up for 5 seconds before the next round. Your chips are taken as you place them and handed back if you take them off before betting closes. If you leave mid-spin your bets still ride and are paid as normal.</p>'
       : '<h3>Practice table</h3><p>Place your chips and press <b>Spin</b> (or Space). Online, Roulette Royale is one live wheel shared by every player in the High Roller Lounge.</p>';
     return '<p><b>Single-zero roulette for the High Roller Lounge.</b> 37 pockets, 0 to 36, in the European wheel order. Open to players of <b>level 5 and above</b>.</p>' + live +
       '<h3>Bets and payouts</h3><table><tr><th>Bet</th><th>Pays</th><th>Spot limit</th><th>Wins</th></tr>' + rows + '</table>' +
-      '<p>Zero loses every outside bet (red/black, odd/even, high/low, dozens and columns). Chips are 2,000 to 250,000 BB; each spot takes at least 2,000 and at most 250,000 for every number it covers. Up to 10,000,000 BB on the table per spin.</p>' +
+      '<p>Zero loses every outside bet (red/black, odd/even, high/low, dozens and columns). Each spot takes at least 2,000 BB, in whole thousands, and there are no table limits: bet as much as you like, up to your balance (the ceiling is 1,000,000,000 BB on the table per spin). The chips run from 2K to 250K, and the top chip can be set to any amount: tap it again.</p>' +
       '<h3>The racetrack</h3><p>The oval shows the numbers in wheel order. Tap a number to bet it with its neighbours (set how many either side with the ± control; one chip each). Tap a section for an announced bet, placed as these chips at your chosen value:</p>' +
       '<table><tr><th>Bet</th><th>Size</th><th>Chips on</th></tr>' + ann + '</table>' +
       '<h3>Controls</h3><p>Pick a chip, then tap the layout: the middle of a number, a line between two numbers (split), a corner (four), the bottom edge (street), the bottom edge on a line (six line), or the line by zero. Right-click or Undo takes chips back. Keys: <b>1</b>–<b>7</b> chips, <b>U</b> undo, <b>C</b> clear, <b>X</b> double, <b>R</b> rebet, <b>T</b> racetrack' + (B.online ? '' : ', <b>Space</b> spin, <b>Q</b> quick spin') + '.</p>' +
@@ -565,8 +565,9 @@
 
   /* ============================== memory and sound ============================== */
   let S = null, G = null;
-  const mem = { chip: 2, last: null, hist: [], quick: false, k: 2, track: false };
-  try { const raw = JSON.parse(localStorage.getItem(KEY) || 'null'); if (raw) { if (raw.chip >= 0 && raw.chip < M.CHIPS.length) mem.chip = raw.chip | 0; if (raw.last && typeof raw.last === 'object') mem.last = raw.last; if (Array.isArray(raw.hist)) mem.hist = raw.hist.filter((n) => n >= 0 && n <= 36).slice(0, 500); mem.quick = !!raw.quick; if (raw.k >= 0 && raw.k <= 4) mem.k = raw.k | 0; mem.track = !!raw.track; } } catch (e) { /* memory only */ }
+  const mem = { chip: 2, custom: 250000, last: null, hist: [], quick: false, k: 2, track: false };
+  try { const raw = JSON.parse(localStorage.getItem(KEY) || 'null'); if (raw) { if (raw.chip >= 0 && raw.chip < M.CHIPS.length) mem.chip = raw.chip | 0; if (Number.isInteger(raw.custom) && raw.custom >= M.SPOT_MIN && raw.custom <= B.MAX_BET && raw.custom % M.UNIT === 0) mem.custom = raw.custom; if (raw.last && typeof raw.last === 'object') mem.last = raw.last; if (Array.isArray(raw.hist)) mem.hist = raw.hist.filter((n) => n >= 0 && n <= 36).slice(0, 500); mem.quick = !!raw.quick; if (raw.k >= 0 && raw.k <= 4) mem.k = raw.k | 0; mem.track = !!raw.track; } } catch (e) { /* memory only */ }
+  const chipVal = (i) => (i === M.CHIPS.length - 1 ? mem.custom : M.CHIPS[i]);
   const saveMem = () => { try { localStorage.setItem(KEY, JSON.stringify(mem)); } catch (e) { /* memory only */ } };
 
   const A = B.audio;
@@ -644,7 +645,16 @@
     el.total = h('output', null, '0'); el.win = h('output', null, '0');
     el.info = h('div', { class: 'ry-info' }, h('span', { class: 'it' }, h('small', null, 'Total bet'), el.total), h('span', { class: 'it w' }, h('small', null, 'Last win'), el.win));
     el.chips = h('div', { class: 'ry-chips', role: 'radiogroup', 'aria-label': 'Chip value' });
-    M.CHIPS.forEach((v, i) => el.chips.append(h('button', { type: 'button', class: 'ry-chip', role: 'radio', 'aria-label': fmt(v) + ' BB chip', html: chipFlat(v), onclick: () => { mem.chip = i; saveMem(); paintChips(); snd.chip(); } })));
+    M.CHIPS.forEach((v, i) => el.chips.append(h('button', { type: 'button', class: 'ry-chip', role: 'radio', 'aria-label': fmt(v) + ' BB chip', html: chipFlat(v), onclick: () => pickChip(i) })));
+    /* The top chip is yours to set: tap it again (or press its key twice) to give it any value up to your balance. */
+    function pickChip(i) {
+      const top = i === M.CHIPS.length - 1;
+      if (top && mem.chip === i) { B.ui.amount({ title: 'Set your chip', action: 'Set chip', value: mem.custom, min: M.SPOT_MIN, step: M.UNIT }).then((n) => { if (n && S && !S.dead) { mem.custom = n; saveMem(); snd.chip(); paintTopChip(); paintChips(); } }); return; }
+      if (top && !mem.tipped) { mem.tipped = true; B.ui.toast('Tap the top chip again to set it to any amount.'); }
+      mem.chip = i; saveMem(); paintChips(); snd.chip();
+    }
+    function paintTopChip() { const c = el.chips.lastChild; c.innerHTML = chipFlat(mem.custom); c.setAttribute('aria-label', fmt(mem.custom) + ' BB chip (tap again to change)'); }
+    paintTopChip();
     const ICON = {
       undo: '<svg viewBox="0 0 24 24"><path d="M9 7L4 12l5 5M4 12h11a5 5 0 0 1 0 10h-3" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 -3)"/></svg>',
       clear: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>',
@@ -914,7 +924,7 @@
     }
     function removeFrom(key) {
       if (!canBet() || !g.bets[key]) return;
-      const v = M.CHIPS[mem.chip], next = clone(g.bets), left = next[key] - v;
+      const v = chipVal(mem.chip), next = clone(g.bets), left = next[key] - v;
       if (left >= M.SPOT_MIN) next[key] = left; else delete next[key];
       setBets(next, 'quiet'); snd.clack(2);
     }
@@ -957,7 +967,7 @@
       const nm = names[key] || ({ straight: 'Straight ', split: 'Split ', street: ns[0] === 0 ? 'Trio ' : 'Street ', corner: ns[0] === 0 ? 'First four ' : 'Corner ', line: 'Six line ' }[k] + ns.join('-'));
       return nm + ' · pays ' + M.pays(key) + ' to 1';
     }
-    S.on(el.table, 'click', (e) => { const k = tablePoint(e); if (k) addBets({ [k]: M.CHIPS[mem.chip] }, spotLabel(k)); });
+    S.on(el.table, 'click', (e) => { const k = tablePoint(e); if (k) addBets({ [k]: chipVal(mem.chip) }, spotLabel(k)); });
     S.on(el.table, 'contextmenu', (e) => { e.preventDefault(); const k = tablePoint(e); if (k) removeFrom(k); });
     if (canHover) {
       S.on(el.table, 'pointermove', (e) => {
@@ -977,7 +987,7 @@
     }
     S.on(el.track, 'click', (e) => {
       const t = trackTarget(e); if (!t) return;
-      const unit = M.CHIPS[mem.chip];
+      const unit = chipVal(mem.chip);
       if (t.n != null) addBets(M.neighbours(t.n, mem.k, unit), t.n + (mem.k ? ' and ' + mem.k + ' neighbours either side' : ' straight up'));
       else addBets(M.announced(t.s, unit), M.ANNOUNCED[t.s].name + ' · ' + M.ANNOUNCED[t.s].chips + ' × ' + fmt(unit));
     });
@@ -990,7 +1000,7 @@
     S.on(window, 'keydown', (e) => {
       if (g.dead || e.target.closest && e.target.closest('input,textarea,select') || document.querySelector('.bc-veil,.bc-win')) return;
       const k = e.key.toLowerCase();
-      if (e.key >= '1' && e.key <= '7') { mem.chip = +e.key - 1; saveMem(); paintChips(); snd.chip(); }
+      if (e.key >= '1' && e.key <= '7') pickChip(+e.key - 1);
       else if (k === 'u') undo(); else if (k === 'c') clearBets(); else if (k === 'x') doubleBets(); else if (k === 'r') rebet();
       else if (k === 't' && C && C.trackToggle) el.trackB.click();
       else if (k === 'q' && !live) el.quickB.click();

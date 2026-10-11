@@ -32,16 +32,21 @@ function credit(array &$u, int $amount, string $kind, ?string $game = null, ?int
 
 /* ---------- levels ---------- */
 function level_floor(int $L): int { return (int) round(10000 * pow($L - 1, 1.6)); }
+/* Levels have no ceiling, but the rewards that grow with level (level-up gifts, the hourly bonus, the Daily Wheel, mission
+   and Bat Pass challenge tiers) stop growing at REWARD_LEVEL_CAP. Bets have no limit, so one huge bet can climb hundreds
+   of levels; without the cap those rewards would grow without bound. */
+const REWARD_LEVEL_CAP = 100;
+function reward_level(int $level): int { return min($level, REWARD_LEVEL_CAP); }
 function add_wager(array &$u, int $stake): void {
     $u['wagered'] += $stake;
-    while ($u['wagered'] >= level_floor($u['level'] + 1)) {
-        $u['level']++;
-        $gift = 500 * $u['level'];
+    $from = $u['level']; $gift = 0;
+    while ($u['wagered'] >= level_floor($u['level'] + 1)) { $u['level']++; $gift += 500 * reward_level($u['level']); }
+    if ($u['level'] > $from) {   // one gift and one event however many levels this bet climbed
         credit($u, $gift, 'level', null, null, 'Reached level ' . $u['level']);
         event(['type' => 'level', 'level' => $u['level'], 'amount' => $gift]);
     }
 }
-function claim_amount(int $level): int { return 2500 + 250 * ($level - 1); }
+function claim_amount(int $level): int { return 2500 + 250 * (reward_level($level) - 1); }
 
 /* ---------- rounds ---------- */
 /* One-shot round: stake taken and win paid together. */
@@ -118,7 +123,7 @@ function uk_day(): string { return (new DateTime('now', new DateTimeZone('Europe
 /* Games the daily "play this game" mission can pick: everything on the floor except the level-gated High Roller Lounge. */
 const MISSION_GAMES = ['spin_bunky', 'spin_olympus', 'spin_fishing', 'spin_plachinko', 'spin_moonshot', 'spin_circus', 'spin_bonkers', 'spin_crypt', 'spin_nighttrain',
     'spin_gummy', 'spin_bookofbats', 'spin_derby', 'spin_ultraheist', 'spin_bonanza', 'spin_starwing', 'spin_batjack'];
-function mission_tier(int $level): int { return 1 + intdiv($level, 5); }
+function mission_tier(int $level): int { return 1 + intdiv(reward_level($level), 5); }
 function mission_defs(): array {
     return [
         'spin_bunky' => ['Play 20 rounds of Bunky Time', 20, 2000],

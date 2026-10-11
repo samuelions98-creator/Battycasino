@@ -3,7 +3,7 @@
    to lib/games/vault.php (proved identical by tools/vault-xcheck.js).
 
    THE GRID    5 reels x 4 rows, 20 fixed lines, paid left to right (3, 4 or 5 of a kind). 1 unit = stake / 100; the line bet
-               is 5 units. Every stake on the High Roller ladder (2,000 to 250,000) is a multiple of 100.
+               is 5 units. Stakes run from 2,000 with no limit, in steps of 100.
    WILD        The Wild Vault lands on reels 2 to 5 in the base game and stands in for every symbol but the key.
    KEYS        Crimson Keys pay anywhere (3 = 3x, 4 = 20x, 5 = 100x the stake), spaced on the strips so a reel never shows two.
                3+ open the vault: the player picks a vault, and only then are its free spins drawn (on the server).
@@ -514,7 +514,7 @@
     el.ov = h('div', { class: 'vt-ov', hidden: true });
     el.main = h('div', { class: 'vt-main' }, h('div', { class: 'vt-head' }, el.title, el.hud), el.box, el.msg, el.ctl);
     root.append(el.bg, el.main, el.ov);
-    stakeCtl = B.ui.stake(el.stakeBox, { id: ID, stakes: M.STAKES, label: 'Stake · BB' });
+    stakeCtl = B.ui.stake(el.stakeBox, { id: ID, stakes: M.STAKES, step: 100, label: 'Stake · BB' });
     curStake = stakeCtl.value;
     const paintAuto = () => { el.auto.lastChild.textContent = auto > 0 ? String(auto) : 'OFF'; el.auto.classList.toggle('on', auto !== 0); };
     requestAnimationFrame(() => root.classList.add('open'));

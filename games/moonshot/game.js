@@ -163,18 +163,18 @@
     'Barry Two-Darts', 'Dartboard Deb', 'Crisps Chris', 'Nan on the Gin', 'Kebab Kev', 'Beer Garden Bren'];
 
   /* ---------- things that outlive a visit to the game ---------- */
-  const mem = { card: M.newCard(), slots: [{ stakeI: 0, auto: 200, autoOn: false, ins: false }, { stakeI: 0, auto: 500, autoOn: false, ins: false }], turbo: false };
+  const mem = { card: M.newCard(), slots: [{ stake: 100, auto: 200, autoOn: false, ins: false }, { stake: 100, auto: 500, autoOn: false, ins: false }], turbo: false };
   try {
     const raw = JSON.parse(localStorage.getItem(KEY) || 'null');
     if (raw) {
-      const okStake = (s) => M.STAKES.indexOf(s) > -1;
+      const okStake = (s) => Number.isInteger(s) && s >= M.STAKES[0] && s <= B.MAX_BET && s % 100 === 0;   // any stake is allowed, in steps of 100
       if (raw.card && Array.isArray(raw.card.stamps) && Array.isArray(raw.card.free)) {
         mem.card.stamps = raw.card.stamps.filter(okStake).slice(0, M.STAMP.size - 1);
         mem.card.free = raw.card.free.filter(okStake).slice(0, 5);
       }
       if (Array.isArray(raw.slots)) raw.slots.slice(0, 2).forEach((s, i) => {
         if (!s) return; const d = mem.slots[i];
-        if (s.stakeI >= 0 && s.stakeI < M.STAKES.length) d.stakeI = s.stakeI | 0;
+        if (okStake(s.stake)) d.stake = s.stake; else if (s.stakeI >= 0 && s.stakeI < M.STAKES.length) d.stake = M.STAKES[s.stakeI | 0];
         if (s.auto >= M.MIN_CASH_C) d.auto = M.clampTargetC(s.auto);
         d.autoOn = !!s.autoOn; d.ins = !!s.ins;
       });
@@ -1135,7 +1135,12 @@
           h('div', { class: 'ms-r2' }, h('div', { class: 'ms-auto' }, autoT, h('span', null, 'Auto'), autoIn, h('em', null, '×')), ins)),
         go);
       Object.assign(s, { minus, plus, out, autoT, autoIn, ins, go });
-      const stakeMove = (d) => { cfg.stakeI = clamp(cfg.stakeI + d, 0, M.STAKES.length - 1); saveMem(); B.sfx('click'); paintSlot(s); };
+      const ladder = B.ladderOf(M.STAKES);
+      const stakeSet = (n) => { cfg.stake = n; saveMem(); B.sfx('click'); paintSlot(s); };
+      const stakeMove = (d) => { const n = d > 0 ? ladder.find((x) => x > cfg.stake) : ladder.slice().reverse().find((x) => x < cfg.stake); if (n !== undefined) stakeSet(n); };
+      out.setAttribute('role', 'button'); out.setAttribute('tabindex', '0'); out.title = 'Tap to type any stake';
+      const ask = () => { if (!s.minus.disabled || !s.plus.disabled) B.ui.amount({ title: 'Stake for bet ' + key, value: cfg.stake, min: M.STAKES[0], step: 100 }).then((n) => { if (n && !(s.minus.disabled && s.plus.disabled)) stakeSet(n); }); };
+      out.addEventListener('click', ask); out.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ask(); } });
       minus.addEventListener('click', () => stakeMove(-1)); plus.addEventListener('click', () => stakeMove(1));
       autoT.addEventListener('click', () => { cfg.autoOn = !cfg.autoOn; saveMem(); B.sfx('click'); paintSlot(s); });
       const commitAuto = () => { const v = parseFloat(String(autoIn.value).replace(',', '.')); cfg.auto = M.clampTargetC(isFinite(v) ? v * 100 : cfg.auto); autoIn.value = (cfg.auto / 100).toFixed(2); saveMem(); };
@@ -1147,7 +1152,7 @@
       el.slots.append(s.el);
       return s;
     }
-    const stakeOf = (s) => M.STAKES[s.cfg.stakeI];
+    const stakeOf = (s) => s.cfg.stake;
     const freeFor = (s) => (s.i === 0 && mem.card.free.length ? mem.card.free[0] : 0);
     function paintSlot(s) {
       const b = s.bet, R = g.round, free = !b && freeFor(s);
@@ -1157,8 +1162,8 @@
       s.state = st; s.el.dataset.state = st; s.el.classList.toggle('free', !!(free || (b && b.free)));
       const stake = b ? b.stake : free || stakeOf(s), prem = !free && s.cfg.ins ? M.insurancePremium(stakeOf(s)) : 0;
       const lockCfg = !!b && g.phase !== 'end';
-      s.out.innerHTML = B.fmt(stake) + '<small>' + (free || (b && b.free) ? 'Free flight' : 'Stake · BB') + '</small>';
-      s.minus.disabled = lockCfg || !!free || s.cfg.stakeI === 0; s.plus.disabled = lockCfg || !!free || s.cfg.stakeI === M.STAKES.length - 1;
+      s.out.innerHTML = B.fmtShort(stake) + '<small>' + (free || (b && b.free) ? 'Free flight' : 'Stake · BB') + '</small>';
+      s.minus.disabled = lockCfg || !!free || s.cfg.stake <= M.STAKES[0]; s.plus.disabled = lockCfg || !!free || s.cfg.stake >= B.MAX_BET;
       s.autoT.setAttribute('aria-checked', s.cfg.autoOn ? 'true' : 'false'); s.autoT.disabled = lockCfg; s.autoIn.disabled = lockCfg;
       s.el.classList.toggle('auto-on', s.cfg.autoOn);
       const insOn = b ? b.insured : s.cfg.ins && !free;

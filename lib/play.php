@@ -27,9 +27,14 @@ function level_progress(array $u): float {
     $a = level_floor($u['level']); $b = level_floor($u['level'] + 1);
     return round(max(0, min(1, ($u['wagered'] - $a) / max(1, $b - $a))), 4);
 }
-function stake_of(array $in, array $ladder): int {
-    $s = in_int($in, 'stake', 1, 1000000);
-    if (!in_array($s, $ladder, true)) throw new ApiError('That stake is not on offer.');
+/* Players may bet any amount they can afford. A stake is any multiple of 20 BB from the game's smallest stake (the
+   first entry of its ladder) up to MAX_BET; the ladders are only the quick picks the stake control steps through.
+   MAX_BET (lib/rng.php, loaded before the games) is a technical ceiling: it keeps the biggest wins exactly representable
+   in the browser. */
+function stake_of(array $in, array $ladder, int $step = 20): int {
+    if (is_int($in['stake'] ?? null) && $in['stake'] > MAX_BET) throw new ApiError('The most on one bet is ' . number_format(MAX_BET) . ' BB.');
+    $s = in_int($in, 'stake', 1, MAX_BET);
+    if (!stake_ok($s, $ladder, $step)) throw new ApiError('Stakes go up in steps of ' . $step . ' BB, from ' . number_format($ladder[0]) . ' BB.');
     return $s;
 }
 /* Settle every round of this game the player left hanging (closed tab, left mid-bonus). */
@@ -196,7 +201,7 @@ function play_moonshot(array &$u, string $op, array $in): array {
                 $bets[] = ['slot' => $slot, 'stake' => $stake, 'insured' => false, 'free' => true, 'target' => $target, 'prem' => 0, 'cashC' => 0, 'paid' => 0];
                 continue;
             }
-            $stake = in_int($b, 'stake', 1, 1000000); if (!in_array($stake, $D['STAKES'], true)) throw new ApiError('That stake is not on offer.');
+            $stake = in_int($b, 'stake', 1, MAX_BET); if (!stake_ok($stake, $D['STAKES'], 100)) throw new ApiError('Stakes go up in steps of 100 BB, from ' . number_format($D['STAKES'][0]) . ' BB.');
             $prem = !empty($b['insured']) ? ms_premium($stake) : 0;
             $cost += $stake + $prem;
             $bets[] = ['slot' => $slot, 'stake' => $stake, 'insured' => $prem > 0, 'free' => false, 'target' => $target, 'prem' => $prem, 'cashC' => 0, 'paid' => 0];

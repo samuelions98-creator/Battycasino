@@ -183,9 +183,9 @@ $core = [
   round_id BIGINT UNSIGNED NOT NULL,
   user_id INT UNSIGNED NOT NULL,
   seat INT NOT NULL,
-  main INT NOT NULL,
-  pp INT NOT NULL DEFAULT 0,
-  t3 INT NOT NULL DEFAULT 0,
+  main BIGINT NOT NULL,
+  pp BIGINT NOT NULL DEFAULT 0,
+  t3 BIGINT NOT NULL DEFAULT 0,
   done TINYINT NOT NULL DEFAULT 0,
   hands TEXT NULL,
   win BIGINT NOT NULL DEFAULT -1,
@@ -196,6 +196,9 @@ $core = [
   k VARCHAR(32) NOT NULL PRIMARY KEY,
   v TEXT NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+/* Bets have no table limits now (lib/play.php MAX_BET): widen the bet columns of tables made before that. Safe to re-run. */
+"ALTER TABLE bj_bets MODIFY main BIGINT NOT NULL, MODIFY pp BIGINT NOT NULL DEFAULT 0, MODIFY t3 BIGINT NOT NULL DEFAULT 0",
 ];
 
 /* Feature and game modules add their own tables in lib/schema/<name>.php (each returns a list of statements). */

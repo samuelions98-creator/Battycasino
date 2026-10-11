@@ -240,7 +240,7 @@ function dm_checkBet($b): string {
         if (!is_int($x) || $x < 0 || $x >= DM_N) return 'Bad runner';
         for ($j = 0; $j < $i; $j++) if ($sel[$j] === $x) return 'Pick different runners';
     }
-    if (!is_int($b['stake'] ?? null) || !in_array($b['stake'], STAKE_LADDER, true)) return 'That stake is not on offer';
+    if (!is_int($b['stake'] ?? null) || !stake_ok($b['stake'], STAKE_LADDER)) return 'That stake is not on offer';
     return '';
 }
 function dm_settleBet(array $b, array $race, array $res): int {

@@ -58,12 +58,14 @@ function rtp_pick(string $game, int $stake, callable $gen) {
 /* Called for every settled round (from after_round). */
 function rtp_record(string $game, int $stake, int $win): void {
     if ($stake <= 0 && $win <= 0) return;
-    $k = exp(-$stake / RTP_WINDOW);
+    /* One giant bet must not swamp the recent window: rounds count at most 100,000 BB of stake there (win scaled to match). */
+    $sc = $stake > 100000 ? 100000 / $stake : 1.0; $ws = $stake * $sc; $ww = $win * $sc;
+    $k = exp(-$ws / RTP_WINDOW);
     $rr = $GLOBALS['RTP_REROLLED'][$game] ?? 0; unset($GLOBALS['RTP_REROLLED'][$game]);
     q('INSERT INTO rtp_games (game, w_stake, w_win, life_stake, life_win, rounds, rerolls) VALUES (?,?,?,?,?,1,?)
        ON DUPLICATE KEY UPDATE w_stake = w_stake * ? + VALUES(w_stake), w_win = w_win * ? + VALUES(w_win),
        life_stake = life_stake + VALUES(life_stake), life_win = life_win + VALUES(life_win), rounds = rounds + 1, rerolls = rerolls + VALUES(rerolls)',
-      [$game, $stake, $win, $stake, $win, $rr, $k, $k]);
+      [$game, $ws, $ww, $stake, $win, $rr, $k, $k]);
 }
 /* For the admin panel. */
 function rtp_report(): array {

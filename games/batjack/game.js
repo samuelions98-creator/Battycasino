@@ -30,7 +30,7 @@
   const PP = { perfect: 30, coloured: 10, mixed: 6 };
   /* 21+3 on the seat's first two cards plus the dealer's up card */
   const T3 = { suitedTrips: 100, straightFlush: 40, trips: 30, straight: 9, flush: 6 };
-  const LIMITS = { mainMin: 10, mainMax: 10000, sideMax: 1000, step: 10 };
+  const LIMITS = { mainMin: 10, mainMax: 1e9, sideMax: 1e9, step: 10 };
   const CHIPS = [10, 50, 100, 500, 1000, 5000];
 
   /* ---------- basic strategy for THESE rules (6 decks, S17, dealer 22 pushes, DAS, peek) ----------
@@ -383,6 +383,8 @@
     10: ['#e9e1cf', '#8a7a5c', '#3a2a14', '10'], 50: ['#b3122a', '#f3d98b', '#fff4dc', '50'], 100: ['#17121c', '#d9b25f', '#f3d98b', '100'],
     500: ['#4b1d6b', '#e7c6ff', '#fff', '500'], 1000: ['#c99a35', '#4a0b14', '#2a0508', '1K'], 5000: ['#0c0c10', '#e3263f', '#ff9aa8', '5K'],
   };
+  /* Any amount wears the colours of the biggest chip it covers, with its own label (the top chip can be set to any value). */
+  const chipStyle = (v) => { if (CHIP_STYLE[v]) return CHIP_STYLE[v]; let k = 10; for (const c in CHIP_STYLE) if (+c <= v) k = +c; const st = CHIP_STYLE[k].slice(); st[3] = B.fmtChip(v); return st; };
   const RES_TEXT = { win: 'WIN', push: 'PUSH', push22: '22 PUSH', lose: 'LOSE', bust: 'BUST', blackjack: 'BLACKJACK', batjack: 'BAT JACK' };
   const PP_NAME = { perfect: 'Perfect pair', coloured: 'Coloured pair', mixed: 'Mixed pair' };
   const T3_NAME = { suitedTrips: 'Suited trips', straightFlush: 'Straight flush', trips: 'Three of a kind', straight: 'Straight', flush: 'Flush' };
@@ -451,23 +453,23 @@
     '</defs></svg>';
   /* a chip seen from above (the rack and the poster) */
   function chipSvg(v, size) {
-    const st = CHIP_STYLE[v] || CHIP_STYLE[10];
+    const st = chipStyle(v);
     return '<svg viewBox="0 0 40 40" width="' + (size || 40) + '" height="' + (size || 40) + '" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="' + st[0] + '" stroke="rgba(0,0,0,.45)" stroke-width="1"/>' +
       '<circle cx="20" cy="20" r="16" fill="none" stroke="' + st[1] + '" stroke-width="5" stroke-dasharray="5.2 7.4"/>' +
       '<circle cx="20" cy="20" r="11.5" fill="' + st[0] + '" stroke="' + st[1] + '" stroke-width="1.2"/>' +
-      '<text x="20" y="24.2" text-anchor="middle" font-family="\'Chakra Petch\',\'Arial Narrow\',sans-serif" font-weight="700" font-size="' + (st[3].length > 2 ? 10 : 12) + '" fill="' + st[2] + '">' + st[3] + '</text>' +
+      '<text x="20" y="24.2" text-anchor="middle" font-family="\'Chakra Petch\',\'Arial Narrow\',sans-serif" font-weight="700" font-size="' + (st[3].length > 3 ? 8.4 : st[3].length > 2 ? 10 : 12) + '" fill="' + st[2] + '">' + st[3] + '</text>' +
       '<circle cx="20" cy="20" r="19" fill="url(#batjack-flat-shine)"/></svg>';
   }
   /* a chip lying on the felt, seen at the camera's angle: an elliptical top and a striped edge */
   function chip3d(v) {
-    const st = CHIP_STYLE[v] || CHIP_STYLE[10];
+    const st = chipStyle(v);
     const edge = 'M1 12v6c0 7.2 9.4 12.6 21 12.6S43 25.2 43 18v-6Z';
     return '<svg viewBox="0 0 44 32" aria-hidden="true"><path d="' + edge + '" fill="' + st[0] + '"/>' +
       '<path d="M4.6 18.4v6.1M13.6 22.3v6.4M30.4 22.3v6.4M39.4 18.4v6.1" stroke="' + st[1] + '" stroke-width="3.6"/><path d="' + edge + '" fill="url(#batjack-cedge)"/>' +
       '<ellipse cx="22" cy="12" rx="21" ry="11.5" fill="' + st[0] + '" stroke="rgba(0,0,0,.35)" stroke-width=".6"/>' +
       '<ellipse cx="22" cy="12" rx="17.4" ry="9.5" fill="none" stroke="' + st[1] + '" stroke-width="3.4" stroke-dasharray="4.6 5.9"/>' +
       '<ellipse cx="22" cy="12" rx="12.4" ry="6.8" fill="' + st[0] + '" stroke="' + st[1] + '" stroke-width=".9"/>' +
-      '<text x="22" y="15.4" text-anchor="middle" transform="translate(0 4.6) scale(1 .62)" font-family="\'Chakra Petch\',\'Arial Narrow\',sans-serif" font-weight="700" font-size="' + (st[3].length > 2 ? 10 : 12) + '" fill="' + st[2] + '">' + st[3] + '</text>' +
+      '<text x="22" y="15.4" text-anchor="middle" transform="translate(0 4.6) scale(1 .62)" font-family="\'Chakra Petch\',\'Arial Narrow\',sans-serif" font-weight="700" font-size="' + (st[3].length > 3 ? 8.4 : st[3].length > 2 ? 10 : 12) + '" fill="' + st[2] + '">' + st[3] + '</text>' +
       '<ellipse cx="22" cy="12" rx="21" ry="11.5" fill="url(#batjack-cshine)"/></svg>';
   }
   /* break an amount into chips, largest first */
@@ -692,8 +694,8 @@
     const pp = Object.entries(M.PP).map(([k, v]) => '<tr><td>' + PP_NAME[k] + '</td><td>' + v + ' to 1</td></tr>').join('');
     const t3 = Object.entries(M.T3).map(([k, v]) => '<tr><td>' + T3_NAME[k] + '</td><td>' + v + ' to 1</td></tr>').join('');
     const liveTxt = '<h3>The live table</h3><p>Everyone online plays the same table at the same time, dealt by Barnaby. Betting is open for 15 seconds; then the cards come out. <b>Every player gets the same first two cards and the same dealer.</b> From there you play your own hand: hit, stand, double or split as you like. Your extra cards come from your own private order of the shoe, so nobody else\'s hit tells you anything, and your hand is exactly a normal blackjack hand dealt from a freshly shuffled six-deck shoe. Other players\' moves are hidden until the dealer plays.</p>' +
-      '<p>You have 20 seconds to decide (insurance gets 7 seconds before that when the dealer shows an ace); the ring round the timer and your seat counts it down. The dealer plays as soon as everyone has finished, or when the time runs out. Any hand still undecided then stands. One hand per player, with Perfect Pairs and 21+3 alongside. Main bet 10 to 10,000 BB, side bets up to 1,000 BB, in 10 BB chips.</p>';
-    return (B.online ? liveTxt : '<h3>The table</h3><p>Six decks, shuffled fresh for every round. Play one, two or three seats at once; each seat has its own main bet and its own optional side bets. Bets come in 10 BB chips: main bet 10 to 10,000 BB per seat, each side bet up to 1,000 BB. Practice hands have no clock: take your time.</p><p>Online, Bat Jack is a live table shared with every player.</p>') +
+      '<p>You have 20 seconds to decide (insurance gets 7 seconds before that when the dealer shows an ace); the ring round the timer and your seat counts it down. The dealer plays as soon as everyone has finished, or when the time runs out. Any hand still undecided then stands. One hand per player, with Perfect Pairs and 21+3 alongside. Bets go in steps of 10 BB with no table limit: bet as much as you like, up to your balance (the top chip can be set to any amount: tap it again).</p>';
+    return (B.online ? liveTxt : '<h3>The table</h3><p>Six decks, shuffled fresh for every round. Play one, two or three seats at once; each seat has its own main bet and its own optional side bets. Bets go in steps of 10 BB, from 10 BB, with no table limit: bet as much as you like, up to your balance. The top chip can be set to any amount: tap it again. Practice hands have no clock: take your time.</p><p>Online, Bat Jack is a live table shared with every player.</p>') +
       '<h3>Rules</h3><ul><li>Blackjack pays <b>3 to 2</b>.</li><li><b>Bat Jack</b>: a blackjack made of an ace and a <b>jack</b> (the bat card), any suits, pays <b>6 to 1</b>.</li>' +
       '<li>Dealer stands on all 17s (soft 17 included).</li><li>Dealer peeks for blackjack under an ace or a ten-value card. A dealer blackjack ends the round at once and you only lose your original bets; a player blackjack against it pushes.</li>' +
       '<li>Double down on any two cards, including after a split. One card on a double (dealt sideways).</li><li>Split any two cards of the same value, up to four hands per seat. Split aces get one card each and cannot be split again. A 21 made after a split is not a blackjack.</li>' +
@@ -712,9 +714,10 @@
 
   /* ============================== memory and sound ============================== */
   let S = null, G = null;
-  const mem = { chip: 2, last: null, advice: true, quick: false, hist: [] };
-  try { const raw = JSON.parse(localStorage.getItem(KEY) || 'null'); if (raw) { if (raw.chip >= 0 && raw.chip < M.CHIPS.length) mem.chip = raw.chip | 0; if (Array.isArray(raw.last)) mem.last = raw.last; mem.advice = raw.advice !== false; mem.quick = !!raw.quick; if (Array.isArray(raw.hist)) mem.hist = raw.hist.slice(0, 30); } } catch (e) { /* memory only */ }
-  const saveMem = () => { try { localStorage.setItem(KEY, JSON.stringify({ chip: mem.chip, last: mem.last, advice: mem.advice, quick: mem.quick, hist: mem.hist.slice(0, 30) })); } catch (e) { /* memory only */ } };
+  const mem = { chip: 2, custom: 5000, last: null, advice: true, quick: false, hist: [] };
+  try { const raw = JSON.parse(localStorage.getItem(KEY) || 'null'); if (raw) { if (raw.chip >= 0 && raw.chip < M.CHIPS.length) mem.chip = raw.chip | 0; if (Number.isInteger(raw.custom) && raw.custom >= M.LIMITS.mainMin && raw.custom <= B.MAX_BET && raw.custom % M.LIMITS.step === 0) mem.custom = raw.custom; if (Array.isArray(raw.last)) mem.last = raw.last; mem.advice = raw.advice !== false; mem.quick = !!raw.quick; if (Array.isArray(raw.hist)) mem.hist = raw.hist.slice(0, 30); } } catch (e) { /* memory only */ }
+  const chipVal = (i) => (i === M.CHIPS.length - 1 ? mem.custom : M.CHIPS[i]);
+  const saveMem = () => { try { localStorage.setItem(KEY, JSON.stringify({ chip: mem.chip, custom: mem.custom, last: mem.last, advice: mem.advice, quick: mem.quick, hist: mem.hist.slice(0, 30) })); } catch (e) { /* memory only */ } };
 
   const A = B.audio;
   const snd = {
@@ -890,7 +893,8 @@
       b.addEventListener('click', () => { B.audio.ensure(); fn(); }); return b;
     };
     el.chips = h('div', { class: 'bj-chips', role: 'radiogroup', 'aria-label': 'Chip value' });
-    M.CHIPS.forEach((v, i) => { const c = h('button', { type: 'button', class: 'bj-chip', role: 'radio', 'data-v': v, 'aria-label': fmt(v) + ' BB chip', html: chipSvg(v) }); c.addEventListener('click', () => { mem.chip = i; saveMem(); snd.chip(); paintChips(); }); el.chips.append(c); });
+    M.CHIPS.forEach((v, i) => { const c = h('button', { type: 'button', class: 'bj-chip', role: 'radio', 'data-v': v, 'aria-label': fmt(v) + ' BB chip', html: chipSvg(v) }); c.addEventListener('click', () => pickChip(i)); el.chips.append(c); });
+    paintTopChip();
     el.clear = btn('ghost', 'Clear', 'C', () => clearBets(), ICON.clear);
     el.undo = btn('ghost', 'Undo', 'U', () => undo(), ICON.undo);
     el.x2 = btn('ghost', '×2', 'X', () => doubleBets(), ICON.x2);
@@ -978,6 +982,14 @@
       void el.call.offsetWidth; el.call.classList.add('on');
       S.clear(callT); callT = S.timeout(() => el.call.classList.remove('on'), ms || 1500);
     }
+    /* The top chip is yours to set: tap it again (or press its key twice) to give it any value up to your balance. */
+    function pickChip(i) {
+      const top = i === M.CHIPS.length - 1;
+      if (top && mem.chip === i) { B.ui.amount({ title: 'Set your chip', action: 'Set chip', value: mem.custom, min: M.LIMITS.mainMin, step: M.LIMITS.step }).then((n) => { if (n && S && !S.dead) { mem.custom = n; saveMem(); snd.chip(); paintTopChip(); paintChips(); } }); return; }
+      if (top && !mem.tipped) { mem.tipped = true; B.ui.toast('Tap the top chip again to set it to any amount.'); }
+      mem.chip = i; saveMem(); snd.chip(); paintChips();
+    }
+    function paintTopChip() { const c = el.chips.lastChild; c.innerHTML = chipSvg(mem.custom); c.dataset.v = mem.custom; c.setAttribute('aria-label', fmt(mem.custom) + ' BB chip (tap again to change)'); }
     function paintChips() { [...el.chips.children].forEach((c, i) => { c.classList.toggle('on', i === mem.chip); c.setAttribute('aria-checked', i === mem.chip ? 'true' : 'false'); }); }
     function paintToggles() { el.quick.setAttribute('aria-pressed', mem.quick ? 'true' : 'false'); el.advice.setAttribute('aria-pressed', mem.advice ? 'true' : 'false'); }
     function paintSpot(sp, n, drop) {
@@ -1269,7 +1281,7 @@
       if (g.phase !== 'bet' || g.busy) return;
       if (live && i !== 1) return;
       B.audio.ensure();
-      const v = M.CHIPS[mem.chip], b = g.bets[i];
+      const v = chipVal(mem.chip), b = g.bets[i];
       if (k !== 'main' && !b.main) { B.ui.toast('Put a main bet on seat ' + (i + 1) + ' first.'); B.sfx('click'); return; }
       const cap = k === 'main' ? M.LIMITS.mainMax : M.LIMITS.sideMax;
       if (b[k] >= cap) { B.ui.toast((k === 'main' ? 'Main bets' : 'Side bets') + ' are up to ' + fmt(cap) + ' BB.'); return; }
@@ -1844,7 +1856,7 @@
           : g.phase === 'insurance' ? { i: () => insure(true), y: () => insure(true), n: () => insure(false), ' ': () => insure(false) } : {};
       if (k === 'a') { el.advice.click(); return; }
       if (k === 'q') { el.quick.click(); return; }
-      if (g.phase === 'bet' && k >= '1' && k <= '6') { mem.chip = +k - 1; saveMem(); snd.chip(); paintChips(); return; }
+      if (g.phase === 'bet' && k >= '1' && k <= '6') { pickChip(+k - 1); return; }
       if (map[k]) { e.preventDefault(); B.audio.ensure(); map[k](); }
       else if (g.busy && (k === ' ' || k === 'enter')) { e.preventDefault(); g.hurry = true; }
     });

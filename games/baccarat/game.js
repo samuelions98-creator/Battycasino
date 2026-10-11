@@ -8,8 +8,8 @@
   const DECKS = 8, SHOE_N = 416;
   const CHIPS = [2000, 5000, 10000, 25000, 50000, 100000, 250000];
   const SPOTS = ['P', 'B', 'T', 'PP', 'BP', 'PD', 'BD'];
-  const LIMIT = { P: 2500000, B: 2500000, T: 250000, PP: 100000, BP: 100000, PD: 100000, BD: 100000 };
-  const MAX_WIN = 10500000;
+  const LIMIT = { P: 1e9, B: 1e9, T: 1e9, PP: 1e9, BP: 1e9, PD: 1e9, BD: 1e9 };   // no table limits: any bet up to the 1,000,000,000 BB ceiling
+  const MAX_WIN = 1e11;   // a safety net only
   const MIN_LEVEL = 5;
   /* the table clock in seconds (identical in PHP) */
   const T = { BET: 12, SHUFFLE: 7, BASE: 7.6, THIRD: 2.2, END: 0.4, REST: 3 };
@@ -82,7 +82,7 @@
     for (const k in bets) {
       const v = bets[k];
       if (!SPOTS.includes(k)) return 'Unknown bet spot';
-      if (!Number.isInteger(v) || v < CHIPS[0] || v % 1000 !== 0 || v === 3000) return 'Bets are made with the table chips';
+      if (!Number.isInteger(v) || v < CHIPS[0] || v % 1000 !== 0) return 'Bets are whole thousands, from 2,000 BB';
       if (v > LIMIT[k]) return 'That spot is at its table limit';
     }
     if (bets.P != null && bets.B != null) return 'Back the Player or the Banker, not both';
@@ -142,6 +142,8 @@
     25000: ['#13704a', '#f3d98b', '#eafff3', '25K'], 50000: ['#121016', '#d9b25f', '#f3d98b', '50K'], 100000: ['#5b1f86', '#f0c8ff', '#ffffff', '100K'],
     250000: ['#d6a93e', '#2a0a3a', '#2a0a3a', '250K'],
   };
+  /* Any amount wears the colours of the biggest chip it covers, with its own label (the top chip can be set to any value). */
+  const chipStyle = (v) => { if (CHIP_STYLE[v]) return CHIP_STYLE[v]; let k = 2000; for (const c in CHIP_STYLE) if (+c <= v) k = +c; const st = CHIP_STYLE[k].slice(); st[3] = B.fmtChip(v); return st; };
 
   /* ============================== cards ============================== */
   const SUIT = {
@@ -210,7 +212,7 @@
 
   /* ============================== chips ============================== */
   function chipSvg(v, size) {
-    const st = CHIP_STYLE[v] || CHIP_STYLE[2000], fs = st[3].length > 3 ? 8.6 : 10.5;
+    const st = chipStyle(v), fs = st[3].length > 4 ? 7.6 : st[3].length > 3 ? 8.6 : 10.5;
     return '<svg viewBox="0 0 40 40" width="' + (size || 40) + '" height="' + (size || 40) + '" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="' + st[0] + '" stroke="rgba(0,0,0,.45)" stroke-width="1"/>' +
       '<circle cx="20" cy="20" r="16" fill="none" stroke="' + st[1] + '" stroke-width="5" stroke-dasharray="5.2 7.4"/>' +
       '<circle cx="20" cy="20" r="11.5" fill="' + st[0] + '" stroke="' + st[1] + '" stroke-width="1.2"/>' +
@@ -219,7 +221,7 @@
   }
   /* a chip lying on the velvet, seen at the camera's angle */
   function chip3d(v) {
-    const st = CHIP_STYLE[v] || CHIP_STYLE[2000], fs = st[3].length > 3 ? 9 : 11;
+    const st = chipStyle(v), fs = st[3].length > 4 ? 8 : st[3].length > 3 ? 9 : 11;
     const edge = 'M1 12v6c0 7.2 9.4 12.6 21 12.6S43 25.2 43 18v-6Z';
     return '<svg viewBox="0 0 44 32" aria-hidden="true"><path d="' + edge + '" fill="' + st[0] + '"/>' +
       '<path d="M4.6 18.4v6.1M13.6 22.3v6.4M30.4 22.3v6.4M39.4 18.4v6.1" stroke="' + st[1] + '" stroke-width="3.6"/><path d="' + edge + '" fill="url(#baccarat-cedge)"/>' +
@@ -556,13 +558,13 @@
       '<tr><td>Tie</td><td>8 to 1</td><td>' + fmt(M.LIMIT.T) + '</td></tr>' +
       '<tr><td>Player Pair / Banker Pair</td><td>11 to 1 when that side\'s first two cards share a rank</td><td>' + fmt(M.LIMIT.PP) + '</td></tr>' +
       '<tr><td>Player Dragon / Banker Dragon</td><td>see below</td><td>' + fmt(M.LIMIT.PD) + '</td></tr></table>' +
-      '<p>You may back the Player or the Banker on a hand, not both. Bets are made with the table chips (2K to 250K), so every bet is at least 2,000 BB.</p>' +
+      '<p>You may back the Player or the Banker on a hand, not both. Every bet is a whole number of thousands from 2,000 BB, and there is no table limit: bet as much as you like, up to your balance (the ceiling is 1,000,000,000 BB on a spot). The chips run from 2K to 250K, and the top chip can be set to any amount: tap it again.</p>' +
       '<h3>Dragon Bonus</h3><p>A side bet that your side wins well. Natural win: 1 to 1. Natural tie: stake returned. Any other win by 9 points pays 30 to 1, by 8 pays 10 to 1, by 7 pays 6 to 1, by 6 pays 4 to 1, by 5 pays 2 to 1, by 4 pays 1 to 1. Anything else loses.</p>' +
       '<h3>The roads</h3><p>The scoreboard keeps this shoe\'s results the classic ways. <b>Bead Plate</b>: every hand in order, down the columns (blue P, red B, green T; small dots mark pairs). <b>Big Road</b>: a new column every time the winner changes, with ties as a green stroke and a long streak turning right along the bottom (the dragon\'s tail). <b>Big Eye Boy</b>, <b>Small Road</b> and <b>Cockroach Pig</b> read the Big Road one, two and three columns back: red when it is repeating its own pattern, blue when it breaks it. Tap <b>B?</b> or <b>P?</b> to see what each road would show after a Banker or a Player win. The roads are for fun: every hand is independent.</p>' +
       '<h3>Controls</h3><p>Pick a chip and tap a betting spot; Undo takes the last chip back and a right-click clears a spot. Keys: <b>1</b>–<b>7</b> chips, <b>U</b> undo, <b>C</b> clear, <b>X</b> double, <b>R</b> rebet, ' + (B.online ? '' : '<b>Space</b> deal, ') + '<b>S</b> skip, <b>T</b> turbo.</p>' +
       '<h3>Return</h3><table><tr><th>Bet</th><th>Return</th><th>Wins</th></tr>' +
       ['P', 'B', 'T', 'PP', 'PD', 'BD'].map((k) => '<tr><td>' + (k === 'PP' ? 'Player or Banker Pair' : SPOT_NAME[k]) + '</td><td>' + pct(R[k].rtp) + '</td><td>' + pct(R[k].hit) + '</td></tr>').join('') + '</table>' +
-      '<p class="rtp">Exact returns for a full eight-deck shoe (every hand enumerated), confirmed by 10,000,000 simulated hands dealt from persisted shoes with the cut card and burn: Banker ' + pct(R.B.rtp) + ', Player ' + pct(R.P.rtp) + ', Player Dragon ' + pct(R.PD.rtp) + ', Banker Dragon ' + pct(R.BD.rtp) + ', pairs ' + pct(R.PP.rtp) + ', Tie ' + pct(R.T.rtp) + '. A tie happens in ' + pct(R.T.hit) + ' of hands. Maximum win ' + fmt(M.MAX_WIN) + ' BB on one hand (the most the table limits allow).</p>' +
+      '<p class="rtp">Exact returns for a full eight-deck shoe (every hand enumerated), confirmed by 10,000,000 simulated hands dealt from persisted shoes with the cut card and burn: Banker ' + pct(R.B.rtp) + ', Player ' + pct(R.P.rtp) + ', Player Dragon ' + pct(R.PD.rtp) + ', Banker Dragon ' + pct(R.BD.rtp) + ', pairs ' + pct(R.PP.rtp) + ', Tie ' + pct(R.T.rtp) + '. A tie happens in ' + pct(R.T.hit) + ' of hands. There is no maximum win: every bet pays in full.</p>' +
       '<p>Batty Bucks are play money. They have no cash value and cannot be bought, sold or cashed out.</p>';
   }
 
@@ -656,9 +658,10 @@
 
   /* ============================== the game ============================== */
   let S = null, G = null;
-  const mem = { chip: 1, last: null, turbo: false, road: [], hist: [] };
-  try { const raw = JSON.parse(localStorage.getItem(KEY) || 'null'); if (raw) { if (raw.chip >= 0 && raw.chip < M.CHIPS.length) mem.chip = raw.chip | 0; if (raw.last && typeof raw.last === 'object') mem.last = raw.last; mem.turbo = !!raw.turbo; } } catch (e) { /* memory only */ }
-  const saveMem = () => { try { localStorage.setItem(KEY, JSON.stringify({ chip: mem.chip, last: mem.last, turbo: mem.turbo })); } catch (e) { /* memory only */ } };
+  const mem = { chip: 1, custom: 250000, last: null, turbo: false, road: [], hist: [] };
+  try { const raw = JSON.parse(localStorage.getItem(KEY) || 'null'); if (raw) { if (raw.chip >= 0 && raw.chip < M.CHIPS.length) mem.chip = raw.chip | 0; if (Number.isInteger(raw.custom) && raw.custom >= M.CHIPS[0] && raw.custom <= B.MAX_BET && raw.custom % 1000 === 0) mem.custom = raw.custom; if (raw.last && typeof raw.last === 'object') mem.last = raw.last; mem.turbo = !!raw.turbo; } } catch (e) { /* memory only */ }
+  const chipVal = (i) => (i === M.CHIPS.length - 1 ? mem.custom : M.CHIPS[i]);
+  const saveMem = () => { try { localStorage.setItem(KEY, JSON.stringify({ chip: mem.chip, custom: mem.custom, last: mem.last, turbo: mem.turbo })); } catch (e) { /* memory only */ } };
   const sum = (bets) => Object.keys(bets).reduce((a, k) => a + (bets[k] || 0), 0);
   const clean = (bets) => { const o = {}; for (const k of M.SPOTS) if (bets && bets[k] > 0) o[k] = bets[k]; return o; };
   const esc = (s) => String(s == null ? '' : s).replace(/[<>&"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c]));
@@ -785,7 +788,8 @@
       b.addEventListener('click', () => { B.audio.ensure(); fn(); }); return b;
     };
     el.chips = h('div', { class: 'vb-chips', role: 'radiogroup', 'aria-label': 'Chip value' });
-    M.CHIPS.forEach((v, i) => { const c = h('button', { type: 'button', class: 'vb-chip', role: 'radio', 'data-v': v, 'aria-label': fmt(v) + ' BB chip', html: chipSvg(v) }); c.addEventListener('click', () => { mem.chip = i; saveMem(); snd.chip(); paintChips(); }); el.chips.append(c); });
+    M.CHIPS.forEach((v, i) => { const c = h('button', { type: 'button', class: 'vb-chip', role: 'radio', 'data-v': v, 'aria-label': fmt(v) + ' BB chip', html: chipSvg(v) }); c.addEventListener('click', () => pickChip(i)); el.chips.append(c); });
+    paintTopChip();
     el.undo = btn('ghost', 'Undo', 'U', () => undo(), ICON.undo);
     el.clear = btn('ghost', 'Clear', 'C', () => clearBets(), ICON.clear);
     el.x2 = btn('ghost', 'Double', 'X', () => doubleBets(), ICON.x2);
@@ -874,6 +878,14 @@
       void el.call.offsetWidth; el.call.classList.add('on');
       S.clear(callT); callT = S.timeout(() => el.call.classList.remove('on'), ms || 1500);
     }
+    /* The top chip is yours to set: tap it again (or press its key twice) to give it any value up to your balance. */
+    function pickChip(i) {
+      const top = i === M.CHIPS.length - 1;
+      if (top && mem.chip === i) { B.ui.amount({ title: 'Set your chip', action: 'Set chip', value: mem.custom, min: M.CHIPS[0], step: 1000 }).then((n) => { if (n && S && !S.dead) { mem.custom = n; saveMem(); snd.chip(); paintTopChip(); paintChips(); } }); return; }
+      if (top && !mem.tipped) { mem.tipped = true; B.ui.toast('Tap the top chip again to set it to any amount.'); }
+      mem.chip = i; saveMem(); snd.chip(); paintChips();
+    }
+    function paintTopChip() { const c = el.chips.lastChild; c.innerHTML = chipSvg(mem.custom); c.dataset.v = mem.custom; c.setAttribute('aria-label', fmt(mem.custom) + ' BB chip (tap again to change)'); }
     function paintChips() { [...el.chips.children].forEach((c, i) => { c.classList.toggle('on', i === mem.chip); c.setAttribute('aria-checked', i === mem.chip ? 'true' : 'false'); }); }
     function paintToggles() { el.turbo.setAttribute('aria-pressed', mem.turbo ? 'true' : 'false'); }
     function paintSpot(k, n, drop) {
@@ -1036,7 +1048,7 @@
     function addChip(k) {
       if (g.phase !== 'bet' || g.busy) return;
       B.audio.ensure();
-      const v = M.CHIPS[mem.chip], cur = g.bets[k] || 0, cap = M.LIMIT[k];
+      const v = chipVal(mem.chip), cur = g.bets[k] || 0, cap = M.LIMIT[k];
       if ((k === 'P' && g.bets.B) || (k === 'B' && g.bets.P)) { B.ui.toast('Back the Player or the Banker, not both.'); B.sfx('click'); return; }
       if (cur >= cap) { B.ui.toast(SPOT_NAME[k] + ' is at its table limit of ' + fmt(cap) + ' BB.'); return; }
       const add = Math.min(v, cap - cur);
@@ -1527,7 +1539,7 @@
       if (k === 't') { el.turbo.click(); return; }
       if (g.phase === 'play' && (k === ' ' || k === 's' || k === 'enter')) { e.preventDefault(); doSkip(); return; }
       if (g.phase !== 'bet') return;
-      if (k >= '1' && k <= '7') { mem.chip = +k - 1; saveMem(); snd.chip(); paintChips(); return; }
+      if (k >= '1' && k <= '7') { pickChip(+k - 1); return; }
       const map = { u: undo, c: clearBets, x: doubleBets, r: rebet, ' ': deal, enter: deal };
       if (map[k]) { e.preventDefault(); B.audio.ensure(); map[k](); }
     });

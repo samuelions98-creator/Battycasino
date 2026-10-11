@@ -3,7 +3,7 @@
    round on seeded RNGs by tools/vault-xcheck.js), plus the server action play_vault(). High Roller Lounge: level 5 and up,
    its own stake ladder (VAULT_STAKES).
 
-   Amounts are in units: 1 unit = stake / 100 (every stake on the ladder is a multiple of 100). 20 lines, line bet = 5 units.
+   Amounts are in units: 1 unit = stake / 100 (every stake is a multiple of 100, so wins are exact). 20 lines, line bet = 5 units.
 
    A round is either one request or two:
      op 'spin'  {stake}         a base spin, drawn through rtp_pick and settled at once with round_quick... unless 3+ Crimson
@@ -215,7 +215,7 @@ function play_vault(array &$u, string $op, array $in): array {
         /* a vault already waiting for its choice comes back instead of a new spin (nothing is charged) */
         $open = round_get_open($u, 'vault');
         if ($open) return ['resume' => vault_open_view($open)];
-        $stake = stake_of($in, VAULT_STAKES);
+        $stake = stake_of($in, VAULT_STAKES, 100);
         $buy = null;
         if (array_key_exists('buy', $in) && $in['buy'] !== null) $buy = in_int($in, 'buy', 0, 1);
         $cost = $buy === null ? $stake : VT_BUY_PRICE[$buy] * $stake;

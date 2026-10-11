@@ -238,7 +238,7 @@
   let S = null, game = null;
 
   /* survives leaving and coming back (per page load) */
-  const SESSION = { balls: 0, staked: 0, won: 0, bestX: 0, bestBB: 0, rows: 12, risk: 'med', stakeI: 0 };
+  const SESSION = { balls: 0, staked: 0, won: 0, bestX: 0, bestBB: 0, rows: 12, risk: 'med', stake: 20 };
 
   const TAU = Math.PI * 2;
   const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
@@ -278,7 +278,7 @@
   function create(root, S) {
     const dev = devFlag(), devForce = dev && !Batty.online;
     const reduce = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
-    let rows = SESSION.rows, risk = SESSION.risk, stakeI = SESSION.stakeI;
+    let rows = SESSION.rows, risk = SESSION.risk, stake0 = SESSION.stake;
     let table = M.TABLES[rows][risk];
     const batSvg = '<svg viewBox="0 0 120 58" aria-hidden="true"><path d="' + Batty.batPath + '"/><circle cx="55.5" cy="20" r="2.2"/><circle cx="64.5" cy="20" r="2.2"/></svg>';
 
@@ -344,10 +344,12 @@
     const segRisk = seg('Risk', M.RISKS.map((r) => ({ v: r, t: M.RISK_NAMES[r] })), risk, (v) => setConfig(rows, v));
     const cfg = h('div', { class: 'g-plachinko-cfg' }, segRows.el, segRisk.el);
 
-    const stakeOut = h('output', { 'aria-live': 'polite' });
+    const stakeOut = h('output', { 'aria-live': 'polite', role: 'button', tabindex: '0', title: 'Tap to type any stake' });
     const stMinus = h('button', { type: 'button', 'aria-label': 'Lower stake per ball', onclick: () => moveStake(-1) }, '−');
     const stPlus = h('button', { type: 'button', 'aria-label': 'Raise stake per ball', onclick: () => moveStake(1) }, '+');
     const stakeBox = h('div', { class: 'g-plachinko-stake' }, stMinus, stakeOut, stPlus);
+    const askStake = () => Batty.ui.amount({ title: 'Stake per ball', value: stake0, min: M.STAKES[0], step: 20 }).then((n) => { if (n) setStake(n); });
+    stakeOut.addEventListener('click', askStake); stakeOut.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); askStake(); } });
     const AUTO_N = [25, 50, 100, 250, 500, 0];
     const autoLbl = h('b', null, 'AUTO'), autoSub = h('small', null, 'stream');
     const autoBtn = h('button', { type: 'button', class: 'g-plachinko-auto', 'aria-pressed': 'false', 'aria-haspopup': 'true', 'aria-expanded': 'false', 'aria-label': 'Auto drop', onclick: (e) => { e.stopPropagation(); autoClick(); } }, autoLbl, autoSub);
@@ -854,7 +856,7 @@
     /* ================= firing ================= */
     function fire() {
       if (celebrating || !S || S.dead || !G.ok) return 0;
-      const stake = M.STAKES[stakeI], now = performance.now();
+      const stake = stake0, now = performance.now();
       if (W.balance - inFlight < stake || nFree - netQ.length < 4) {
         if (busy()) return -1;                       // wait for what is still in the air to land
         stopStream();
@@ -981,13 +983,18 @@
     });
 
     function moveStake(d) {
-      const n = clamp(stakeI + d, 0, M.STAKES.length - 1); if (n === stakeI) return;
-      stakeI = SESSION.stakeI = n; Batty.sfx('chip'); paintStake();
+      const L = Batty.ladderOf(M.STAKES), n = d > 0 ? L.find((x) => x > stake0) : L.slice().reverse().find((x) => x < stake0);
+      if (n !== undefined) setStake(n);
+    }
+    /* any stake from 20 BB per ball, in steps of 20 (the − / + buttons step through the quick ladder; tap the amount to type one) */
+    function setStake(n) {
+      if (n === stake0) return;
+      stake0 = SESSION.stake = n; Batty.sfx('chip'); paintStake();
       stakeBox.classList.remove('bump'); void stakeBox.offsetWidth; stakeBox.classList.add('bump');
     }
     function paintStake() {
-      stakeOut.innerHTML = fmt(M.STAKES[stakeI]) + '<small>BB per ball</small>';
-      stMinus.disabled = stakeI === 0; stPlus.disabled = stakeI === M.STAKES.length - 1;
+      stakeOut.innerHTML = Batty.fmtShort(stake0) + '<small>BB per ball</small>';
+      stMinus.disabled = stake0 <= M.STAKES[0]; stPlus.disabled = stake0 >= Batty.MAX_BET;
     }
     function setConfig(r, k) {
       if (busy()) { Batty.ui.toast('Rows and risk unlock when the board is clear.'); return; }
@@ -1485,7 +1492,7 @@
         const disp = Math.round(trayShown);
         if (disp !== vTrayDisp) {
           vTrayDisp = disp; trayOut.textContent = fmt(disp); trayEl.classList.toggle('has', disp > 0);
-          const n = disp > 0 ? clamp(Math.ceil(Math.log2(1 + disp / M.STAKES[stakeI]) * 1.7), 1, 12) : 0;
+          const n = disp > 0 ? clamp(Math.ceil(Math.log2(1 + disp / stake0) * 1.7), 1, 12) : 0;
           if (n !== vPile) { vPile = n; for (let i = 0; i < 12; i++) pileBalls[i].classList.toggle('on', i < n); }
         }
       }
@@ -1507,7 +1514,7 @@
     }
     function pour(amount) {
       trayEl.classList.remove('pour'); void trayEl.offsetWidth; trayEl.classList.add('pour');
-      const stake = M.STAKES[stakeI], r = amount / stake;
+      const stake = stake0, r = amount / stake;
       if (r >= 1) { Batty.sfx('coin'); sPour(clamp(Math.round(2 + Math.log2(r)), 2, 8)); if (!reduce) Batty.fx.burst({ el: trayOut, kind: 'coin', count: clamp(Math.round(3 + Math.log2(1 + r) * 3), 3, 26), power: 0.5 }); }
       else A.tone({ f: 1700, d: 0.05, type: 'triangle', v: 0.03 });
     }
@@ -1564,7 +1571,7 @@
         flood(n, ms) { const t0 = performance.now(); let k = 0; const id = S.interval(() => { const want = Math.min(n, Math.ceil((performance.now() - t0) / (ms || 1) * n)); while (k < want) { k++; fire(); } if (k >= n) S.clear(id); }, 8); },
         state() {
           return { active: nAct, peak: perf.peak, inFlight, tray: Math.max(0, W.balance - W.shown - inFlight), balls: SESSION.balls, staked: SESSION.staked, won: SESSION.won,
-            balance: W.balance, shown: W.shown, reelQ: reelQ.length, reelBusy, fevers: fevers.length, tulipRuns, auto, autoLeft, streaming: streaming(), busy: busy(), rows, risk, stake: M.STAKES[stakeI], attract, theme, wide: G.wide };
+            balance: W.balance, shown: W.shown, reelQ: reelQ.length, reelBusy, fevers: fevers.length, tulipRuns, auto, autoLeft, streaming: streaming(), busy: busy(), rows, risk, stake: stake0, attract, theme, wide: G.wide };
         },
         perfReset() { perf.n = 0; perf.sumDt = 0; perf.maxDt = 0; perf.sumJs = 0; perf.maxJs = 0; perf.peak = nAct; },
         perf() { return { frames: perf.n, avgFrameMs: perf.n ? perf.sumDt / perf.n : 0, maxFrameMs: perf.maxDt, avgJsMs: perf.n ? perf.sumJs / perf.n : 0, maxJsMs: perf.maxJs, peakBalls: perf.peak }; },

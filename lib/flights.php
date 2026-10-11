@@ -129,7 +129,7 @@ function moon_shared_bet(array &$u, array $in): array {
         if ($slot !== 'A' || !$card['free']) throw new ApiError('No free flight on your card.');
         $stake = (int) array_shift($card['free']); $prem = 0; $cost = 0; $free = true;
     } else {
-        $stake = in_int($in, 'stake', 1, 1000000); if (!in_array($stake, $D['STAKES'], true)) throw new ApiError('That stake is not on offer.');
+        $stake = in_int($in, 'stake', 1, MAX_BET); if (!stake_ok($stake, $D['STAKES'], 100)) throw new ApiError('Stakes go up in steps of 100 BB, from ' . number_format($D['STAKES'][0]) . ' BB.');
         $prem = !empty($in['insured']) ? ms_premium($stake) : 0; $cost = $stake + $prem; $free = false;
     }
     if ($u['balance'] < $cost) throw new ApiError('Not enough Batty Bucks.', 402);

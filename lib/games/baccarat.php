@@ -13,8 +13,8 @@ const BAC_DECKS = 8;
 const BAC_SHOE_N = 416;
 const BAC_CHIPS = [2000, 5000, 10000, 25000, 50000, 100000, 250000];   // the High Roller stake ladder, as chips
 const BAC_SPOTS = ['P', 'B', 'T', 'PP', 'BP', 'PD', 'BD'];
-const BAC_LIMIT = ['P' => 2500000, 'B' => 2500000, 'T' => 250000, 'PP' => 100000, 'BP' => 100000, 'PD' => 100000, 'BD' => 100000];
-const BAC_MAX_WIN = 10500000;            // per hand; the table limits keep every real hand below it
+const BAC_LIMIT = ['P' => MAX_BET, 'B' => MAX_BET, 'T' => MAX_BET, 'PP' => MAX_BET, 'BP' => MAX_BET, 'PD' => MAX_BET, 'BD' => MAX_BET];   // no table limits: any bet up to MAX_BET
+const BAC_MAX_WIN = 100000000000;        // per hand; a safety net only (MAX_BET on every spot wins under 70,000,000,000)
 const BAC_MIN_LEVEL = 5;
 /* the table clock, in seconds (identical in the JS) */
 const BAC_BET_S = 12.0;      // betting window
@@ -87,12 +87,12 @@ function bac_settle(array $bets, array $h): array {
     }
     return ['total' => min($total, BAC_MAX_WIN), 'by' => $by];
 }
-/* null when the bets are legal, otherwise why not. Chips only: every amount is a sum of ladder chips. */
+/* null when the bets are legal, otherwise why not. A spot holds any whole number of thousands from 2,000 (the player's top chip can be any such amount). */
 function bac_check($bets): ?string {
     if (!is_array($bets)) return 'Bad bets';
     foreach ($bets as $k => $v) {
         if (!in_array($k, BAC_SPOTS, true)) return 'Unknown bet spot';
-        if (!is_int($v) || $v < BAC_CHIPS[0] || $v % 1000 !== 0 || $v === 3000) return 'Bets are made with the table chips';
+        if (!is_int($v) || $v < BAC_CHIPS[0] || $v % 1000 !== 0) return 'Bets are whole thousands, from 2,000 BB';
         if ($v > BAC_LIMIT[$k]) return 'That spot is at its table limit';
     }
     if (isset($bets['P'], $bets['B'])) return 'Back the Player or the Banker, not both';

@@ -205,6 +205,19 @@ button:disabled { cursor: not-allowed; }
 .bc-stake button:hover:not(:disabled) { background: rgba(255, 255, 255, .14); }
 .bc-stake button:disabled { opacity: .35; }
 .bc-stake output { min-width: 92px; text-align: center; font-family: var(--f-num); font-weight: 700; font-size: 17px; font-variant-numeric: tabular-nums; line-height: 1.05; }
+.bc-stake output[role=button] { cursor: pointer; border-radius: 10px; padding: 2px 4px; }
+.bc-stake output[role=button]:hover:not([aria-disabled=true]) { background: rgba(255, 255, 255, .08); }
+.bc-stake output[aria-disabled=true] { cursor: default; }
+.bc-amt { display: grid; gap: 12px; }
+.bc-amt input { width: 100%; box-sizing: border-box; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(255, 215, 106, .45); background: rgba(0, 0, 0, .35); color: var(--ink); font-family: var(--f-num); font-weight: 700; font-size: 26px; text-align: center; font-variant-numeric: tabular-nums; }
+.bc-amt input:focus { outline: 2px solid var(--moon); outline-offset: 1px; }
+.bc-amt .bc-amt-say { margin: 0; text-align: center; font-size: 13px; color: var(--mute); min-height: 1.3em; }
+.bc-amt .bc-amt-say.bad { color: #ff8a8a; }
+.bc-amt-quick { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.bc-amt-quick button { padding: 9px 6px; border-radius: 10px; background: var(--glass); border: 1px solid var(--line); color: var(--ink); font-weight: 800; font-size: 13px; }
+.bc-amt-quick button:hover { background: rgba(255, 255, 255, .14); }
+.bc-amt-quick button.max { border-color: rgba(255, 215, 106, .6); color: var(--moon); }
+.bc-amt .bc-btn { width: 100%; }
 .bc-stake output small { display: block; font-family: var(--f-body); font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--mute); font-weight: 700; }
 
 .bc-toasts { position: fixed; left: 0; right: 0; top: calc(var(--bar-h) + env(safe-area-inset-top, 0px) + 10px); z-index: 90; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; padding-inline: 16px; }
@@ -425,8 +438,8 @@ button:disabled { cursor: not-allowed; }
 <link rel="stylesheet" href="games/bunky/style.css?v=20261011g">
 <link rel="stylesheet" href="games/olympus/style.css?v=20261009b">
 <link rel="stylesheet" href="games/fishing/style.css?v=20261009b">
-<link rel="stylesheet" href="games/plachinko/style.css?v=20261009b">
-<link rel="stylesheet" href="games/moonshot/style.css?v=20261011q">
+<link rel="stylesheet" href="games/plachinko/style.css?v=20261011u">
+<link rel="stylesheet" href="games/moonshot/style.css?v=20261011u">
 <link rel="stylesheet" href="games/ultraheist/style.css?v=20261009b">
 <link rel="stylesheet" href="games/batjack/style.css?v=20261010a">
 <link rel="stylesheet" href="games/bonanza/style.css?v=20261011s">
@@ -501,11 +514,18 @@ window.Batty = (function () {
      Two modes. Practice (no server): the balance lives in this browser. Online (api.php answered): the server owns the
      balance; bet() books the stake as "pending" until the server's reply arrives with the authoritative balance. */
   const STAKES = [20, 40, 100, 200, 400, 1000, 2000, 5000, 10000];
+  /* Players may bet any amount they can afford. MAX_BET is a technical ceiling (the server's too): it keeps the biggest
+     wins exactly representable. BIG_STEPS extend each game's stake ladder so the − / + buttons reach it. */
+  const MAX_BET = 1e9;
+  const BIG_STEPS = [20000, 25000, 50000, 100000, 250000, 500000, 1e6, 2.5e6, 5e6, 1e7, 2.5e7, 5e7, 1e8, 2.5e8, 5e8, 1e9];
+  const ladderOf = (base) => base.concat(BIG_STEPS.filter((v) => v > base[base.length - 1]));
   const subs = new Set();
   let shown = state.bal;
   const srv = { on: false, bal: 0, ver: -1, pending: 0, level: 1, xp: 0, me: null, site: null };
   const statOf = (id) => state.stats[id] || (state.stats[id] = { rounds: 0, wagered: 0, won: 0, best: 0 });
   const levelFloor = (L) => Math.round(10000 * Math.pow(L - 1, 1.6));
+  /* level rewards stop growing at level 100 (REWARD_LEVEL_CAP in lib/wallet.php): one huge bet can climb hundreds of levels */
+  const rewardLevel = (L) => Math.min(L, 100);
   const realBal = () => (srv.on ? srv.bal - srv.pending : state.bal);
   function emit() { if (!srv.on) save(); subs.forEach((f) => { try { f(shown, realBal()); } catch (e) { console.error(e); } }); }
   const deferred = [];
@@ -524,11 +544,11 @@ window.Batty = (function () {
       if (srv.on) { srv.pending += amount; shown -= amount; emit(); return true; }
       state.bal -= amount; shown -= amount;
       const s = statOf(id); s.rounds++; s.wagered += amount; state.wagered += amount;
-      while (state.wagered >= levelFloor(state.level + 1)) {
-        state.level++;
-        const gift = 500 * state.level;
+      const from = state.level; let gift = 0;
+      while (state.wagered >= levelFloor(state.level + 1)) { state.level++; gift += 500 * rewardLevel(state.level); }
+      if (state.level > from) {   // one toast however many levels this bet climbed
         state.bal += gift; shown += gift;
-        setTimeout(() => { ui.toast('Level ' + state.level + '! +' + fmt(gift) + ' Batty Bucks'); sfx('level'); }, 400);
+        const L = state.level; setTimeout(() => { ui.toast('Level ' + L + '! +' + fmt(gift) + ' Batty Bucks'); sfx('level'); }, 400);
       }
       emit(); return true;
     },
@@ -610,7 +630,7 @@ window.Batty = (function () {
   }
 
   const CLAIM_MS = 60 * 60 * 1000;
-  const claimAmount = () => (srv.on && srv.me ? srv.me.claimAmount : 2500 + 250 * (state.level - 1));
+  const claimAmount = () => (srv.on && srv.me ? srv.me.claimAmount : 2500 + 250 * (rewardLevel(state.level) - 1));
   let claimAt = 0;
   const claimReadyIn = () => (srv.on ? Math.max(0, claimAt - Date.now()) : Math.max(0, state.lastClaim + CLAIM_MS - Date.now()));
   async function claim() {
@@ -684,6 +704,10 @@ window.Batty = (function () {
   /* ---------- formatting ---------- */
   const nf = new Intl.NumberFormat('en-GB', { maximumFractionDigits: 0 });
   const fmt = (n) => nf.format(Math.round(n));
+  /* compact amounts for tight spots: 250K, 1.5M, 1B (exact below 100,000) */
+  /* chip faces: 500, 5K, 2.5M, 1B */
+  const fmtChip = (n) => { const t = (x) => String(Math.round(x * 100) / 100); return n >= 1e9 ? t(n / 1e9) + 'B' : n >= 1e6 ? t(n / 1e6) + 'M' : n >= 1e3 ? t(n / 1e3) + 'K' : String(n); };
+  const fmtShort = (n) => { const t = (x) => String(Math.round(x * 100) / 100); return n >= 1e9 ? t(n / 1e9) + 'B' : n >= 1e6 ? t(n / 1e6) + 'M' : n >= 1e5 ? t(n / 1e3) + 'K' : fmt(n); };
   const fmtX = (x) => (x >= 100 ? Math.round(x) : x >= 10 ? Math.round(x * 10) / 10 : Math.round(x * 100) / 100) + '×';
 
   /* ---------- audio (all synthesised, nothing to download) ---------- */
@@ -907,18 +931,72 @@ window.Batty = (function () {
       });
     },
     /* Stake picker. stake(container, {id, stakes?, onChange?}) -> {value, disabled} */
+    /* The stake control. − / + step through the game's ladder (extended up to MAX_BET); tapping the amount lets the
+       player type any stake (a multiple of o.step, default 20, from the ladder's first entry) or pick MAX. */
     stake(container, o) {
-      const stakes = o.stakes || STAKES;
+      const base = o.stakes || STAKES, step = o.step || 20, min = base[0], ladder = ladderOf(base);
+      const ok = (v) => Number.isInteger(v) && v >= min && v <= MAX_BET && v % step === 0;
       const pref = state.prefs[o.id + ':stake'];
-      let i = Math.max(0, stakes.indexOf(pref)); if (stakes.indexOf(pref) < 0) i = Math.min(2, stakes.length - 1);
-      const out = h('output', null), minus = h('button', { type: 'button', 'aria-label': 'Lower stake' }, '−'), plus = h('button', { type: 'button', 'aria-label': 'Raise stake' }, '+');
+      let v = ok(pref) ? pref : base[Math.min(2, base.length - 1)];
+      const out = h('output', { role: 'button', tabindex: '0', title: 'Tap to type any stake' }), minus = h('button', { type: 'button', 'aria-label': 'Lower stake' }, '−'), plus = h('button', { type: 'button', 'aria-label': 'Raise stake' }, '+');
       const box = h('div', { class: 'bc-stake' }, minus, out, plus);
       let disabled = false;
-      const paint = () => { out.innerHTML = fmt(stakes[i]) + '<small>' + (o.label || 'Stake · BB') + '</small>'; minus.disabled = disabled || i === 0; plus.disabled = disabled || i === stakes.length - 1; };
-      const move = (d) => { i = Math.max(0, Math.min(stakes.length - 1, i + d)); state.prefs[o.id + ':stake'] = stakes[i]; save(); sfx('click'); paint(); if (o.onChange) o.onChange(stakes[i]); };
+      const paint = () => {
+        out.innerHTML = fmtShort(v) + '<small>' + (o.label || 'Stake · BB') + '</small>';
+        out.setAttribute('aria-label', 'Stake ' + fmt(v) + ' BB. Tap to type any stake'); out.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+        minus.disabled = disabled || v <= min; plus.disabled = disabled || v >= MAX_BET;
+      };
+      const set = (n) => { if (!ok(n) || n === v) { paint(); return; } v = n; state.prefs[o.id + ':stake'] = v; save(); sfx('click'); paint(); if (o.onChange) o.onChange(v); };
+      const move = (d) => { const n = d > 0 ? ladder.find((x) => x > v) : ladder.slice().reverse().find((x) => x < v); if (n !== undefined) set(n); };
+      const ask = () => { if (!disabled) ui.amount({ title: 'Set your stake', value: v, min, step, label: o.label }).then((n) => { if (n && !disabled) set(n); }); };
       minus.addEventListener('click', () => move(-1)); plus.addEventListener('click', () => move(1));
+      out.addEventListener('click', ask); out.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ask(); } });
       paint(); container.append(box);
-      return { el: box, get value() { return stakes[i]; }, set disabled(d) { disabled = !!d; paint(); }, get disabled() { return disabled; } };
+      return { el: box, get value() { return v; }, set value(n) { set(n); }, set disabled(d) { disabled = !!d; paint(); }, get disabled() { return disabled; } };
+    },
+    /* Ask the player for an amount of BB: typed ("2.5m", "750k", "1,000") or from the quick buttons, including MAX (the
+       whole balance). Resolves with a whole multiple of o.step between o.min and min(balance, MAX_BET), or null. */
+    amount(o) {
+      return new Promise((res) => {
+        const step = o.step || 20, min = o.min || step;
+        const cap = () => Math.min(MAX_BET, Math.floor(realBal() / step) * step);
+        const parse = (t) => {
+          const m = String(t).toLowerCase().replace(/[,\s_]/g, '').match(/^(\d*\.?\d+)([kmb]?)$/);
+          if (!m) return NaN;
+          return Math.round(parseFloat(m[1]) * ({ '': 1, k: 1e3, m: 1e6, b: 1e9 })[m[2]]);
+        };
+        const input = h('input', { type: 'text', inputmode: 'decimal', autocomplete: 'off', spellcheck: 'false', 'aria-label': 'Amount in BB', value: fmt(o.value || min) });
+        const say = h('p', { class: 'bc-amt-say', 'aria-live': 'polite' });
+        const go = h('button', { type: 'button', class: 'bc-btn' }, o.action || 'Set stake');
+        let val = NaN, done = false;
+        const check = () => {
+          const raw = parse(input.value), c = cap();
+          val = Number.isFinite(raw) ? Math.floor(raw / step) * step : NaN;
+          let bad = '';
+          if (!Number.isFinite(val) || val <= 0) bad = 'Type an amount, like 5000, 250k or 2.5m.';
+          else if (val < min) bad = 'The smallest stake here is ' + fmt(min) + ' BB.';
+          else if (val > MAX_BET) bad = 'The most on one bet is ' + fmt(MAX_BET) + ' BB.';
+          else if (val > c) bad = 'That is more than your balance (' + fmt(realBal()) + ' BB).';
+          say.textContent = bad || '= ' + fmt(val) + ' BB' + (val !== raw ? ' (stakes go in steps of ' + fmt(step) + ')' : '');
+          say.classList.toggle('bad', !!bad); go.disabled = !!bad;
+        };
+        const put = (n) => { input.value = fmt(Math.max(min, Math.min(MAX_BET, n))); check(); };
+        const cur = () => (Number.isFinite(val) && val > 0 ? val : o.value || min);
+        const q = (label, fn, cls) => h('button', { type: 'button', class: cls || '', onclick: () => { sfx('click'); fn(); } }, label);
+        const quick = h('div', { class: 'bc-amt-quick' },
+          q('Min', () => put(min)), q('½', () => put(Math.floor(cur() / 2 / step) * step)), q('×2', () => put(cur() * 2)), q('×10', () => put(cur() * 10)),
+          q('MAX', () => { const c = cap(); if (c < min) { input.value = fmt(min); check(); } else put(c); }, 'max'));
+        const md = ui.modal(o.title || 'Set your stake', h('div', { class: 'bc-amt' }, input, say, quick, go, h('p', { class: 'bc-amt-say' }, 'Bet anything up to your balance. Balance: ' + fmt(realBal()) + ' BB')));
+        const finish = (n) => { if (done) return; done = true; md.close(); res(n); };
+        go.addEventListener('click', () => { check(); if (!go.disabled) finish(val); });
+        input.addEventListener('input', check);
+        input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); go.click(); } });
+        input.addEventListener('focus', () => input.select());
+        /* closing the modal any other way (✕, Escape, the veil) cancels */
+        const obs = new MutationObserver(() => { if (!document.body.contains(input)) { obs.disconnect(); if (!done) { done = true; res(null); } } });
+        obs.observe(document.body, { childList: true });
+        check(); setTimeout(() => { input.focus(); input.select(); }, 30);
+      });
     },
     /* Call when wallet.bet() fails. Tops the player up if they are skint, otherwise tells them to lower the stake. */
     broke() {
@@ -1173,7 +1251,7 @@ window.Batty = (function () {
       claimBtn.classList.toggle('ready', left <= 0);
       claimBtn.textContent = left > 0 ? 'Next bonus in ' + Math.ceil(left / 60000) + ' min' : 'Claim ' + fmt(claimAmount()) + ' free';
       claimRing.style.setProperty('--p', left > 0 ? (100 - (left / CLAIM_MS) * 100).toFixed(1) + '%' : '100%');
-      claimNote.innerHTML = left > 0 ? 'Free Batty Bucks every hour. Higher levels claim more.' : 'Your hourly bonus is ready: <b>' + fmt(claimAmount()) + ' BB</b>';
+      claimNote.innerHTML = left > 0 ? 'Free Batty Bucks every hour. Higher levels claim more, up to level 100.' : 'Your hourly bonus is ready: <b>' + fmt(claimAmount()) + ' BB</b>';
       rescueBtn.hidden = realBal() >= 1000;
       paintStrip();
     };
@@ -1366,7 +1444,7 @@ window.Batty = (function () {
     registerSW();
   }
 
-  const Batty = { h, rng, randInt, pickWeighted, wallet, STAKES, fmt, fmtX, audio, sfx, fx, ui, scope, registerGame, registerPage, boot, go, batPath: BAT, batSvg, notes: N,
+  const Batty = { h, rng, randInt, pickWeighted, wallet, STAKES, MAX_BET, ladderOf, fmt, fmtShort, fmtChip, fmtX, audio, sfx, fx, ui, scope, registerGame, registerPage, boot, go, batPath: BAT, batSvg, notes: N,
     api, play, refreshMe, installApp, canInstall, avatar, AV_COL, AV_ACC, ext, games, server: srv,
     get online() { return srv.on; }, get me() { return srv.me; }, get level() { return srv.on ? srv.level : state.level; } };
   return Batty;
@@ -1730,24 +1808,24 @@ window.Batty = (function () {
 })();
 
 </script>
-<script src="games/bunky/game.js?v=20261011g"></script>
+<script src="games/bunky/game.js?v=20261011u"></script>
 <script src="games/olympus/game.js?v=20261009b"></script>
 <script src="games/fishing/game.js?v=20261009b"></script>
-<script src="games/plachinko/game.js?v=20261009b"></script>
-<script src="games/moonshot/game.js?v=20261011q"></script>
+<script src="games/plachinko/game.js?v=20261011u"></script>
+<script src="games/moonshot/game.js?v=20261011u"></script>
 <script src="games/ultraheist/game.js?v=20261009b"></script>
-<script src="games/batjack/game.js?v=20261010a"></script>
+<script src="games/batjack/game.js?v=20261011u"></script>
 <script src="games/bonanza/game.js?v=20261011s"></script>
 <script src="games/starwing/game.js?v=20261009b"></script>
 <script src="games/crypt/game.js?v=20261011a"></script>
 <script src="games/nighttrain/game.js?v=20261010b"></script>
 <script src="games/gummy/game.js?v=20261011a"></script>
 <script src="games/bookofbats/game.js?v=20261010b"></script>
-<script src="games/derby/game.js?v=20261011q"></script>
-<script src="games/bonkers/game.js?v=20261011q"></script>
-<script src="games/vault/game.js?v=20261011h"></script>
-<script src="games/baccarat/game.js?v=20261011c"></script>
-<script src="games/royale/game.js?v=20261011b"></script>
+<script src="games/derby/game.js?v=20261011u"></script>
+<script src="games/bonkers/game.js?v=20261011u"></script>
+<script src="games/vault/game.js?v=20261011u"></script>
+<script src="games/baccarat/game.js?v=20261011u"></script>
+<script src="games/royale/game.js?v=20261011u"></script>
 <script src="games/circus/math.js?v=R4"></script>
 <script src="games/circus/art.js?v=R4"></script>
 <script src="games/circus/game.js?v=R4"></script>

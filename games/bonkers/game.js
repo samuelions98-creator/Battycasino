@@ -10,8 +10,8 @@
   const BONUSES = ['flap', 'hunt', 'drop', 'bonkers'];
   const isBonus = (s) => BONUSES.indexOf(s) > -1;
   const CAP = 20000;                 // no single spot's multiplier (bonus result x Top Slot) may exceed this
-  const SPOT_MAX = 10000;            // BB per spot
-  const TABLE_MAX = 50000;           // BB across the table per round
+  const SPOT_MAX = 1e9;              // BB per spot (the site-wide bet ceiling)
+  const TABLE_MAX = 1e9;             // BB across the table per round
 
   /* ---------- the money wheel: 54 segments ----------
      1 x21, 2 x13, 5 x7, 10 x4, Coin Flap x4, Crypt Hunt x2, Drop Zone x2, BONKERS TIME x1.
@@ -247,7 +247,7 @@
   const mod = (a, n) => ((a % n) + n) % n;
   const wrapPi = (a) => mod(a + Math.PI, TAU) - Math.PI;
   const esc = (s) => String(s).replace(/[<>&"']/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' }[c]));
-  const abbr = (n) => (n >= 1e6 ? Math.round(n / 1e5) / 10 + 'M' : n >= 1000 ? Math.round(n / 100) / 10 + 'K' : String(n));
+  const abbr = (n) => Batty.fmtChip(n);
   const totalOf = (b) => { let t = 0; for (const k in b) t += b[k]; return t; };
   const clone = (o) => Object.assign({}, o || {});
   function mulberry(a) { return function () { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
@@ -309,7 +309,7 @@
     const c = CHIPCOL[v] || CHIPCOL[CHIPS.slice().reverse().find((x) => x <= v) || 10];
     let marks = ''; for (let i = 0; i < 6; i++) marks += '<rect x="46" y="4" width="8" height="14" rx="2" fill="#fff" transform="rotate(' + i * 60 + ' 50 50)"/>';
     return '<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="53" r="45" fill="rgba(0,0,0,.35)"/><circle cx="50" cy="50" r="45" fill="' + c[0] + '"/>' + marks +
-      '<circle cx="50" cy="50" r="31" fill="' + c[1] + '" stroke="#fff" stroke-width="3" stroke-dasharray="5 4"/><text x="50" y="59" text-anchor="middle" font-family="\'Chakra Petch\',sans-serif" font-weight="700" font-size="' + ((label || abbr(v)).length > 3 ? 21 : 27) + '" fill="#fff">' + (label || abbr(v)) + '</text></svg>';
+      '<circle cx="50" cy="50" r="31" fill="' + c[1] + '" stroke="#fff" stroke-width="3" stroke-dasharray="5 4"/><text x="50" y="59" text-anchor="middle" font-family="\'Chakra Petch\',sans-serif" font-weight="700" font-size="' + ((label || abbr(v)).length > 4 ? 17 : (label || abbr(v)).length > 3 ? 21 : 27) + '" fill="#fff">' + (label || abbr(v)) + '</text></svg>';
   }
   /* Bertie, the host: a bat in a sequinned jacket. Parts are classed so the sheet can make him talk, cheer and shove the wheel. */
   function hostSvg() {
@@ -508,7 +508,7 @@
       '<h3>Crypt Hunt</h3><p>A wall of 108 tombstones, each hiding a prize from 5× to 500×. You see every prize, then the tombs close and shuffle. Pick one before the timer runs out (or Bertie picks one for you); everyone’s tomb is then smashed open and yours pays what is inside.</p>' +
       '<h3>Drop Zone</h3><p>Sixteen pockets: fourteen prizes from 5× to 500× and two DOUBLEs. Bertie drops the puck through the pegs; it is equally likely to finish in any pocket. A DOUBLE doubles every prize on the board and the puck is dropped again. After five doubles the DOUBLE pockets close.</p>' +
       '<h3>BONKERS TIME</h3><p>A giant wheel of 64 prizes from 10× to 500×, with three DOUBLE and one TRIPLE segment, and three flappers: green, blue and yellow. Choose your flapper (or one is chosen for you). Each spin, a flapper on a prize banks it; a flapper on DOUBLE or TRIPLE multiplies its own prize and spins again. After five re-spins the multipliers switch off.</p>' +
-      '<h3>Limits</h3><p>Chips of 10, 50, 100, 500, 1,000 and 5,000 BB, at most ' + fmt(M.SPOT_MAX) + ' BB on one spot and ' + fmt(M.TABLE_MAX) + ' BB per round. No spot pays more than ' + fmt(M.CAP) + '× (plus the chip back).</p>' +
+      '<h3>Limits</h3><p>No table limits: bet as much as you like, up to your balance (the ceiling is ' + fmt(M.TABLE_MAX) + ' BB a round). Chips of 10, 50, 100, 500 and 1,000 BB, and a top chip you can set to any amount: tap it again. No spot pays more than ' + fmt(M.CAP) + '× (plus the chip back).</p>' +
       '<h3>Controls</h3><p>Pick a chip and tap the spots. <b>U</b> undo, <b>C</b> clear, <b>X</b> double, <b>R</b> rebet, <b>1</b>–<b>6</b> chips' + (B.online ? '' : ', <b>Space</b> spin') + '.</p>' +
       '<h3>Return</h3><p>Every spot returns <b>96.00%</b>, worked out exactly from the tables, Top Slot and cap included (each BONKERS TIME flapper and every Crypt Hunt tomb alike); a 10,000,000-round simulation agrees within its margin. Hit rates are the segment shares above. The largest single payout is ' + fmt(M.CAP) + '× a spot’s chip.</p>' +
       '<p class="rtp">Return to player 96.00% on every spot (exact). Max win ' + fmt(M.CAP) + '× per spot. Batty Bucks have no cash value.</p>';
@@ -953,8 +953,10 @@
 
   /* ============================== the studio ============================== */
   let S = null, G = null;
-  const mem = { chip: 2, last: null, hist: [] };
+  const mem = { chip: 2, custom: 5000, last: null, hist: [] };
   try { Object.assign(mem, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) { /* fresh */ }
+  if (!(Number.isInteger(mem.custom) && mem.custom >= 10 && mem.custom <= B.MAX_BET && mem.custom % 10 === 0)) mem.custom = 5000;
+  const chipVal = (i) => (i === CHIPS.length - 1 ? mem.custom : CHIPS[i]);
   const saveMem = () => { try { localStorage.setItem(KEY, JSON.stringify(mem)); } catch (e) { /* memory only */ } };
   /* the complete round, as the director wants it (practice mode knows everything up front) */
   function fullView(o, p, id) {
@@ -1044,7 +1046,16 @@
     el.total = h('output', null, '0'); el.win = h('output', null, '0'); el.bal = h('output', null, '');
     el.info = h('div', { class: 'bn-info' }, el.msg, h('span', { class: 'it' }, h('small', null, 'Total bet'), el.total), h('span', { class: 'it w' }, h('small', null, 'Last win'), el.win));
     el.chips = h('div', { class: 'bn-chips', role: 'radiogroup', 'aria-label': 'Chip value' });
-    CHIPS.forEach((v, i) => el.chips.append(h('button', { type: 'button', class: 'bn-chip', role: 'radio', 'aria-label': fmt(v) + ' BB chip', html: chipSvg(v), onclick: () => { mem.chip = i; saveMem(); paintChips(); snd.click(); } })));
+    CHIPS.forEach((v, i) => el.chips.append(h('button', { type: 'button', class: 'bn-chip', role: 'radio', 'aria-label': fmt(v) + ' BB chip', html: chipSvg(v), onclick: () => pickChip(i) })));
+    /* The top chip is yours to set: tap it again (or press its key twice) to give it any value up to your balance. */
+    function pickChip(i) {
+      const top = i === CHIPS.length - 1;
+      if (top && mem.chip === i) { B.ui.amount({ title: 'Set your chip', action: 'Set chip', value: mem.custom, min: 10, step: 10 }).then((n) => { if (n && S && !S.dead) { mem.custom = n; saveMem(); snd.click(); paintTopChip(); paintChips(); } }); return; }
+      if (top && !mem.tipped) { mem.tipped = true; B.ui.toast('Tap the top chip again to set it to any amount.'); }
+      mem.chip = i; saveMem(); paintChips(); snd.click();
+    }
+    function paintTopChip() { const c = el.chips.lastChild; c.innerHTML = chipSvg(mem.custom); c.setAttribute('aria-label', fmt(mem.custom) + ' BB chip (tap again to change)'); }
+    paintTopChip();
     const ICON = {
       undo: '<svg viewBox="0 0 24 24"><path d="M9 4L4 9l5 5M4 9h11a5 5 0 0 1 0 10h-3" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
       clear: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>',
@@ -1153,7 +1164,7 @@
     function setBets(nb) { g.undo.push(clone(g.bets)); if (g.undo.length > 60) g.undo.shift(); g.bets = nb; paintBets(true); queueSend(); }
     function placeChip(s) {
       if (!canEdit()) { if (live && R) msg(nowS() >= R.close - 0.6 ? 'No more bets: wait for the next round.' : ''); return; }
-      const v = CHIPS[mem.chip], nb = clone(g.bets); nb[s] = (nb[s] || 0) + v;
+      const v = chipVal(mem.chip), nb = clone(g.bets); nb[s] = (nb[s] || 0) + v;
       if (nb[s] > M.SPOT_MAX) { B.ui.toast('That spot is at its ' + fmt(M.SPOT_MAX) + ' BB limit.'); return; }
       if (totalOf(nb) > M.TABLE_MAX) { B.ui.toast('The table limit is ' + fmt(M.TABLE_MAX) + ' BB a round.'); return; }
       if (!affordable(nb)) { B.ui.broke(); return; }
@@ -1161,7 +1172,7 @@
     }
     function takeChip(s) {
       if (!canEdit() || !g.bets[s]) return;
-      const nb = clone(g.bets), v = CHIPS[mem.chip]; nb[s] -= Math.min(nb[s], v); if (nb[s] <= 0) delete nb[s];
+      const nb = clone(g.bets), v = chipVal(mem.chip); nb[s] -= Math.min(nb[s], v); if (nb[s] <= 0) delete nb[s];
       setBets(nb); snd.click();
     }
     function undo() { if (!canEdit() || !g.undo.length) return; g.bets = g.undo.pop(); paintBets(true); queueSend(); snd.click(); }
@@ -1522,7 +1533,7 @@
       const k = e.key.toLowerCase();
       if (k === ' ' || k === 'spacebar') { if (!live) { e.preventDefault(); practiceSpin(); } }
       else if (k === 'u') undo(); else if (k === 'c') clearBets(); else if (k === 'x') doubleBets(); else if (k === 'r') rebet();
-      else if (k >= '1' && k <= '6') { mem.chip = +k - 1; saveMem(); paintChips(); snd.click(); }
+      else if (k >= '1' && k <= '6') pickChip(+k - 1);
     });
 
     /* ---------- start ---------- */

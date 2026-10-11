@@ -8,7 +8,7 @@ const BJ_DECKS = 6, BJ_CARDS = 312, BJ_SEATS = 3, BJ_MAX_HANDS = 4;
 const BJ_PAY = ['bj' => 1.5, 'batjack' => 6, 'insurance' => 2];
 const BJ_PP = ['perfect' => 30, 'coloured' => 10, 'mixed' => 6];
 const BJ_T3 = ['suitedTrips' => 100, 'straightFlush' => 40, 'trips' => 30, 'straight' => 9, 'flush' => 6];
-const BJ_LIMITS = ['mainMin' => 10, 'mainMax' => 10000, 'sideMax' => 1000, 'step' => 10];
+const BJ_LIMITS = ['mainMin' => 10, 'mainMax' => MAX_BET, 'sideMax' => MAX_BET, 'step' => 10];
 
 function bj_rank(int $c): int { return $c % 13; }
 function bj_suit(int $c): int { return intdiv($c, 13); }

@@ -2,7 +2,7 @@
    Network-first for all local GET assets (especially index.html, CSS and JS) so a new
    deployment cannot be hidden indefinitely by the previous service worker cache.
    API requests are NEVER intercepted; bets and balances always use the server. */
-const V = 'batty-20261011r';
+const V = 'batty-20261011u';
 /* Precached for offline start-up: the shell, every game's JS and CSS and the platform pages, with the exact ?v= tags
    index.html requests (keep them in step when a tag is bumped). Anything else is cached as it is fetched. */
 const SHELL = [
@@ -11,8 +11,8 @@ const SHELL = [
   'games/bunky/style.css?v=20261011g',
   'games/olympus/style.css?v=20261009b',
   'games/fishing/style.css?v=20261009b',
-  'games/plachinko/style.css?v=20261009b',
-  'games/moonshot/style.css?v=20261011q',
+  'games/plachinko/style.css?v=20261011u',
+  'games/moonshot/style.css?v=20261011u',
   'games/ultraheist/style.css?v=20261009b',
   'games/batjack/style.css?v=20261010a',
   'games/bonanza/style.css?v=20261011s',
@@ -27,25 +27,25 @@ const SHELL = [
   'games/baccarat/style.css?v=20261011c',
   'games/royale/style.css?v=20261011b',
   'core/platform.css?v=20261011f',
-  'games/bunky/game.js?v=20261011g',
+  'games/bunky/game.js?v=20261011u',
   'games/olympus/game.js?v=20261009b',
   'games/fishing/game.js?v=20261009b',
-  'games/plachinko/game.js?v=20261009b',
-  'games/moonshot/game.js?v=20261011q',
+  'games/plachinko/game.js?v=20261011u',
+  'games/moonshot/game.js?v=20261011u',
   'games/ultraheist/game.js?v=20261009b',
-  'games/batjack/game.js?v=20261010a',
+  'games/batjack/game.js?v=20261011u',
   'games/bonanza/game.js?v=20261011s',
   'games/starwing/game.js?v=20261009b',
   'games/crypt/game.js?v=20261011a',
   'games/nighttrain/game.js?v=20261010b',
   'games/gummy/game.js?v=20261011a',
   'games/bookofbats/game.js?v=20261010b',
-  'games/derby/game.js?v=20261011q',
-  'games/bonkers/game.js?v=20261011q',
-  'games/baccarat/game.js?v=20261011c',
-  'games/royale/game.js?v=20261011b',
+  'games/derby/game.js?v=20261011u',
+  'games/bonkers/game.js?v=20261011u',
+  'games/baccarat/game.js?v=20261011u',
+  'games/royale/game.js?v=20261011u',
   'games/vault/style.css?v=20261011h',
-  'games/vault/game.js?v=20261011h',
+  'games/vault/game.js?v=20261011u',
   'games/circus/math.js?v=R4',
   'games/circus/art.js?v=R4',
   'games/circus/game.js?v=R4',

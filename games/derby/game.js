@@ -271,7 +271,8 @@
       const x = b.sel[i]; if (!Number.isInteger(x) || x < 0 || x >= N) return 'Bad runner';
       for (let j = 0; j < i; j++) if (b.sel[j] === x) return 'Pick different runners';
     }
-    if (stakes.indexOf(b.stake) < 0) return 'That stake is not on offer';
+    /* any whole multiple of 20 from the smallest stake up to the 1,000,000,000 BB ceiling (stake_ok in lib/rng.php) */
+    if (!Number.isInteger(b.stake) || b.stake < stakes[0] || b.stake > 1e9 || b.stake % 20) return 'That stake is not on offer';
     return '';
   }
   /* What a bet returns (stake included), in whole Batty Bucks, given the result. Each-way and reverse forecasts are two
@@ -374,7 +375,7 @@
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const fr = (f) => (f[0] === f[1] ? 'Evs' : f[0] + '/' + f[1]);
   const clamp = (x, a, b) => (x < a ? a : x > b ? b : x);
-  const chipLabel = (v) => (v >= 1000 ? v / 1000 + 'K' : String(v));
+  const chipLabel = (v) => Batty.fmtChip(v);
   const abbr = (n) => (n >= 1e6 ? (n / 1e6).toFixed(n >= 1e7 ? 0 : 1).replace(/\.0$/, '') + 'M' : n >= 1e4 ? Math.round(n / 1000) + 'K' : fmt(n));
   function mulberry(a) { return function () { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
   const svgUrl = (s) => 'url("data:image/svg+xml,' + encodeURIComponent(s) + '")';
@@ -657,7 +658,7 @@
       '<tr><td>Forecast</td><td>your two bats finish first and second in that order</td><td>the dividend on the card</td></tr>' +
       '<tr><td>Reverse Forecast</td><td>your two bats finish first and second in either order</td><td>two forecasts. Costs twice the stake</td></tr>' +
       '<tr><td>Tricast</td><td>your three bats finish first, second and third in that order</td><td>the dividend on the card</td></tr></table>' +
-      '<p>Each bet’s stake is one of 20, 40, 100, 200, 400, 1,000, 2,000, 5,000 or 10,000 BB, and you can strike up to 40 bets on one race. Forecast and tricast dividends are shown as a multiple of the stake (stake included) as soon as you pick the runners.</p>' +
+      '<p>Each bet’s stake is any amount from 20 BB, in steps of 20, up to your balance: the stake chips run from 20 to 5K, and the top one can be set to any amount (tap it again), and you can strike up to 40 bets on one race. Forecast and tricast dividends are shown as a multiple of the stake (stake included) as soon as you pick the runners.</p>' +
       '<h3>Form and prices</h3><p>The stable has 48 bats. Each has a rating that rises and falls with its results, and its last runs show as its form (1 = won, 8 = last). Prices come from the ratings plus a little luck on the night; the runners in one race sit out the next. Every price on the card is a fair chance of that result, less the house’s 4%.</p>' +
       '<h3>Controls</h3><p>Pick a bet type, then tap a price (Win, Each Way) or tap runners for 1st, 2nd and 3rd (Forecast, Tricast). Pick a chip for the stake first. Keys: <b>1</b>–<b>9</b> chips, <b>U</b> undo, <b>C</b> clear, <b>R</b> rebet (the same bets on the runners in the same places in the betting), <b>Space</b> ' + (live ? 'place your bets' : 'place and race') + '.</p>' +
       '<h3>Return</h3><p>Every price is set so that each bet type returns <b>96.0%</b> of stakes in the long run: Win, Each Way, Forecast, Reverse Forecast and Tricast alike. A simulation of 1,000,000 races, settling every possible bet of every type on each, measured Win 96.01%, Each Way 95.99%, Forecast 95.90%, Reverse Forecast 95.90% and Tricast 95.86% (each within its margin of error of 96%). Hit rates: Win 12.5%, Each Way (anything back) 37.5%, Forecast 1.8%, Reverse Forecast 3.6%, Tricast 0.3%. Whole-BB rounding costs a touch more on the smallest stakes. No bet can return more than 10,000× its stake (the dearest tricast is capped at 9,999.99×), so the most a single 10,000 BB bet can return is 99,999,900 BB.</p>' +
@@ -666,8 +667,9 @@
 
   /* ============================== memory and sound ============================== */
   let S = null, G = null;
-  const mem = { chip: 3, type: 'win', last: null, sound: true };
-  try { const raw = JSON.parse(localStorage.getItem(KEY) || 'null'); if (raw) { if (raw.chip >= 0 && raw.chip < STAKES.length) mem.chip = raw.chip | 0; if (TYPES.indexOf(raw.type) >= 0) mem.type = raw.type; if (Array.isArray(raw.last)) mem.last = raw.last.slice(0, 40); if (raw.prac && typeof raw.prac === 'object') mem.prac = raw.prac; } } catch (e) { /* memory only */ }
+  const mem = { chip: 3, custom: 10000, type: 'win', last: null, sound: true };
+  try { const raw = JSON.parse(localStorage.getItem(KEY) || 'null'); if (raw) { if (raw.chip >= 0 && raw.chip < STAKES.length) mem.chip = raw.chip | 0; if (Number.isInteger(raw.custom) && raw.custom >= 20 && raw.custom <= Batty.MAX_BET && raw.custom % 20 === 0) mem.custom = raw.custom; if (TYPES.indexOf(raw.type) >= 0) mem.type = raw.type; if (Array.isArray(raw.last)) mem.last = raw.last.slice(0, 40); if (raw.prac && typeof raw.prac === 'object') mem.prac = raw.prac; } } catch (e) { /* memory only */ }
+  const chipVal = (i) => (i === STAKES.length - 1 ? mem.custom : STAKES[i]);
   const saveMem = () => { try { localStorage.setItem(KEY, JSON.stringify(mem)); } catch (e) { /* memory only */ } };
 
   const A = B.audio;
@@ -769,7 +771,16 @@
     el.panels.append(el.card, el.slip, el.res, el.rail);
     /* the bar: chips, actions, totals, place */
     el.chips = h('div', { class: 'dy-chips', role: 'radiogroup', 'aria-label': 'Stake per bet' });
-    STAKES.forEach((v, i) => el.chips.append(h('button', { type: 'button', class: 'dy-chip c' + i, role: 'radio', 'aria-label': fmt(v) + ' BB stake', onclick: () => { mem.chip = i; saveMem(); snd.chip(); paintChips(); } }, h('b', null, chipLabel(v)))));
+    STAKES.forEach((v, i) => el.chips.append(h('button', { type: 'button', class: 'dy-chip c' + i, role: 'radio', 'aria-label': fmt(v) + ' BB stake', onclick: () => pickChip(i) }, h('b', null, chipLabel(v)))));
+    /* The top stake is yours to set: tap it again (or press its key twice) to make it any amount up to your balance. */
+    function pickChip(i) {
+      const top = i === STAKES.length - 1;
+      if (top && mem.chip === i) { Batty.ui.amount({ title: 'Set your stake', action: 'Set stake', value: mem.custom, min: 20, step: 20 }).then((n) => { if (n && S && !S.dead) { mem.custom = n; saveMem(); snd.chip(); paintTopChip(); paintChips(); } }); return; }
+      if (top && !mem.tipped) { mem.tipped = true; Batty.ui.toast('Tap the top stake again to set it to any amount.'); }
+      mem.chip = i; saveMem(); snd.chip(); paintChips();
+    }
+    function paintTopChip() { const c = el.chips.lastChild; c.firstChild.textContent = chipLabel(mem.custom); c.setAttribute('aria-label', fmt(mem.custom) + ' BB stake (tap again to change)'); }
+    paintTopChip();
     const ICON = {
       undo: '<svg viewBox="0 0 24 24"><path d="M9 4L4 9l5 5M4 9h11a5 5 0 0 1 0 10h-3" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
       clear: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>',
@@ -947,7 +958,7 @@
       if (!canBet()) { notOpen(); return; }
       const card = bettingCard();
       const k = g.pending.findIndex((b) => b.t === g.type && b.sel[0] === i);
-      const stake = STAKES[mem.chip];
+      const stake = chipVal(mem.chip);
       if (k >= 0) {
         if (g.pending[k].stake === stake) { g.pending.splice(k, 1); snd.click(); }
         else { g.pending[k].stake = stake; snd.chip(); }
@@ -973,7 +984,7 @@
       const card = bettingCard(); if (!card) return null;
       const n = M.TYPES[g.type].n, sel = g.build.filter((x) => x != null);
       if (g.type === 'win' || g.type === 'ew' || sel.length !== n || (g.type !== 'rfc' && g.build.slice(0, n).some((x) => x == null))) return null;
-      return { race: card.id, t: g.type, sel: g.type === 'rfc' ? sel : g.build.slice(0, n), stake: STAKES[mem.chip] };
+      return { race: card.id, t: g.type, sel: g.type === 'rfc' ? sel : g.build.slice(0, n), stake: chipVal(mem.chip) };
     }
     function paintBuilder() {
       const card = bettingCard();
@@ -985,7 +996,7 @@
       let pays = '';
       if (b) { const x = M.bestReturn({ t: b.t, sel: b.sel, stake: 100 }, card) / 100; pays = '<span class="px">' + (g.type === 'rfc' ? 'pays up to ' : 'pays ') + '<b>' + x.toFixed(2) + '×</b>' + (g.type === 'rfc' ? ' each way round' : '') + '</span>'; }
       el.builder.innerHTML = '<span class="sl">' + slots.join(g.type === 'rfc' ? '<i>&amp;</i>' : '<i>→</i>') + '</span>' + (pays || '<span class="px dim">' + (g.type === 'rfc' ? 'Pick two runners' : 'Tap 1st, 2nd' + (n === 3 ? ' and 3rd' : '')) + '</span>');
-      const add = h('button', { type: 'button', class: 'add', disabled: !b, onclick: () => addBuilt() }, 'Add ' + fmt(STAKES[mem.chip] * (g.type === 'rfc' ? 2 : 1)));
+      const add = h('button', { type: 'button', class: 'add', disabled: !b, onclick: () => addBuilt() }, 'Add ' + fmt(chipVal(mem.chip) * (g.type === 'rfc' ? 2 : 1)));
       el.builder.append(add);
     }
     function addBuilt() {
@@ -1656,7 +1667,7 @@
       if (g.dead || e.target.closest && e.target.closest('input,textarea,select') || document.querySelector('.bc-modal, .bc-veil, .bc-win')) return;
       const k = e.key.toLowerCase();
       if (k === ' ') { e.preventDefault(); placeBets(); }
-      else if (k >= '1' && k <= '9') { mem.chip = +k - 1; saveMem(); snd.chip(); paintChips(); }
+      else if (k >= '1' && k <= '9') pickChip(+k - 1);
       else if (k === 'u') undo();
       else if (k === 'c') clearAll();
       else if (k === 'r') rebet();

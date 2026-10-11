@@ -17,7 +17,7 @@
   const kindOf = (spot) => (spot === 'one' ? 'one' : BONUSES.indexOf(spot) > -1 ? 'bonus' : 'letter');
   const ODDS = { one: 1, letter: 25 };          // paid on top of the returned stake
   const MAX_BONUS_X = 10000;                     // cap on any single bonus result (after any Glitterball boost)
-  const SPOT_MAX = { one: 25000, letter: 5000, bonus: 5000 };
+  const SPOT_MAX = { one: 1e9, letter: 1e9, bonus: 1e9 };
 
   /* ---------- the wheel: 64 segments ----------
      26 x "1", 13 letters x 2, Blood Bar x 6, Belfry Disco x 3, Hangin' Alive x 2, VIP Crypt Disco x 1.
@@ -305,13 +305,22 @@
   const DEV = /dev/.test(location.search);
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const smooth = (x) => { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); };
-  const fmtK = (n) => (n >= 1000 ? (n % 1000 === 0 ? n / 1000 : Math.round(n / 10) / 100) + 'K' : String(n));
+  const fmtK = (n) => Batty.fmtChip(n);
   const xs = (x) => fmt(x) + '×';
   const spotCol = (s) => (s === 'one' ? COL.gold : BON[s] ? BON[s].col : WORDCOL[M.WORD_OF[s]]);
   const spotName = (s) => (s === 'one' ? 'Number 1' : BON[s] ? BON[s].name : 'Letter ' + s);
 
   /* survives leaving and coming back within a session */
-  const memo = { chip: 100, quick: false, bets: {}, last: null, hist: [], lastWin: 0 };
+  const memo = { chip: 100, custom: 5000, top: false, quick: false, bets: {}, last: null, hist: [], lastWin: 0 };
+  /* The top chip is yours to set: tap it again to give it any value up to your balance. */
+  const chipOn = (i, chip) => (i === CHIPS.length - 1 ? memo.top : !memo.top && CHIPS[i] === chip);
+  function topChipFace(el) { el.firstChild.textContent = fmtK(memo.custom); el.setAttribute('aria-label', fmt(memo.custom) + ' chip (tap again to change)'); }
+  function pickChip(i, done) {
+    const top = i === CHIPS.length - 1;
+    if (top && memo.top) { Batty.ui.amount({ title: 'Set your chip', action: 'Set chip', value: memo.custom, min: 10, step: 10 }).then((n) => { if (n && S && !S.dead) { memo.custom = n; Batty.sfx('chip'); done(n, true); } }); return; }
+    if (top && !memo.tipped) { memo.tipped = true; Batty.ui.toast('Tap the top chip again to set it to any amount.'); }
+    memo.top = top; Batty.sfx('chip'); done(top ? memo.custom : CHIPS[i], false);
+  }
 
   let S = null, G = null;
 
@@ -405,7 +414,7 @@
       '<tr><td>Belfry Disco</td><td>3</td><td>bonus game</td></tr>' +
       '<tr><td>Hangin\' Alive</td><td>2</td><td>bonus game</td></tr>' +
       '<tr><td>VIP Crypt Disco</td><td>1</td><td>bonus game</td></tr></table>' +
-      '<p>Winning chips come back with the win. The word buttons put your chip on every letter of that word in one tap. Spot limits: ' + fmt(M.SPOT_MAX.one) + ' BB on 1, ' + fmt(M.SPOT_MAX.letter) + ' BB on each letter and each bonus.</p>' +
+      '<p>Winning chips come back with the win. The word buttons put your chip on every letter of that word in one tap. There are no spot limits: bet as much as you like, up to your balance (the ceiling is ' + fmt(M.SPOT_MAX.one) + ' BB on a spot). The top chip can be set to any amount: tap it again.</p>' +
       '<h3>The Glitterball</h3><p>Before every spin the Glitterball lights ' + M.BOOST.ones + ' of the "1" segments and ' + M.BOOST.letters + ' letter segments with multipliers from 2× to 50×. One spin in four it also lights a bonus segment with 2×, 3× or 5×. Land on a lit segment and that payout is multiplied (a lit bonus segment multiplies the bonus result).</p>' +
       '<h3>The Blood Bar</h3><p>Three bartenders each mix a different multiplier (3× to 100×) before you choose. Pick one and you win that multiplier times your Bar bet. All three are then shown. If you do not choose in time one is picked at random.</p>' +
       '<h3>Hangin\' Alive</h3><p>Back one of three teams on the bell rope. Balls are drawn from 17 (and put back each time): 3 climb balls per team, 2 "everybody up" balls and 2 slip balls per team. A team\'s second slip knocks it off and banks the rung it reached. The rope has 17 rungs: ' + M.HANG.ladder.map((x) => x + '×').join(', ') + '. Your team\'s rung times your bet is the win.</p>' +
@@ -873,7 +882,8 @@
     }
     const totEl = h('output', null, '0'), winEl = h('output', null, fmt(memo.lastWin)), statEl = h('div', { class: 'bk-stat' }, 'Place your bets');
     const meters = h('div', { class: 'bk-meters' }, h('div', { class: 'mt' }, h('small', null, 'Total bet'), totEl), statEl, h('div', { class: 'mt win' }, h('small', null, 'Last win'), winEl));
-    const chipEls = CHIPS.map((v) => h('button', { type: 'button', class: 'chip c' + v, 'aria-label': fmt(v) + ' chip', onclick: () => { chip = memo.chip = v; Batty.sfx('chip'); render(); } }, h('span', null, fmtK(v))));
+    const chipEls = CHIPS.map((v, i) => h('button', { type: 'button', class: 'chip c' + v, 'aria-label': fmt(v) + ' chip', onclick: () => pickChip(i, (n, re) => { chip = memo.chip = n; if (re) topChipFace(chipEls[CHIPS.length - 1]); render(); }) }, h('span', null, fmtK(v))));
+    topChipFace(chipEls[CHIPS.length - 1]);
     const chipsEl = h('div', { class: 'bk-chips', role: 'group', 'aria-label': 'Chip value' }, chipEls);
     const act = (cls, icon, label, fn) => h('button', { type: 'button', class: 'ac ' + cls, onclick: fn, html: icon + '<span>' + label + '</span>' });
     const bUndo = act('undo', ICON.undo, 'Undo', () => { if (busy || !undo.length) return; setBets(undo.pop(), true); Batty.sfx('click'); });
@@ -936,7 +946,7 @@
       }
       spotsEl.querySelectorAll('.wd').forEach((b) => { b.disabled = busy; });
       totEl.textContent = fmt(t);
-      chipEls.forEach((b, i) => { b.classList.toggle('on', CHIPS[i] === chip); b.setAttribute('aria-pressed', CHIPS[i] === chip ? 'true' : 'false'); });
+      chipEls.forEach((b, i) => { b.classList.toggle('on', chipOn(i, chip)); b.setAttribute('aria-pressed', chipOn(i, chip) ? 'true' : 'false'); });
       bUndo.disabled = busy || !undo.length; bClear.disabled = busy || !t; bDouble.disabled = busy || !t; bRebet.disabled = busy || !memo.last || sameAsLast();
       bSpin.disabled = busy; bSpin.classList.toggle('ready', !busy && t > 0);
       bQuick.setAttribute('aria-pressed', quick ? 'true' : 'false'); bAuto.setAttribute('aria-pressed', auto ? 'true' : 'false');
@@ -1446,7 +1456,8 @@
     }
     const totEl = h('output', null, '0'), winEl = h('output', null, fmt(g.lastWin)), statEl = h('div', { class: 'bk-stat', 'aria-live': 'polite' }, 'Joining the belfry…');
     const meters = h('div', { class: 'bk-meters' }, h('div', { class: 'mt' }, h('small', null, 'Total bet'), totEl), statEl, h('div', { class: 'mt win' }, h('small', null, 'Last win'), winEl));
-    const chipEls = CHIPS.map((v) => h('button', { type: 'button', class: 'chip c' + v, 'aria-label': fmt(v) + ' chip', onclick: () => { chip = memo.chip = v; Batty.sfx('chip'); paintChips(); } }, h('span', null, fmtK(v))));
+    const chipEls = CHIPS.map((v, i) => h('button', { type: 'button', class: 'chip c' + v, 'aria-label': fmt(v) + ' chip', onclick: () => pickChip(i, (n, re) => { chip = memo.chip = n; if (re) topChipFace(chipEls[CHIPS.length - 1]); paintChips(); }) }, h('span', null, fmtK(v))));
+    topChipFace(chipEls[CHIPS.length - 1]);
     const chipsEl = h('div', { class: 'bk-chips', role: 'group', 'aria-label': 'Chip value' }, chipEls);
     const act = (cls, icon, label, fn) => h('button', { type: 'button', class: 'ac ' + cls, onclick: fn, html: icon + '<span>' + label + '</span>' });
     const bUndo = act('undo', ICON.undo, 'Undo', () => undo());
@@ -1506,7 +1517,7 @@
     }
     function bump(el) { if (!el) return; el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
     function chipClass(n) { let c = CHIPS[0]; for (const v of CHIPS) if (n >= v) c = v; return 'c' + c; }
-    function paintChips() { chipEls.forEach((b, i) => { b.classList.toggle('on', CHIPS[i] === chip); b.setAttribute('aria-pressed', CHIPS[i] === chip ? 'true' : 'false'); }); }
+    function paintChips() { chipEls.forEach((b, i) => { b.classList.toggle('on', chipOn(i, chip)); b.setAttribute('aria-pressed', chipOn(i, chip) ? 'true' : 'false'); }); }
     let paintKey = '';
     function paint(force) {
       const b = shownBets(), ed = canEdit(), crowd = crowdBySpot();

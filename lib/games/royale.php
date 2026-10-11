@@ -18,8 +18,8 @@ const RY_REST_S = 5.0;     // result on show before the next betting window
 const RY_CHIPS = [2000, 5000, 10000, 25000, 50000, 100000, 250000];
 const RY_UNIT = 1000;                 // every spot is a whole number of thousands (any sum of chips is)
 const RY_SPOT_MIN = 2000;
-const RY_SPOT_MAX_PER_NUMBER = 250000; // a spot may hold 250,000 per number it covers (straight 250k ... even money 4.5M)
-const RY_TABLE_MAX = 10000000;
+const RY_SPOT_MAX_PER_NUMBER = MAX_BET; // a spot may hold 250,000 per number it covers (straight 250k ... even money 4.5M)
+const RY_TABLE_MAX = MAX_BET;
 const RY_MAX_SPOTS = 200;
 const RY_WHEEL = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
 const RY_RED = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
@@ -69,7 +69,7 @@ function ry_validate($bets): ?string {
         if ($s > ry_spot_max($k)) return 'That bet is over the ' . number_format(ry_spot_max($k)) . ' spot limit';
         $total += $s;
     }
-    if ($total > RY_TABLE_MAX) return 'That is over the table limit of ' . number_format(RY_TABLE_MAX);
+    if ($total > RY_TABLE_MAX) return 'The most on the table per spin is ' . number_format(RY_TABLE_MAX) . ' BB';
     return null;
 }
 function ry_draw(Closure $rng): int { return RY_WHEEL[rfloor($rng, 37)]; }

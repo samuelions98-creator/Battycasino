@@ -18,7 +18,7 @@ function bnk_D(): array {
         'SPOTS' => ['1', '2', '5', '10', 'flap', 'hunt', 'drop', 'bonkers'],
         'NUMBERS' => ['1' => 1, '2' => 2, '5' => 5, '10' => 10],
         'BONUSES' => ['flap', 'hunt', 'drop', 'bonkers'],
-        'CAP' => 20000, 'SPOT_MAX' => 10000, 'TABLE_MAX' => 50000,
+        'CAP' => 20000, 'SPOT_MAX' => MAX_BET, 'TABLE_MAX' => MAX_BET,
         'WHEEL' => ['bonkers', '1', '2', '1', '5', '1', 'flap', '2', '1', '10', '1', '2', 'drop', '1', '5', '1', '2', '1', 'flap', '2', '1', '5', '1', '2', 'hunt', '1', '10', '1', '2', '1', 'flap', '2', '1', '5', '1', '2', 'drop', '1', '2', '10', '2', '1', 'flap', '5', '1', '2', '1', '5', 'hunt', '1', '10', '2', '5', '1'],
         'TS_STRIP' => ['1', 'flap', '2', 'hunt', '5', 'drop', '1', 'bonkers', '2', 'flap', '10', 'hunt', '1', 'drop', '2', 'flap', '5', 'hunt', 'bonkers', 'drop'],
         'TS_MULTS' => $tsm,

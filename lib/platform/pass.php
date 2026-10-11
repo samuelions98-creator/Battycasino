@@ -93,7 +93,7 @@ function plat_after_round(array &$u, string $game, int $stake, int $win, array $
         $day = plat_day();
         $dayXp = $r['day'] === $day ? (int) $r['day_xp'] : 0;
         $rate = $dayXp < 3000 ? 1.0 : ($dayXp < 6000 ? 0.5 : 0.25);
-        $base = max(1, (int) round((1 + sqrt($stake) / 4) * $rate));
+        $base = max(1, (int) round((1 + sqrt(min($stake, 100000)) / 4) * $rate));
         $p = q1('SELECT boost_until FROM plat_profile WHERE user_id = ?', [$u['id']]);
         $boost = $p && $p['boost_until'] && strtotime($p['boost_until'] . ' UTC') > plat_time();
         q('UPDATE plat_pass SET day = ?, day_xp = ? WHERE user_id = ? AND season = ?', [$day, $dayXp + $base, $u['id'], $r['season']]);

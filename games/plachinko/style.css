@@ -331,6 +331,7 @@
 .g-plachinko-stake button:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
 .g-plachinko-stake button:disabled { opacity: .3; }
 .g-plachinko-stake output { flex: 1; min-width: 0; text-align: center; font-weight: 700; font-size: 20px; line-height: 1; font-variant-numeric: tabular-nums; color: var(--pk-yel); }
+.g-plachinko-stake output[role=button] { cursor: pointer; }
 .g-plachinko-stake output small { display: block; margin-top: 3px; font-size: 8.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--pk-mute); }
 .g-plachinko-auto { grid-column: span 4; order: 6; height: 48px; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; background: linear-gradient(180deg, #2b2090, #130c52); border: 1px solid rgba(47, 240, 255, .55); box-shadow: 0 3px 0 #05030f, inset 0 1px 0 rgba(255, 255, 255, .2); touch-action: manipulation; }
 .g-plachinko-auto b { font-family: var(--pk-disp); font-weight: 400; font-size: 17px; letter-spacing: .08em; color: var(--pk-cyan); }

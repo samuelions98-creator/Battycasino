@@ -25,8 +25,8 @@ return [
   round_id BIGINT UNSIGNED NOT NULL,
   t VARCHAR(4) NOT NULL,
   sel VARCHAR(12) NOT NULL,
-  stake INT NOT NULL,
-  cost INT NOT NULL,
+  stake BIGINT NOT NULL,
+  cost BIGINT NOT NULL,
   win BIGINT NOT NULL DEFAULT -1,
   created_at DOUBLE NOT NULL,
   KEY k_race (race_id),
@@ -49,4 +49,6 @@ return [
   at DOUBLE NOT NULL,
   KEY k_at (at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+/* widen the bet columns of tables made before bets had no limits (safe to re-run) */
+"ALTER TABLE derby_bets MODIFY stake BIGINT NOT NULL, MODIFY cost BIGINT NOT NULL",
 ];

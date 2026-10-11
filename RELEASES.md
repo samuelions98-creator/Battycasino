@@ -43,6 +43,7 @@ upload-only zip for any one release.
 | 7 | **Bunky Time goes live** (one shared wheel on a clock: live betting, players rail, live bonus scenes; fixes a result leak in the saved server; 96.0%) | `19d7393` | 111 KB | **yes** |
 | 15 | **Crimson Vault** (High Roller heist slot: 5×4, 20 lines, pick-your-vault free spins, 100× and 300× buys; level 5+; 96.7%) | `39bcff9` | 81 KB | no |
 | QA | **Final QA and polish** (Bat Derby leaderboard, Bonkers Time frame rate, lobby carousel and big-win show on phones, top bar at 390px, service-worker precache for every game, Live filter lists every live table, Sugar Fang timer fix) | `8370e18` | — | no |
+| 16 | **Unlimited bets** (bet any amount up to your balance in every game: tap a stake to type one or pick MAX; the top chip on every table is yours to set; no table limits; level rewards stop growing at level 100) | see branch | ~150 KB | **yes** (recommended) |
 
 ## Returns at a glance
 
@@ -58,6 +59,28 @@ Bandits); every parity check passes on the final build.
 - A hair under 96%: a few Bonkers and Bunky bonus spots, within rounding.
 - The live balancer (`lib/rtp.php`) now targets **96.5%** for every game, matching the designs (it was 98%). Override one
   game with the settings key `rtp_<game>`.
+
+## Unlimited bets (release 16)
+
+Players can bet as much as they like, up to their balance, in every game.
+
+- **Slots, Plachinko, Moonshot:** tap the stake to type any amount ("250k", "2.5m", "1,000,000") or use Min, ½, ×2, ×10 or
+  MAX. The − / + buttons step through a ladder that now runs on past 10,000 up to 1,000,000,000.
+- **Tables and live games** (Royale, Baccarat, Bat Jack, Bonkers, Bunky, Bat Derby): the top chip is yours to set. Tap it
+  again to give it any value. Table and spot limits are gone.
+- **The one ceiling** is 1,000,000,000 BB on a single bet (or on one table round). It is technical: it keeps the biggest
+  wins exactly representable in the browser. Steps: 20 BB for slots, Plachinko and Derby; 100 BB for Moonshot and Crimson
+  Vault; 10 BB for Bat Jack, Bonkers and Bunky; 1,000 BB for Royale and Baccarat (from 2,000).
+- **Guards against giant bets:**
+  - **Rewards that grow with level stop growing at level 100.** That covers level-up gifts, the hourly bonus, the Daily
+    Wheel, and mission and Bat Pass challenge tiers. Levels themselves still climb.
+  - A bet that climbs many levels pays one combined gift with one notice.
+  - Bat Pass XP counts at most 100,000 BB of any one bet.
+  - The live balancer counts at most 100,000 BB of any one round in its recent window.
+- **Database:** "Update database" widens the Bat Jack and Bat Derby bet columns to BIGINT. Run it after uploading (the
+  site works before it, but run it anyway).
+- Maths unchanged: every parity check still passes. Baccarat now also accepts a 3,000 BB spot (whole thousands from
+  2,000), on both browser and server.
 
 ## Loose ends cleaned up (final build)
 

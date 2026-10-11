@@ -74,8 +74,18 @@ The full rules are in `docs/GAME-BRIEF.md`. In short:
   the real site.
 
 **High Roller games**
-- `section: 'highroller', minLevel: 5`, stakes 2,000–250,000.
+- `section: 'highroller', minLevel: 5`, stakes from 2,000 (no upper limit; see Bets below).
 - The server refuses players below level 5; the page shows a lock screen.
+
+**Bets**
+- There is no table or stake limit: any amount up to the balance, with a technical ceiling of `MAX_BET` (1,000,000,000 BB)
+  per bet or per table round.
+  - Server: `lib/rng.php` defines `MAX_BET` and `stake_ok()`. `stake_of()` in `lib/play.php` applies them for the slots.
+    The table limits in each game file are set to `MAX_BET`.
+  - Client: `B.MAX_BET`, `B.ladderOf()`, `B.ui.stake()` (tap to type) and `B.ui.amount()` (the amount dialog) in
+    `index.html`. Each table game's top chip is a custom chip: `mem.custom` and `pickChip()`.
+- Level-scaled rewards are capped at `REWARD_LEVEL_CAP` (100) in `lib/wallet.php` (mirrored in practice mode in
+  `index.html`). Without the cap, one huge bet could climb hundreds of levels and inflate every reward.
 
 **Lobby feed**
 - A win posts when it is ≥25× and ≥2,500 BB, or ≥50,000 BB and ≥5× the stake (`after_round` in `lib/wallet.php`).

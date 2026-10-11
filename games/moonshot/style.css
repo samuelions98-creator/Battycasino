@@ -188,6 +188,7 @@
 .g-moonshot .ms-stake button:hover:not(:disabled) { background: rgba(255, 255, 255, .08); }
 .g-moonshot .ms-stake button:disabled { opacity: .28; }
 .g-moonshot .ms-stake output { flex: 1; min-width: 0; text-align: center; font-family: var(--ms-fn); font-weight: 700; font-size: 17px; line-height: 1.02; font-variant-numeric: tabular-nums; }
+.g-moonshot .ms-stake output[role=button] { cursor: pointer; }
 .g-moonshot .ms-stake output small { display: block; font-family: var(--ms-fb); font-size: 8.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ms-mute); white-space: nowrap; }
 .g-moonshot .ms-auto { flex: 1; min-width: 0; height: 34px; display: flex; align-items: center; gap: 5px; padding-inline: 6px 8px; border-radius: 10px; background: rgba(4, 3, 20, .5); border: 1px solid var(--ms-line); font-size: 12px; font-weight: 700; color: var(--ms-mute); }
 .g-moonshot .ms-slot.auto-on .ms-auto { color: var(--ms-ink); border-color: color-mix(in srgb, var(--acc) 55%, transparent); }
