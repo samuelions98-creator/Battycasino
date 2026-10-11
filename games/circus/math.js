@@ -80,7 +80,10 @@
     spotlight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
   };
   /*/BOARD*/
-  const BUYS = { grand: 75, spotlight: 175 };
+  const BUYS = { grand: 75, spotlight: 168 };
+  /* The ringmaster's second shot: when the first shot lands on one of these segments (worth less than an average shot on
+     that board, by ACT_EV / segEV below), he fires again at once and the second shot stands. Everyone gets the best play. */
+  const REFIRE = { base: [0, 1, 2, 3, 4, 5, 6, 8], grand: [1, 3, 5, 7], spotlight: [] };
 
   /* ---------- act tables ---------- */
   /*ACTS*/
@@ -249,9 +252,14 @@
     if (p === 'done') bad();
     else if (p === 'cannon') {
       if (action !== 'fire') bad();
-      const shot = drawShot(rng, s.buy || 'base');
+      const mode = s.buy || 'base', shot = drawShot(rng, mode);
       s.shots.push(shot); s.ev.shot = shot;
-      if (s.retried) applyShot(s, shot, rng); else s.phase = 'decide';
+      if (!s.retried && REFIRE[mode].indexOf(shot.seg) >= 0) {
+        s.ev.first = shot;
+        const again = drawShot(rng, mode);
+        s.shots.push(again); s.ev.shot = again; s.retried = true;
+        applyShot(s, again, rng);
+      } else { s.retried = true; applyShot(s, shot, rng); }
     } else if (p === 'decide') {
       if (action === 'collect') { s.ev.shot = s.shots[s.shots.length - 1]; applyShot(s, s.ev.shot, rng); }
       else if (action === 'retry') {
@@ -336,7 +344,7 @@
 
   return {
     REELS, ROWS, U, MAX_X, CAP, CH, SYMBOLS, NAMES, PAY, LINES, STRIPS, W, ELE, LION, STRONG, JUGG, SEAL, ACE, KING, QUEEN, JACK, BON,
-    ACTS, ACT_NAMES, SEGS, SEG_W, BUYS, SM_P, SM_V, smPrize, BEAR_DROPS, BEAR_ITEMS, BEAR_W, FIRE_TORCHES, FIRE_ITEMS, FIRE_W,
+    ACTS, ACT_NAMES, SEGS, SEG_W, BUYS, REFIRE, SM_P, SM_V, smPrize, BEAR_DROPS, BEAR_ITEMS, BEAR_W, FIRE_TORCHES, FIRE_ITEMS, FIRE_W,
     JS_SPINS, JS_SPINS_W, JS_N, JS_N_W, JS_BOOM, EL_SPINS, EL_SPINS_W, EL_START, EL_RETRIG, EL_MAX, ACT_EV,
     ri, pickW, evaluate, window: window_, spinBase, buyGrid, triggered, bonusCells, jesterSpin, elephantSpin, drawShot,
     start, step, view, segEV, shotEV, shotValueEV, mulberry32,

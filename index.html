@@ -570,7 +570,7 @@ window.Batty = (function () {
       j = await res.json();
     } catch (e) {
       applyServer(null, o.cost); if (o.cost) { shown += o.cost; emit(); }
-      if (srv.on) net.down();
+      if (srv.on && booted) net.down(); // not during start-up: no answer there just means practice mode
       const err = new Error('Can’t reach the casino server. Check your connection and try again.'); err.status = 0; throw err;
     }
     net.up();

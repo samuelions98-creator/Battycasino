@@ -25,12 +25,12 @@
   /* PAY[symbol] = [3, 4, 5 of a kind] in UNITS (a line bet is 2 units, so 4 units = 2x the line bet) */
   const PAY = [
     [0, 0, 0],
-    [32, 88, 328],   // Gold Bar
-    [18, 44, 164],   // Lucky Seven
-    [10, 32, 88],    // Amethyst
-    [10, 26, 66],    // Sapphire
-    [6, 18, 44],     // Topaz
-    [6, 12, 32],     // Emerald
+    [32, 86, 320],   // Gold Bar
+    [18, 43, 160],   // Lucky Seven
+    [10, 30, 86],    // Amethyst
+    [10, 26, 64],    // Sapphire
+    [6, 18, 43],     // Topaz
+    [6, 12, 31],     // Emerald
     [4, 10, 26],     // Citrine
   ];
   /* rows used by each line, reel by reel (0 = top) */
@@ -157,7 +157,7 @@
   const LINE_COL = ['#3ef0ff', '#ff4fd8', '#ffd257', '#7dff8a', '#ff8a3c', '#a98bff', '#ff5d7a', '#5db8ff', '#f6ff6b', '#45ffcf'];
   const GLOW = { wild: '#ffd257', bar: '#ffc83a', seven: '#ff3366', violet: '#c27bff', blue: '#4aa8ff', orange: '#ff9a2e', green: '#2ee88a', yellow: '#ffe24a' };
   /* figures from tools/starwing-exact.js and tools/starwing-sim-out.txt */
-  const RTP = { exact: '98.00%', sim: '98.2%', hit: '1 in 2.5', wild: '1 in 8.7', sims: '150,000,000' };
+  const RTP = { exact: '96.5%', sim: '96.47%', hit: '1 in 2.5', wild: '1 in 8.7', sims: '40,000,000' };
 
   let B, h, S, root, E, reels, busy, skipping, slam, turbo, auto, stakeCtl, lineIdx, RM = false, DEV = false;
   let autoPick = { n: 25, loss: 50 }, autoLoss = 0, autoFloor = 0, devNext = null, devLog = null, devSpeed = 1;
@@ -1198,14 +1198,14 @@
     t += '</table>';
     t += '<h3>Lines</h3><div class="sw-lmap">' + M.LINES.map((ln, l) => '<svg viewBox="0 0 50 30"><rect width="50" height="30" rx="3" fill="#120c3a"/>' + [0, 1, 2].map((row) => [0, 1, 2, 3, 4].map((r) => '<rect x="' + (r * 10 + 1.5) + '" y="' + (row * 10 + 1.5) + '" width="7" height="7" rx="1.5" fill="' + (ln[r] === row ? LINE_COL[l] : '#2a2366') + '"/>').join('')).join('') + '</svg><span>' + (l + 1) + '</span>').join('') + '</div>';
     t += '<h3>Numbers</h3><table>' +
-      '<tr><td>Return to player (exact calculation)</td><td><b>' + RTP.exact + '</b></td></tr>' +
+      '<tr><td>Return to player (designed)</td><td><b>' + RTP.exact + '</b></td></tr>' +
       '<tr><td>Return in ' + RTP.sims + ' simulated spins</td><td>' + RTP.sim + '</td></tr>' +
       '<tr><td>Any win</td><td>' + RTP.hit + ' spins</td></tr>' +
       '<tr><td>Bat Star re-spins</td><td>' + RTP.wild + ' spins</td></tr>' +
       '<tr><td>Volatility</td><td>Low to medium</td></tr>' +
       '<tr><td>Maximum win per spin</td><td>' + f(M.MAX_WIN_X) + '× stake</td></tr></table>';
     t += '<p>Keys: Space spins, and during a spin stops the reels at once (tap the reels to do the same, and again to hurry the show along). T turbo, A autoplay. Batty Bucks have no cash value.</p>';
-    t += '<p class="rtp">Designed return ' + RTP.exact + '. Live-balanced site-wide to a 98% target.</p></div>';
+    t += '<p class="rtp">Designed return ' + RTP.exact + '. The server balances live play towards the site’s target return.</p></div>';
     return t;
   }
 

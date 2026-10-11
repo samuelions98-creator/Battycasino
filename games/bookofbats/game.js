@@ -30,7 +30,7 @@
   /* symbols */
   const TEN = 0, JACK = 1, QUEEN = 2, KING = 3, ACE = 4, SCARAB = 5, ANKH = 6, PHARAOH = 7, INDY = 8, BOOK = 9, NSYM = 10;
   const KEYS = ['ten', 'jack', 'queen', 'king', 'ace', 'scarab', 'ankh', 'pharaoh', 'indy', 'book'];
-  const NAMES = ['10', 'J', 'Q', 'K', 'A', 'Scarab', 'Ankh-Bat', 'Pharaoh Bat Queen', 'Indiana Bats', 'Book of Bats'];
+  const NAMES = ['10', 'J', 'Q', 'K', 'A', 'Scarab', 'Ankh-Bat', 'Pharaoh Bat Queen', 'Professor Flaps', 'Book of Bats'];
   /* PAY[symbol][count] in line-bet multiples (count 0..5) */
   const PAY = [
     [0, 0, 0, 5, 25, 100],
@@ -209,7 +209,7 @@
   const LCOL = ['#ffd451', '#ff5a6e', '#4ad8ff', '#7dff8a', '#ff9a3c', '#d78bff', '#ff6ad5', '#5affd9', '#fff07a', '#8ab4ff'];
   const SUITS = M.SUITS, SUIT_GLYPH = { hearts: '♥', diamonds: '♦', clubs: '♣', spades: '♠' };
   const RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
-  const SHORT = ['10', 'J', 'Q', 'K', 'A', 'Scarab', 'Ankh-Bat', 'Bat Queen', 'Indiana Bats', 'Book'];
+  const SHORT = ['10', 'J', 'Q', 'K', 'A', 'Scarab', 'Ankh-Bat', 'Bat Queen', 'Professor Flaps', 'Book'];
   let G = null;
   const pref = (k, d) => { try { const v = localStorage.getItem('bob-' + k); return v == null ? d : v; } catch (e) { return d; } };
   const setPref = (k, v) => { try { localStorage.setItem('bob-' + k, String(v)); } catch (e) { /* storage is optional */ } };

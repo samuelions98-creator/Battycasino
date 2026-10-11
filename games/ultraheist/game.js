@@ -35,16 +35,16 @@
   const SYMBOL_NAMES = ['Fingerprint', 'Skeleton Key', 'Handcuffs', 'Padlock', 'Crowbar', 'Torch', 'Safe Dial', 'Getaway Car', 'Gold Bars', 'Diamond', 'Bandit Wild', 'Cash Bag', 'Vault'];
   /* PAY[symbol][count] in units (1 unit = stake / 20 = two line bets). */
   const PAY = [
-    /* Fingerprint */ [0, 0, 0, 2, 6, 20],
-    /* Key         */ [0, 0, 0, 2, 6, 20],
-    /* Handcuffs   */ [0, 0, 0, 2, 6, 20],
-    /* Padlock     */ [0, 0, 0, 2, 8, 25],
-    /* Crowbar     */ [0, 0, 0, 2, 8, 25],
-    /* Torch       */ [0, 0, 0, 3, 10, 30],
-    /* Safe Dial   */ [0, 0, 0, 4, 15, 50],
-    /* Getaway Car */ [0, 0, 0, 6, 20, 80],
-    /* Gold Bars   */ [0, 0, 0, 8, 30, 150],
-    /* Diamond     */ [0, 0, 0, 12, 50, 300],
+    /* Fingerprint */ [0, 0, 0, 2, 6, 17],
+    /* Key         */ [0, 0, 0, 2, 6, 17],
+    /* Handcuffs   */ [0, 0, 0, 2, 6, 17],
+    /* Padlock     */ [0, 0, 0, 2, 6, 22],
+    /* Crowbar     */ [0, 0, 0, 2, 6, 22],
+    /* Torch       */ [0, 0, 0, 3, 8, 28],
+    /* Safe Dial   */ [0, 0, 0, 4, 14, 47],
+    /* Getaway Car */ [0, 0, 0, 6, 19, 76],
+    /* Gold Bars   */ [0, 0, 0, 8, 28, 143],
+    /* Diamond     */ [0, 0, 0, 12, 47, 287],
     /* Wild        */ [0, 0, 0, 0, 0, 0],
     /* Bag         */ [0, 0, 0, 0, 0, 0],
     /* Vault       */ [0, 0, 0, 0, 0, 0],
@@ -1516,7 +1516,7 @@
   function startRain() { if (RM) return; S.loop((dt, t) => { if (!document.hidden) drawRain(dt, t); }); }
 
   /* ================= rules ================= */
-  const RTP = { base: '98.0%', buy: '98.0%' };
+  const RTP = { base: '96.9%', buy: '96.2%' };
   function rules() {
     const pt = M.PAY, rows = [];
     for (let s = SYM.DIAMOND; s >= SYM.PRINT; s--) rows.push('<tr><td><span class="uh-ri">' + useSym(NAMES[s]) + '</span>' + M.SYMBOL_NAMES[s] + '</td><td>' + [5, 4, 3].map((n) => (pt[s][n] / U).toFixed(2).replace(/\.?0+$/, '') + '×').join('</td><td>') + '</td></tr>');
@@ -1530,7 +1530,7 @@
       '<h3>Heist Free Spins</h3><p>Three Vaults (they appear on reels 1, 3 and 5) in view at the end of any step award <b>8 Heist Free Spins</b>, played on their own reel strips (no Vaults). In the Heist every Bandit nudges just as in the base game and <b>every</b> line win starts an UltraNudge too, the multiplier starts at ×1 and <b>never resets</b>, and collected Cash Bags are multiplied by it too. Every 4 bags collected fill the alarm meter for <b>+2 spins</b> (no limit).</p>' +
       '<h3>Bonus Buy</h3><p>Buy the Heist Free Spins straight away for <b>' + M.BUY_X + '× stake</b>.</p>' +
       '<h3>Maximum win</h3><p>A spin (including its free spins) pays at most <b>' + Batty.fmt(M.MAX_WIN_X) + '× stake</b>; when it is reached the round ends there.</p>' +
-      '<h3>Return and statistics</h3><p>Designed return: paid spins <b>' + RTP.base + '</b>, Bonus Buy <b>' + RTP.buy + '</b>. Live-balanced site-wide to a 98% target.</p>' +
+      '<h3>Return and statistics</h3><p>Designed return: paid spins <b>' + RTP.base + '</b>, Bonus Buy <b>' + RTP.buy + '</b>. The server balances live play towards the site’s target return (figures from 40,000,000 simulated spins and 4,000,000 buys).</p>' +
       '<table class="st">' + STATS.map((r) => '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>').join('') + '</table>' +
       '<p class="rtp">' + RTP_LINE + '</p>' +
       '<p>Shortcuts: Space spin, stop the reels or speed up · tap the reels to stop them · T turbo · A autoplay · B buy · + and − stake. Batty Bucks are for fun only and have no cash value.</p></div>';

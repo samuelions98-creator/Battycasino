@@ -54,7 +54,7 @@ const BOB_STRIPS = [
 ];
 const BOB_SUITS = ['hearts', 'diamonds', 'clubs', 'spades'];
 const BOB_CHOICES = ['red', 'black', 'hearts', 'diamonds', 'clubs', 'spades'];
-const BOB_NAMES = ['10', 'J', 'Q', 'K', 'A', 'Scarab', 'Ankh-Bat', 'Pharaoh Bat Queen', 'Indiana Bats', 'Book of Bats'];
+const BOB_NAMES = ['10', 'J', 'Q', 'K', 'A', 'Scarab', 'Ankh-Bat', 'Pharaoh Bat Queen', 'Professor Flaps', 'Book of Bats'];
 
 /* ---------- maths (mirrors game.js) ---------- */
 function bob_pickIndex(Closure $rng, array $w): int {
@@ -158,7 +158,7 @@ function bob_facts(array $o, int $stake, int $win): array {
     if ($o['fs']) {
         $f['bonus'] = 1;
         $sp = $o['fs']['specials'];
-        if (in_array(8, $sp, true) && $win >= 100 * $stake) $f['feedLabel'] = 'Indiana Bats expanding';
+        if (in_array(8, $sp, true) && $win >= 100 * $stake) $f['feedLabel'] = 'Professor Flaps expanding';
         elseif ($win >= 100 * $stake) $f['feedLabel'] = 'Free spins: ' . BOB_NAMES[$sp[0]] . ' expanding';
     }
     if ($o['capped']) $f['feedLabel'] = 'Max win: 5,000x';

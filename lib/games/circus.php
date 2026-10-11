@@ -51,7 +51,9 @@ const CC_SEG_W = [
     'spotlight' => [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 ];
 /*/BOARD*/
-const CC_BUYS = ['grand' => 75, 'spotlight' => 175];
+const CC_BUYS = ['grand' => 75, 'spotlight' => 168];
+/* the ringmaster's second shot: first shots on these segments are fired again at once (see math.js REFIRE) */
+const CC_REFIRE = ['base' => [0, 1, 2, 3, 4, 5, 6, 8], 'grand' => [1, 3, 5, 7], 'spotlight' => []];
 /*ACTS*/
 const CC_SM_P = [80, 55, 30];
 const CC_SM_V = [1000, 1120, 1250, 1400, 1570, 1760, 1970, 2200, 0];
@@ -205,9 +207,15 @@ function cc_step(array $s, string $action, ?int $choice, Closure $rng): array {
     if ($p === 'done') $bad();
     elseif ($p === 'cannon') {
         if ($action !== 'fire') $bad();
-        $shot = cc_drawShot($rng, $s['buy'] ?: 'base');
+        $mode = $s['buy'] ?: 'base';
+        $shot = cc_drawShot($rng, $mode);
         $s['shots'][] = $shot; $s['ev']['shot'] = $shot;
-        if ($s['retried']) cc_applyShot($s, $shot, $rng); else $s['phase'] = 'decide';
+        if (!$s['retried'] && in_array($shot['seg'], CC_REFIRE[$mode], true)) {
+            $s['ev']['first'] = $shot;
+            $again = cc_drawShot($rng, $mode);
+            $s['shots'][] = $again; $s['ev']['shot'] = $again; $s['retried'] = true;
+            cc_applyShot($s, $again, $rng);
+        } else { $s['retried'] = true; cc_applyShot($s, $shot, $rng); }
     } elseif ($p === 'decide') {
         if ($action === 'collect') { $s['ev']['shot'] = $s['shots'][count($s['shots']) - 1]; cc_applyShot($s, $s['ev']['shot'], $rng); }
         elseif ($action === 'retry') {

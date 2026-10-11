@@ -56,7 +56,7 @@
     return '<div class="cz-rules">' +
       '<p><b>Batty Circus</b> is an original Batty Bucks game in the spirit of the classic cannon-and-acts circus slot. Every character, picture and number here is our own. Batty Bucks have no cash value.</p>' +
       '<h3>The reels</h3><p>5 reels, 4 rows and 40 fixed lines, all included in the stake. Three or more matching symbols in a row from reel 1 pay, and only the best win on each line counts. The <b>Ringmaster</b> is wild and stands in for every pay symbol (five Ringmasters pay as Elephants). Line wins are shown as multiples of your total stake.</p>' +
-      '<h3>The Cannon Bonus</h3><p>Land a <b>Cannonball Bat</b> on reels 1, 3 <i>and</i> 5 in the same spin. The performer is fired at the target board: five cash prizes (10×, 15×, 20×, 30× and 50× your stake), each of the five acts on its own, five two-act combinations, and the bullseye, which plays three acts. After the first shot you can <b>COLLECT</b> it, or <b>RETRY</b> once: a fresh independent shot that you must keep, which may be worse. The panel shows the average value of what you hold against the average of a fresh shot. Acts are played one after another.</p>' +
+      '<h3>The Cannon Bonus</h3><p>Land a <b>Cannonball Bat</b> on reels 1, 3 <i>and</i> 5 in the same spin. The performer is fired at the target board: five cash prizes (10×, 15×, 20×, 30× and 50× your stake), each of the five acts on its own, five two-act combinations, and the bullseye, which plays three acts. If the first shot lands on one of the smaller prizes (any cash prize, Strongman, Bear Tightrope or Fire Breather on the standard board), the <b>ringmaster fires again</b> at once and the second shot stands, whatever it hits. You never have to decide: everyone gets the best play. Acts are played one after another.</p>' +
       '<h3>The five acts</h3><ul>' +
       '<li><b>Strongman.</b> Eight lifts. Pick light, medium or heavy: heavier is less likely to lift and pays more, and the odds and the prize for each are shown before you choose. A lift pays and moves you up a level; a dropped weight ends the act. Up to 8 lifts.</li>' +
       '<li><b>Bear Tightrope.</b> Up to ' + M.BEAR_DROPS + ' drops. Steer the bear to a lane; one item falls in each lane after you choose. Catch treasure and keep going. Catch the anvil and the rope snaps.</li>' +
@@ -64,10 +64,10 @@
       '<li><b>Jester Spins.</b> Pick one of three boxes for 5 to 12 free spins. On each spin jack-in-the-boxes spring onto the reels and turn cells wild, and some explode and turn the cells around them wild too.</li>' +
       '<li><b>Elephant Spins.</b> ' + M.EL_SPINS.join(', ') + ' free spins at ×' + M.EL_START + '. Every Elephant that lands adds +1 to the multiplier on that spin, and it carries on growing. Three Cannonball Bats add ' + M.EL_RETRIG + ' more spins.</li></ul>' +
       '<p>The whole round, base game and bonus together, is capped at <b>' + fmt(M.MAX_X) + '× your stake</b>; the round ends the moment it is reached.</p>' +
-      '<h3>Bonus buys</h3><p>Batty Bucks only, no cash value, no guaranteed return. <b>GRAND CANNON</b> costs ' + buy.grand + '× your stake and guarantees a cannon shot that lands on an act or combination (never a cash prize). <b>SPOTLIGHT SHOW</b> costs ' + buy.spotlight + '× and sends the performer straight to the bullseye: three acts. A bought round has no base-game line win. The server works out the price; wins can be less than the cost.</p>' +
+      '<h3>Bonus buys</h3><p>Batty Bucks only, no cash value, no guaranteed return. <b>GRAND CANNON</b> costs ' + buy.grand + '× your stake and guarantees a cannon shot that lands on an act or combination (never a cash prize); a single Strongman, Bear, Fire Breather or Jester shot is fired again once. <b>SPOTLIGHT SHOW</b> costs ' + buy.spotlight + '× and sends the performer straight to the bullseye: three acts. A bought round has no base-game line win. The server works out the price; wins can be less than the cost.</p>' +
       '<h3>Paytable</h3><p>Multiples of your <b>total stake</b>, per winning line, for 3, 4 and 5 in a row.</p><table><tr><th>Symbol</th><th>3</th><th>4</th><th>5</th></tr>' + rows + '</table>' +
       '<details><summary>View all 40 paylines</summary><div class="cz-lines">' + lines + '</div></details>' +
-      '<div class="rtp"><b>Tested return</b> <span class="cz-rtp">96.5% for the base game (4,000,000 simulated spins; hit rate 1 in 2.5, the Cannon Bonus 1 in 213), 96.0% for GRAND CANNON and 95.6% for SPOTLIGHT SHOW</span>. These figures assume you take the <b>recommended</b> option at the cannon (the panel marks it, and Space and autoplay pick it). Always collecting the first shot returns about 90%. Rounds are drawn on the server with a secure random generator and settle once. Space spins; a tap or Space during a spin stops the reels at once.</div>' +
+      '<div class="rtp"><b>Tested return</b> <span class="cz-rtp">96.5% for the base game (4,000,000 simulated spins; hit rate 1 in 2.5, the Cannon Bonus 1 in 213), 96.0% for GRAND CANNON and 96.0% for SPOTLIGHT SHOW</span>. The ringmaster’s second shot is automatic, so every player gets the same return. Rounds are drawn on the server with a secure random generator and settle once. Space spins; a tap or Space during a spin stops the reels at once.</div>' +
       '<p>Batty Bucks are play money. They cannot be bought, sold or cashed out.</p></div>';
   }
 
@@ -461,7 +461,14 @@
       setCap('Roll up! Fire the cannon.', ''); snd('calliope');
       await ask([{ val: 1, cls: 'gold big', html: '<b>FIRE!</b>' }], { primary: 0 });
       const n = await doStep('fire'); if (!n || n === 'stale') return n;
-      clearUi(); await fly(cn, n.ev.shot); if (!G) return n;
+      clearUi();
+      if (n.ev.first) {
+        /* the ringmaster isn't happy with a small prize: he loads the cannon again */
+        await fly(cn, n.ev.first); if (!G) return n;
+        setCap(shotText(n.ev.first) + '<br><b>NOT GOOD ENOUGH!</b> The ringmaster fires again!', 'gold');
+        snd('drum'); crowdCheer(false); await nap(1600); if (!G) return n;
+      }
+      await fly(cn, n.ev.shot); if (!G) return n;
       setCap(shotText(n.ev.shot), 'gold'); paintHud(n);
       if (n.phase !== 'decide') await announce(n.ev.shot, n); else await nap(500);
       return n;

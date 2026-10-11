@@ -707,7 +707,7 @@
       '<h3>Return</h3><table><tr><th>Bet</th><th>Designed return</th></tr>' +
       '<tr><td>Main bet, Bat Advice</td><td>97.85%</td></tr><tr><td>Main bet on the live table (10,000,000 simulated hands)</td><td>98.03%</td></tr><tr><td>Perfect Pairs (exact)</td><td>98.07%</td></tr><tr><td>21+3 (exact)</td><td>98.12%</td></tr>' +
       '<tr><td>Insurance (optional, never advised)</td><td>92.61%</td></tr></table>' +
-      '<p class="rtp">Designed return 97.85% (main bet, Bat Advice; exact analysis 97.854%, confirmed by 40,000,000 simulated hands). Perfect Pairs 98.07%, 21+3 98.12%. Live-balanced site-wide to a 98% target. Batty Bucks have no cash value.</p>';
+      '<p class="rtp">Designed return 97.85% (main bet, Bat Advice; exact analysis 97.854%, confirmed by 40,000,000 simulated hands). Perfect Pairs 98.07%, 21+3 98.12%. The server balances live play towards the site’s target return. Batty Bucks have no cash value.</p>';
   }
 
   /* ============================== memory and sound ============================== */

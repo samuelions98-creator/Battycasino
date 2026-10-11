@@ -99,12 +99,9 @@ The full rules are in `docs/GAME-BRIEF.md`. In short:
 
 - **Bonkers Time frame rate:** the wheel runs at about 45–50 fps in headless software rendering. It should be fine on
   real devices, but is worth a look on a low-end phone.
-- **Practice-mode High Roller lock:** Velvet Baccarat goes back to the lobby when a player below level 5 opens it,
-  while Royale and Vault show a lock card. Harmless, but inconsistent.
-- **Returns outside 96–97%:** Bat Bandits and Starwing quote about 98% (existing maths). Royale and Baccarat use standard
-  table-game returns.
-- **"Indiana Bats":** a Book of Bats symbol and feed label are named after a film-character pun; rename it if you want.
 - **Bat Pass extra queries:** the hook adds about 6–8 queries per round. Fine for current traffic.
+- The earlier loose ends (Circus strategy gap, Starwing and Bat Bandits returns, the "Indiana Bats" name, the Baccarat
+  lock screen) are cleaned up; see RELEASES.md.
 
 ## 5. Deploying
 

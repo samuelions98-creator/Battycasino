@@ -1,7 +1,7 @@
 <?php
 /* Live RTP balancing — a "compensated machine", per game, site-wide.
 
-   Every game's maths is designed to return about 98% on its own. On top of that, each game keeps a running record of what it has
+   Every game's maths is designed to return about 96-97% on its own. On top of that, each game keeps a running record of what it has
    taken and paid across ALL players: a recent window (exponentially decayed, so old play fades out) and the lifetime total.
    From those it works out a bias between -1 and +1:
        bias > 0  the game has been paying MORE than its target  -> lean tighter
@@ -12,10 +12,10 @@
                                       if it is running cold and the draw is a loss, it may be redrawn once. The second draw always stands.
                                       Nothing else changes, so every outcome the player sees is a genuine draw from the game's maths.
      rtp_bias($game)                — the raw number, for games with their own lever (e.g. Moonshot's crash curve, a mines table).
-   Targets default to 98% and can be changed per game in the admin panel (settings key rtp_<game>, a percentage). */
+   Targets default to 96.5% and can be changed per game with the settings key rtp_<game> (a percentage). */
 if (!defined('BATTY')) { http_response_code(403); exit; }
 
-const RTP_DEFAULT = 98.0;          // %
+const RTP_DEFAULT = 96.5;          // % (every game's maths is designed for 96-97%; set rtp_<game> in settings to override one game)
 const RTP_WINDOW = 3000000;        // BB of stake: the recent window's decay length
 const RTP_SPAN = 0.06;             // the recent window running 6 points off target -> full bias
 const RTP_LIFE_SPAN = 0.015;       // lifetime running 1.5 points off target -> full bias

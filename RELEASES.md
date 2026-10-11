@@ -47,11 +47,25 @@ upload-only zip for any one release.
 ## Returns at a glance
 
 Every game's return is proven by its simulation (`tools/<id>-sim.js`). For each game with a server, the browser and PHP
-maths are proven identical on seeded rounds (`tools/<id>-xcheck.js`); all eleven parity checks pass on the final build.
+maths are proven identical on seeded rounds (`tools/<id>-xcheck.js`, plus `tools/paytable-xcheck.js` for Starwing and Bat
+Bandits); every parity check passes on the final build.
 
-- Most games sit in the 96–97% target.
-- Above it, by design:
-  - Roulette Royale: 97.3%, standard single-zero roulette.
-  - Velvet Baccarat: standard paytables, Banker 98.9%.
-  - Bat Bandits and Starwing: about 98%, existing maths.
+- Every slot and game show sits in the 96–97% band:
+  - Batty Circus: 96.5% base for every player (the ringmaster's second shot is automatic); GRAND 96.0%, SPOTLIGHT 96.0% at 168×.
+  - Starwing: 96.5% (paytable trimmed from 98.3%).
+  - Bat Bandits: 96.9% base and 96.2% Bonus Buy (paytable trimmed from 98.4% / 97.7%).
+- Table games keep standard returns: Roulette Royale 97.3%, Velvet Baccarat Banker 98.9%.
 - A hair under 96%: a few Bonkers and Bunky bonus spots, within rounding.
+- The live balancer (`lib/rtp.php`) now targets **96.5%** for every game, matching the designs (it was 98%). Override one
+  game with the settings key `rtp_<game>`.
+
+## Loose ends cleaned up (final build)
+
+- Batty Circus: the cannon's COLLECT/RETRY choice is replaced by the ringmaster's automatic second shot, so the 96.5%
+  return no longer depends on playing well (always collecting used to return about 90%). Bought shots follow the same
+  rule; SPOTLIGHT re-priced from 175× to 168×.
+- Starwing and Bat Bandits paytables trimmed into the 96–97% band (40,000,000-spin simulations; browser and server
+  identical).
+- The Book of Bats explorer is now "Professor Flaps".
+- Practice mode no longer shows the "Reconnecting to the casino…" banner.
+- Velvet Baccarat's lock screen was already consistent with the other lounge games (checked).
