@@ -1,116 +1,115 @@
 # Batty Casino: handover notes
 
 Branch: `ccr-566e675f-m94nev` (GitHub: samuelions98-creator/Battycasino)
-Status date: 9 October 2026
+Status date: 11 October 2026. **The big update is complete.** Every game is built, tested online and in practice mode,
+and rolled into one full build (see `RELEASES.md` for the release history and `UPLOAD-README.txt` to deploy).
+There is no work in progress: `wip/` holds only its deny-all `.htaccess`.
 
-## 1. What is finished and in the live build
+## 1. What's in the build
 
-These are all in `Batty-Casino-latest.zip` and on the branch, tested in a browser against a real PHP/MySQL server.
+### Games (19)
+| Game | Kind | Shelf | Return |
+|---|---|---|---|
+| Batty's Moonshot | crash, live | Live | existing |
+| Plachinko | pachinko | Arcade | existing |
+| Sugar Fang Bonanza, Bat Bandits UltraNudge, Raging Cocks of Olympus 2, Fishing Frenzy, Starwing | slots | Slots | existing (animation upgrades only) |
+| Batty Circus | slot, rebuilt | Slots (featured) | 96.5% |
+| Book of Bats | expanding-symbol slot + gamble | Slots | 96.5% |
+| Night Train | hold & win slot + buy | Slots (featured) | 96.2% |
+| Gummy Bats | 7×7 cluster pays + two buys | Slots | 96.4% |
+| Count Batula's Crypt | cascading ways, ante, buy, gamble wheel | Slots (featured) | 96.7% |
+| Bat Jack | live blackjack table (Barnaby) | Tables | 97.9% with Bat Advice |
+| Bunky Time | live wheel show | Live (featured) | 96.0% |
+| Bonkers Time | live game show, four bonus scenes | Live (featured) | 96.0% |
+| Bat Derby | live bat racing | Arcade | 96.0% |
+| Roulette Royale | live European roulette | High Roller (level 5+) | 97.3% |
+| Velvet Baccarat | live baccarat, squeeze, roadmaps | High Roller (level 5+) | Banker 98.9% |
+| Crimson Vault | heist slot, pick-your-vault | High Roller (level 5+) | 96.7% |
+
+The lobby's **Live** filter lists every shared live game: the Live Studio shelf plus Bat Jack, Bat Derby, Royale and
+Baccarat (`LIVE_SHARED` in `index.html`).
+
+### Platform
+- **Daily Wheel:** a free daily spin with a 7-day streak multiplier. The Premium Wheel costs 25,000 BB and takes money
+  out of the economy.
+- **Bat Pass:** 50 tiers a season. The Free track pays 122,500 BB. The Gold track costs 250,000 BB and pays 225,000 BB
+  plus cosmetics and perks, deliberately under its price.
+- **Belfry Shop:** frames, accessories, name styles and effects, plus crates and a Locker; equipped items show on avatars.
+- Server code: `lib/platform/*` and `lib/schema/platform.php`. Client: `core/platform.js` and `core/platform.css`.
+- `plat_safe()` keeps `me` and every game round working even before "Update database" has run.
+
+### Shell
+- **Lobby:** carousel, filters, search, favourites and shelves, with a velvet High Roller Lounge that has level-5 locks.
+- **Mobile tab bar:** Lobby, Live, Bat Pass, Shop, Ranks, Me.
+- **Big-win show:** tiered, at 10×, 25×, 75× and 250×.
+- **Play settings:** sound and a reality-check reminder.
+- **Reconnect banner** when the server can't be reached.
+- **Service worker** (`sw.js`): precaches every game file at the exact `?v=` tag `index.html` requests. **When you change
+  a game, bump its `?v=` in both `index.html` and `sw.js`, and bump `V` at the top of `sw.js`.**
+
+## 2. How the games are built
+
+The full rules are in `docs/GAME-BRIEF.md`. In short:
 
 **Structure**
-- `index.html` went from 1.2 MB to about 110 KB. Each game now lives in `games/<id>/game.js` + `style.css`, and the shell
-  layer is in `core/shell.css`.
-- New tables can be added per module in `lib/schema/<name>.php`; `lib/schema.php` merges them. Admin → "Update database"
-  creates them.
+- Each game is `games/<id>/game.js` + `style.css`, and its server is `lib/games/<id>.php`.
+- `game.js` starts with the pure maths (a UMD export to `BattyMath.<id>`), then a `/* ===== <id> ===== */` marker, then
+  the presentation. The sim and xcheck tools load the file up to the marker.
 
-**Lobby redesign**
-- A featured carousel (swipe, auto-advance) and a welcome strip with a greeting, the hourly-bonus progress ring and rescue.
-- Sticky filter chips (All / Favourites / New / Live / Slots / Tables & Arcade / High Roller) and search.
-- Shelves: Jump back in (recently played), Live Studio, New, Slots, Tables & Arcade, and a velvet High Roller Lounge
-  with level-5 locks.
-- Favourite hearts and LIVE/NEW/Flagship badges.
-- A mobile app-style tab bar (Lobby, Live, Bat Pass*, Shop*, Ranks, Me). *Only appears once those pages exist.
-- Games still being built register as "Coming soon" and are hidden from the floor automatically.
+**Rounds and maths**
+- Rounds are server-authoritative.
+- Practice mode, used when `api.php` doesn't answer, runs the same maths in the browser.
+- `tools/<id>-sim.js` proves the return; `tools/<id>-xcheck.js` (+ `.php`) proves the JS and PHP give identical results
+  on seeded rounds. Run them after any maths change; all eleven pass on the final build.
 
-**Big-win show**
-- Tiered: Big (10×), Mega (25×), Batty (75×), Absolutely Batsh!t (250×). Each tier gets its own slice of the count, with
-  colour, sound and effects.
-- A progress bar to the next tier, and tap or Space to skip.
+**Held rounds**
+- Games that hold a round open between requests are settled in `lib/play.php`, in `resolve_open` and `resolve_stale`:
+  Book of Bats (gamble), Crypt (free-spin offer), Crimson Vault (vault pick), Bat Jack and Bunky.
+- The live games settle players who have left from other players' polls.
 
-**Play settings** (lobby footer)
-- Sound, plus an optional reality-check reminder (off / 30 min / 1 h / 2 h; default 1 h) that shows time played and this
-  visit's stakes and wins.
+**Live games**
+- They follow a server clock. Everything on screen is computed from round data plus the clock, so every viewer sees the
+  same thing and a reload resumes mid-round.
+- Bonkers and Bunky have a test-only `op:'devforce'`. It only exists on PHP's built-in server from localhost, never on
+  the real site.
 
-**Reconnecting banner** when the server can't be reached.
+**High Roller games**
+- `section: 'highroller', minLevel: 5`, stakes 2,000–250,000.
+- The server refuses players below level 5; the page shows a lock screen.
 
-**Animation upgrades merged** (maths untouched, byte-identical):
-- Batty's Moonshot
-- Plachinko
-- Sugar Fang Bonanza
-- Bat Bandits UltraNudge
+**Lobby feed**
+- A win posts when it is ≥25× and ≥2,500 BB, or ≥50,000 BB and ≥5× the stake (`after_round` in `lib/wallet.php`).
+- Games set `feedLabel` only for genuinely notable wins (about 100× or more).
 
-**Bug fixes**
-- **Logout race:** a feed poll in flight during login could overwrite the new session cookie and log the player straight
-  back out. Fixed in `current_user()` in `lib/core.php`.
-- **Night Crawler achievement:** it required Bat Signal Roulette, which isn't in the lobby, so it was impossible.
-  It now ignores hidden games (`BATTY_HIDDEN_GAMES`).
-- **Daily missions:** the "play this game" mission now covers every lobby game, and no longer picks the retired roulette.
-- **`<head>`:** the `<title>`, fonts and description were inside `<body>`; they're fixed. The service worker is updated
-  for the new layout.
+**Dev hooks**
+- Practice mode only, with `localStorage['batty-dev'] = '1'`.
+- For example: `window.crDev`, `window.ntDev`, `window.bobDev`, `window.vtDev`, `window.__royaleDev`,
+  `window.__baccaratDev`, `window.__derbyDev`, `window.__bonkersDev` and `window.__batjackDev`.
 
-**Registered game IDs (placeholders until built)**
-- Server and client lists already know: `crypt`, `nighttrain`, `gummy`, `bookofbats`, `derby`, `bonkers`, `vault`,
-  `baccarat`, `royale`.
-- Each has a placeholder `games/<id>/game.js` (tag "Coming soon", hidden in the lobby) and `lib/games/<id>.php`, which
-  returns "opening soon".
+## 3. Local test setup
 
-## 2. Work in progress (NOT in the live build)
+- PHP 8 built-in server + MariaDB; `config.php` pointing at a local DB, then `install.php`, then Admin → Update database.
+- `tools/shot.js` (Playwright) logs in and screenshots any `#hash`:
+  `PORT=… USER_NAME=… node tools/shot.js "lobby,circus" out/`.
+- To test High Roller games, raise a test user's `level` to 5+ in the `users` table.
+- Logins are rate-limited per IP (the `attempts` table). Clear it locally if a test script gets locked out.
+- Practice mode can be tested by routing `api.php` to a 404 (hide the `.bc-net` offline banner in screenshots).
 
-Twenty specialist agents were building these in parallel when we stopped. Their unfinished files are saved under `wip/<area>/` with the
-same paths as the site (and in `Batty-Casino-WIP.zip`). Everything there passes `node --check` / `php -l`, but none of it
-has been integrated or fully tested, so **do not upload `wip/` to the live site**. It has a deny-all `.htaccess` just in
-case.
+## 4. Known notes and possible next steps
 
-| Area | State when stopped | What's left |
-|---|---|---|
-| **Batty Circus rebuild** (`circus-rebuild`) | New maths (`math.js`), reel strips, PHP engine, RTP sim and JS↔PHP parity check written; art module half done | Finish `art.js`, write `game.js` (all scenes: cannon, 5 acts), CSS, switch the `index.html`/`sw.js` circus tags to `games/circus/` |
-| **Bunky Time live** (`bunky-live`) | Shared-round server done (`lib/play.php` Bunky section, `lib/games/bunky.php`, `lib/schema/bunky.php`); client live loop done | Live bonus scenes, then two-player test |
-| **Bonkers Time** (Crazy Time-style live show) (`bonkers-live`) | Maths, RTP sim, PHP live engine, schema, parity check, main client engine | The four bonus scenes (Coin Flap, Crypt Hunt, Drop Zone, BONKERS TIME), then test |
-| **Bat Derby** (`derby-new`) | Server live race flow works end to end, including settling players who left; odds model + sim + parity | The whole presentation (race animation, bet slip) |
-| **Roulette Royale** (`royale-highroller`) | Server, schema, parity and RTP checks pass | The presentation (wheel, ball, table, racetrack) |
-| **Velvet Baccarat** (`baccarat-highroller`) | Server, schema, shoe, sim and parity done | The client engine and presentation (squeeze, roadmaps) |
-| **Night Train** (`nighttrain-new`) | Maths, PHP, client and parity written | RTP tuning (max-win frequency too high), then visual QA |
-| **Gummy Bats** (`gummy-new`) | Maths, PHP, sim and parity done | The client game logic/animation |
-| **Book of Bats** (`bookofbats-new`) | Maths, PHP, sim and parity done; client JS written | The stylesheet, then QA |
-| **Count Batula's Crypt** (`crypt-new`) | Draft maths + sim only | Most of it |
-| **Crimson Vault** (`vault-highroller`) | Early PHP engine only | Most of it |
-| **Daily Wheel + Bat Pass + Belfry Shop** (`platform-wheel-pass-shop`) | Server: `lib/platform/{core,wheel,pass,shop}.php`, `lib/schema/platform.php`, hooks in `api.php`/`lib/wallet.php`/`lib/social.php`. Client `core/platform.js` partly written | Finish `platform.js` and write `core/platform.css`; add the `<script>`/`<link>`; then test claims, purchases and equip |
-| **Olympus / Fishing / Bat Jack animation** | New `game.js` written (maths identical) | Their stylesheets were being rewritten; the new JS does not match the old CSS, so don't drop in the JS alone |
-| **Starwing animation** | JS + CSS reworked | A performance problem (very low frame rate) was being bisected |
+- **Bonkers Time frame rate:** the wheel runs at about 45–50 fps in headless software rendering. It should be fine on
+  real devices, but is worth a look on a low-end phone.
+- **Practice-mode High Roller lock:** Velvet Baccarat goes back to the lobby when a player below level 5 opens it,
+  while Royale and Vault show a lock card. Harmless, but inconsistent.
+- **Returns outside 96–97%:** Bat Bandits and Starwing quote about 98% (existing maths). Royale and Baccarat use standard
+  table-game returns.
+- **"Indiana Bats":** a Book of Bats symbol and feed label are named after a film-character pun; rename it if you want.
+- **Bat Pass extra queries:** the hook adds about 6–8 queries per round. Fine for current traffic.
 
-**Shared-file edits inside `wip/`:** the copies of `lib/play.php`, `lib/wallet.php`, `lib/social.php` and `api.php` are
-that agent's full modified versions. Merge them by hand against the current files (the main branch has since changed
-`lib/wallet.php` missions and `lib/core.php`); don't overwrite.
+## 5. Deploying
 
-## 3. How to continue
-
-- `docs/GAME-BRIEF.md` is the full quality bar, API and rules every game was built to. It covers server-authoritative
-  rounds, 96–97% RTP proven by simulation, JS↔PHP parity on seeded RNGs, and fitting 1280×800, 1440×900, 390×844 and
-  844×390.
-- **Local test setup:**
-  - PHP 8 built-in server + MariaDB.
-  - `config.php` pointing at a local DB, then `install.php`.
-  - `tools/shot.js` (Playwright) logs in and screenshots any `#hash` (`PORT=… USER_NAME=… node tools/shot.js "lobby,circus" out/`).
-- **To finish a WIP game:**
-  1. Copy its `wip/<area>/…` files into place.
-  2. Run its `tools/<id>-sim.js` and `tools/<id>-xcheck.js`.
-  3. Finish the client, play it online and in practice mode, then commit.
-  4. In admin, press "Update database" once so its tables exist.
-- **High Roller rules**, used by `vault`, `baccarat` and `royale`:
-  - `section: 'highroller', minLevel: 5`
-  - stakes 2,000–250,000
-  - the server refuses players below level 5
-- **Lobby shelf placement:** use `section` in `registerGame` (`slots`, `live`, `tables`, `arcade`, `highroller`), plus
-  `isNew` / `featured`.
-- **Feed etiquette:** only set `feedLabel` in round facts for genuinely notable wins; any non-empty label posts to the
-  lobby feed.
-
-See RELEASES.md for the order in which to finish and ship each piece.
-
-## 4. Deploying
-
-See `UPLOAD-README.txt`.
+See `UPLOAD-README.txt`:
 1. Back up.
-2. Extract `Batty-Casino-latest.zip` over the site root (keep your `config.php`).
+2. Extract the full-build zip over the site root, keeping `config.php`.
 3. Admin → Update database.
 4. Purge the Cloudflare cache.
