@@ -12,7 +12,7 @@
                                       if it is running cold and the draw is a loss, it may be redrawn once. The second draw always stands.
                                       Nothing else changes, so every outcome the player sees is a genuine draw from the game's maths.
      rtp_bias($game)                — the raw number, for games with their own lever (e.g. Moonshot's crash curve, a mines table).
-   Targets default to 96.5% and can be changed per game with the settings key rtp_<game> (a percentage). */
+   Targets default to 96.5%; the settings key rtp_default changes them all and rtp_<game> overrides one (a percentage). The Admin page edits both. */
 if (!defined('BATTY')) { http_response_code(403); exit; }
 
 const RTP_DEFAULT = 96.5;          // % (every game's maths is designed for 96-97%; set rtp_<game> in settings to override one game)
@@ -21,8 +21,31 @@ const RTP_SPAN = 0.06;             // the recent window running 6 points off tar
 const RTP_LIFE_SPAN = 0.015;       // lifetime running 1.5 points off target -> full bias
 const RTP_REROLL = 0.6;            // at full bias, chance a qualifying draw is redrawn
 
+/* The Return Boost: on top of each game's own maths, a fixed share of every stake is paid back automatically, in every game
+   except the table games (whose own return is already near 100%). It is set from the Admin page (settings key rtp_boost,
+   in percentage points) and applies to the stake up to RTP_BOOST_CAP, like the jackpots, so one giant bet cannot farm it.
+   It is paid with credit() and never counted as a game win, so the live balancer and the Batty Cup are unaffected. */
+const RTP_BOOST_DEFAULT = 0.5;
+const RTP_BOOST_MAX = 3.0;
+const RTP_BOOST_CAP = 100000;
+const RTP_BOOST_EXCLUDED = ['batjack', 'baccarat', 'royale', 'roulette'];
+function rtp_boost_pct(): float {
+    $v = setting('rtp_boost');
+    $b = $v === null || $v === '' ? RTP_BOOST_DEFAULT : (float) $v;
+    return max(0.0, min(RTP_BOOST_MAX, $b));
+}
+/* Called for every settled round (from after_round). The fractional BB is paid by chance, so it is exact on average. */
+function rtp_boost_apply(array &$u, string $game, int $stake): void {
+    if ($stake <= 0 || in_array($game, RTP_BOOST_EXCLUDED, true)) return;
+    $b = rtp_boost_pct(); if ($b <= 0) return;
+    $x = min($stake, RTP_BOOST_CAP) * $b / 100;
+    $pay = (int) floor($x);
+    if (random_int(0, 999999) < ($x - $pay) * 1000000) $pay++;
+    if ($pay > 0) credit($u, $pay, 'boost', $game, null, 'Return boost');
+}
 function rtp_target(string $game): float {
     $v = setting('rtp_' . $game);
+    if ($v === null || $v === '') $v = setting('rtp_default');
     $t = $v === null || $v === '' ? RTP_DEFAULT : (float) $v;
     return max(50.0, min(120.0, $t)) / 100;
 }

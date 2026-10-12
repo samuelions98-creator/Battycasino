@@ -36,6 +36,7 @@ Baccarat (`LIVE_SHARED` in `index.html`).
 - **Bat Pass:** 50 tiers a season. The Free track pays 122,500 BB. The Gold track costs 250,000 BB and pays 225,000 BB
   plus cosmetics and perks, deliberately under its price.
 - **Belfry Shop:** frames, accessories, name styles and effects, plus crates and a Locker; equipped items show on avatars.
+- **Return to player:** Admin → Return to player sets the Return Boost (`rtp_boost`, `rtp_boost_apply()` in `lib/rtp.php`) and the balancers' targets (`rtp_default`, `rtp_<game>`). Keep game return + boost + jackpots (about 2.5) under 100%.
 - **Batty Jackpots:** four progressive pools fed by every bet of 100 BB or more (`lib/platform/jackpot.php`, `lib/schema/jackpots.php`); `jp_after_round()` runs from `plat_after_round`. Tune with `JP_TIERS` or the `jp_scale` setting.
 - **Batty Cup:** weekly tournament by best single-round multiplier (`lib/platform/cup.php`, `lib/schema/cup.php`, page `#cup` in `core/platform.js`). Scores are recorded from `plat_after_round`; prizes are paid lazily and exactly once.
 - Server code: `lib/platform/*` and `lib/schema/platform.php`. Client: `core/platform.js` and `core/platform.css`.

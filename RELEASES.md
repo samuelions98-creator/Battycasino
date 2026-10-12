@@ -45,6 +45,7 @@ upload-only zip for any one release.
 | QA | **Final QA and polish** (Bat Derby leaderboard, Bonkers Time frame rate, lobby carousel and big-win show on phones, top bar at 390px, service-worker precache for every game, Live filter lists every live table, Sugar Fang timer fix) | `8370e18` | — | no |
 | 16 | **Unlimited bets** (bet any amount up to your balance in every game: tap a stake to type one or pick MAX; the top chip on every table is yours to set; no table limits; level rewards stop growing at level 100) | see branch | ~150 KB | **yes** (recommended) |
 | 16a | **Top-up fix** ("Finish your current round first" no longer locks players out: unfinished Circus shows and every other left-behind round are settled automatically, and the top-up then goes through) | see branch | small | no |
+| 19 | **Adjustable return to player** (new Admin panel: a Return Boost that pays extra % of every stake back in all slots, arcade and live games, plus editable target returns for the nine self-balancing games) | see branch | ~25 KB | no |
 | 18 | **Batty Jackpots + a better-paying Echo Chamber** (four progressive pools fed by every bet in every game; Echo Chamber now returns up to 98% with 15 levels and a 25.2× top prize) | see branch | ~40 KB | **yes** |
 | 17 | **Batty Cup + Echo Chamber** (a weekly tournament ranked by best single-round multiplier, with prizes for the top ten; and a memory skill game) | see branch | ~60 KB | **yes** |
 
@@ -112,6 +113,19 @@ Players can bet as much as they like, up to their balance, in every game.
   unaffected. "Update database" adds the tables and seeds the pools.
 - **Echo Chamber pays better:** perfect memory now returns up to 98% (was 96%), the ladder is 15 levels (was 12) with a
   25.20× top prize (was 12.43×), and the early storms are gentler. `tools/echo-xcheck.js` proves no strategy beats 98%.
+
+## Adjustable return to player (release 19)
+
+Admin → **Return to player**:
+- **Return boost** (default 0.5 points, max 3): this share of every stake is paid back automatically, in every slot, arcade
+  game and live show (not Bat Jack, Baccarat or Roulette Royale, whose own return is already near 100%). It counts the stake
+  up to 100,000 BB, is paid as a separate ledger entry ("boost") and is never counted as a game win. Settings key `rtp_boost`.
+- **Balanced games' target return** (default 96.5%, settings key `rtp_default`, or one game's own `rtp_<game>`): Bat Jack,
+  Sugar Fang, Book of Bats, the Crypt, Gummy Bats, Night Train, Starwing, Bat Bandits and Crimson Vault steer their own return
+  toward it by redrawing some outcomes, so raising it makes them pay more, gradually.
+- The table shows each game's target, recent and lifetime return, and an estimated total (game + boost + about 2.5 points of
+  Batty Jackpots), in red at 100% or more. Keep the total under 100% or players can grow their Batty Bucks without limit.
+  Fixed-maths games (Olympus, Fishing Frenzy, Plachinko, Moonshot, Circus and the live shows) are raised with the boost.
 
 ## Loose ends cleaned up (final build)
 

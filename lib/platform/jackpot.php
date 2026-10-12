@@ -46,5 +46,5 @@ function jp_api_state(): array {
     $hits = [];
     foreach (q('SELECT h.tier, h.amount, h.game, h.created_at, u.username, u.avatar FROM jp_hits h JOIN users u ON u.id = h.user_id ORDER BY h.id DESC LIMIT 8')->fetchAll() as $h)
         $hits[] = ['tier' => $h['tier'], 'name' => JP_TIERS[$h['tier']]['name'] ?? $h['tier'], 'amount' => (int) $h['amount'], 'game' => $h['game'], 'who' => $h['username'], 'avatar' => $h['avatar'], 'at' => strtotime($h['created_at'] . ' UTC')];
-    return ['pools' => $pools, 'hits' => $hits, 'minStake' => JP_MIN_STAKE, 'capStake' => JP_CAP_STAKE];
+    return ['pools' => $pools, 'hits' => $hits, 'minStake' => JP_MIN_STAKE, 'capStake' => JP_CAP_STAKE, 'boost' => rtp_boost_pct(), 'boostCap' => RTP_BOOST_CAP];
 }

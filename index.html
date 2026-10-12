@@ -409,6 +409,7 @@ button:disabled { cursor: not-allowed; }
 
 /* ---------- admin ---------- */
 .ad .ol-panel { margin-top: 6px; }
+.ad-rtp .ad-tin { width: 88px; max-width: 100%; padding: 4px 8px; font-size: 14px; } .ad-rtp .tr { grid-template-columns: minmax(120px, 1.6fr) repeat(4, minmax(0, 1fr)); } .ad-hot { color: #ff7a8a; font-weight: 800; } .ad-rtp small { color: var(--mute); }
 .ad-ctl, .ad-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .ad-ctl input { flex: 1; min-width: 180px; }
 .ad-row input { flex: 1; min-width: 150px; width: auto; }
@@ -456,7 +457,7 @@ button:disabled { cursor: not-allowed; }
 <link rel="stylesheet" href="games/baccarat/style.css?v=20261011c">
 <link rel="stylesheet" href="games/royale/style.css?v=20261011b">
 <!-- Platform: Daily Prize Wheel, Bat Pass, Belfry Shop -->
-<link rel="stylesheet" href="core/platform.css?v=20261012c">
+<link rel="stylesheet" href="core/platform.css?v=20261012d">
 </head>
 <body>
 <div id="batty-app"></div>
@@ -1717,8 +1718,8 @@ window.Batty = (function () {
       let dead = false;
       const wrap = h('div', { class: 'pg-wrap ad' });
       root.append(wrap);
-      const statsBox = h('section', { class: 'ol-panel' }), usersBox = h('section', { class: 'ol-panel' }), feedBox = h('section', { class: 'ol-panel' }), siteBox = h('section', { class: 'ol-panel' });
-      wrap.append(h('h1', { class: 'pg-h1' }, 'Admin'), statsBox, usersBox, siteBox, feedBox);
+      const statsBox = h('section', { class: 'ol-panel' }), rtpBox = h('section', { class: 'ol-panel' }), usersBox = h('section', { class: 'ol-panel' }), feedBox = h('section', { class: 'ol-panel' }), siteBox = h('section', { class: 'ol-panel' });
+      wrap.append(h('h1', { class: 'pg-h1' }, 'Admin'), statsBox, rtpBox, usersBox, siteBox, feedBox);
       async function stats() {
         const s = await B.api('admin_stats'); if (dead) return;
         statsBox.textContent = '';
@@ -1728,7 +1729,39 @@ window.Batty = (function () {
         for (const id of Object.keys(GN)) { const g = s.games[id]; gt.append(h('div', { class: 'tr' }, h('span', null, GS[id]), h('span', null, g ? fmt(id === 'plachinko' ? g.balls : g.rounds) : '0'), h('span', null, g ? fmt(g.staked) : '0'), h('span', null, g ? fmt(g.won) : '0'), h('span', null, g && g.rtp != null ? g.rtp + '%' : '–'))); }
         statsBox.append(h('header', null, h('h2', null, 'Overview'), h('small', null, 'Batty Bucks held by players: ' + fmt(s.bankroll) + ' · open rounds: ' + s.openRounds)), top, h('div', { class: 'pf-scroll' }, gt),
           h('p', { class: 'pg-sub' }, 'Actual return drifts around each game’s tested ~96% and settles towards it as more rounds are played.'));
+        rtp().catch(() => {});
         annIn.value = s.announce || ''; seasonNote.textContent = s.season ? 'Current season started ' + new Date(s.season.replace(' ', 'T') + 'Z').toLocaleString('en-GB') : 'No season reset yet.';
+      }
+      /* return to player: the Return Boost (every game) and the balanced games' target returns */
+      async function rtp(d) {
+        d = d || await B.api('admin_rtp'); if (dead) return;
+        const num = (v) => (v == null ? '–' : v + '%');
+        const boostIn = h('input', { type: 'number', step: '0.1', min: '0', max: String(d.boostMax), value: String(d.boost), id: 'ad-boost', 'aria-label': 'Return boost in percentage points' });
+        const boostBtn = h('button', { class: 'bc-btn', type: 'button' }, 'Save boost');
+        boostBtn.onclick = async () => { busy(boostBtn, true); try { await rtp(await B.api('admin_rtp_set', { boost: parseFloat(boostIn.value) })); B.ui.toast('Return boost saved'); } catch (e) { B.ui.toast(e.message); } busy(boostBtn, false); };
+        const defIn = h('input', { type: 'number', step: '0.1', min: '80', max: '110', value: String(d.default), id: 'ad-rtpdef', 'aria-label': 'Target return for balanced games' });
+        const defBtn = h('button', { class: 'bc-btn ghost', type: 'button' }, 'Set all balanced games');
+        defBtn.onclick = async () => { busy(defBtn, true); try { await rtp(await B.api('admin_rtp_set', { default: parseFloat(defIn.value) })); B.ui.toast('Target return saved'); } catch (e) { B.ui.toast(e.message); } busy(defBtn, false); };
+        const gt = h('div', { class: 'pf-table ad-rtp' }, h('div', { class: 'tr th' }, h('span', null, 'Game'), h('span', null, 'Target'), h('span', null, 'Recent'), h('span', null, 'Lifetime'), h('span', null, 'Est. total')));
+        for (const g of d.games) {
+          let tgt;
+          if (g.balanced) {
+            const inp = h('input', { type: 'number', step: '0.1', min: '80', max: '110', value: String(g.target), 'aria-label': g.name + ' target return', class: 'ad-tin' });
+            inp.onchange = async () => { try { await rtp(await B.api('admin_rtp_set', { game: g.id, value: inp.value })); } catch (e) { B.ui.toast(e.message); } };
+            tgt = h('span', null, inp, g.custom ? h('small', null, ' own') : null);
+          } else tgt = h('span', null, g.designed != null ? g.designed + '% ' : '–', h('small', null, 'fixed'));
+          const base = g.balanced ? g.target : g.designed;
+          const est = base == null ? null : Math.round((base + (g.boosted ? d.boost : 0) + d.jackpots) * 10) / 10;
+          gt.append(h('div', { class: 'tr' }, h('span', null, g.name), tgt, h('span', null, num(g.recent)), h('span', null, num(g.life)), h('span', { class: est != null && est >= 100 ? 'ad-hot' : '' }, est == null ? '–' : est + '%')));
+        }
+        rtpBox.textContent = '';
+        rtpBox.append(h('header', null, h('h2', null, 'Return to player'), h('small', null, 'Make the whole site pay better')),
+          h('b', null, 'Return boost'), h('p', { class: 'pg-sub' }, 'Extra percentage points of every stake paid back automatically, in every slot, arcade game and live show (not the table games). 0.5 means 0.5 BB back for every 100 BB staked, counted up to ' + fmt(d.boostCap) + ' BB a round. Max ' + d.boostMax + '.'),
+          h('div', { class: 'ad-ctl' }, boostIn, boostBtn),
+          h('b', null, 'Balanced games'), h('p', { class: 'pg-sub' }, 'Nine games steer their own return toward a target by redrawing some outcomes (Bat Jack, Sugar Fang, Book of Bats, the Crypt, Gummy Bats, Night Train, Starwing, Bat Bandits, Crimson Vault). Raise it to make them pay more; it moves gradually as players play.'),
+          h('div', { class: 'ad-ctl' }, defIn, defBtn),
+          h('div', { class: 'pf-scroll' }, gt),
+          h('p', { class: 'pg-sub' }, 'Est. total = the game’s return plus the boost plus about ' + d.jackpots + ' points from the Batty Jackpots. Keep it under 100% (marked red when it is not), or players can grow their Batty Bucks without limit by playing.'));
       }
       /* site settings */
       const annIn = h('input', { id: 'ad-ann', maxlength: '200', placeholder: 'Shown at the top of the lobby. Leave empty for none.' });
@@ -1833,7 +1866,7 @@ window.Batty = (function () {
 <script src="games/circus/art.js?v=R4"></script>
 <script src="games/circus/game.js?v=R4"></script>
 <!-- Platform: Daily Prize Wheel, Bat Pass, Belfry Shop (online mode only) -->
-<script src="core/platform.js?v=20261012c"></script>
+<script src="core/platform.js?v=20261012d"></script>
 <script>
 // This should never occur with a complete deployment; make a partial FTP upload obvious.
 if (!Batty.games.circus) {

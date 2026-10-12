@@ -113,6 +113,7 @@ function after_round(array &$u, string $game, int $stake, int $win, array $f): v
     if ($bigX >= 10 && $stake > 0) event(['type' => 'bigwin', 'x' => round($bigX, 2), 'amount' => $bigWin]);
     missions_progress($u, $game, $stake, $win, $bigX, $f);
     rtp_record($game, $stake, $win);
+    rtp_boost_apply($u, $game, $stake);   // the Return Boost (lib/rtp.php)
     achievements_check($u, $game, $bigX, $f);
     /* Platform: Bat Pass XP and pass challenges (lib/platform/pass.php) */
     if (function_exists('plat_after_round')) plat_safe(function () use (&$u, $game, $stake, $win, $f, $bigX) { plat_after_round($u, $game, $stake, $win, $f, $bigX); }, null);

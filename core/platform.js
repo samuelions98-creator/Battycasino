@@ -1240,7 +1240,7 @@
   async function jpFetch() {
     if (!live() || jp.busy) return;
     jp.busy = true;
-    try { const r = await B.api('plat_jackpots', null, { defer: true }); jp.pools = r.pools; jp.hits = r.hits; jp.min = r.minStake; jp.cap = r.capStake; jp.subs.forEach((f) => f()); } catch (e) { /* keep the last numbers */ }
+    try { const r = await B.api('plat_jackpots', null, { defer: true }); jp.pools = r.pools; jp.hits = r.hits; jp.min = r.minStake; jp.cap = r.capStake; jp.boost = r.boost; jp.boostCap = r.boostCap; jp.subs.forEach((f) => f()); } catch (e) { /* keep the last numbers */ }
     jp.busy = false;
   }
   function jpSub(fn) {
@@ -1255,6 +1255,7 @@
       '<ul><li>The stake counts up to <b>' + fmt(jp.cap || 100000) + ' BB</b>: bigger bets feed the pools more and have a bigger chance, but one giant bet cannot drain them.</li>' +
       '<li>Mini hits most often, Grand least. A win pays the <b>whole pool</b>, which then restarts from its seed.</li>' +
       '<li>It works the same in every slot, arcade game and live show, and it is on top of the game\'s own prizes.</li>' +
+      '<li>Return boost: <b>' + (jp.boost || 0) + '%</b> of every stake (up to ' + fmt(jp.boostCap || 100000) + ' BB) is also paid back automatically in slots, arcade games and live shows.</li>' +
       '<li>Batty Bucks have no cash value. Jackpots are just for glory.</li></ul></div>';
   }
   function jpMoney(el, to) {

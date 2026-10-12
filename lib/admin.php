@@ -68,6 +68,8 @@ function admin_api(string $a, array $in): array {
             q("UPDATE users SET $field = ? WHERE id = ?", [!empty($in['on']) ? 1 : 0, $id]);
             return ['ok' => true];
         }
+        case 'admin_rtp': return admin_rtp_state();
+        case 'admin_rtp_set': return admin_rtp_set($in);
         case 'admin_password': {
             $id = in_int($in, 'id', 1, PHP_INT_MAX);
             $p = valid_pass((string) ($in['pass'] ?? ''));
@@ -103,4 +105,39 @@ function admin_api(string $a, array $in): array {
         }
     }
     throw new ApiError('Unknown admin action.');
+}
+
+/* ---------- return to player ---------- */
+/* Designed returns (%) from each game's own simulation, for the Admin table; null where there is no single figure. */
+const RTP_DESIGNED = ['circus' => 96.5, 'bookofbats' => 96.5, 'nighttrain' => 96.2, 'gummy' => 96.4, 'crypt' => 96.7, 'vault' => 96.7, 'starwing' => 96.5, 'ultraheist' => 96.9,
+    'bunky' => 96.0, 'bonkers' => 96.0, 'derby' => 96.0, 'batjack' => 97.9, 'royale' => 97.3, 'baccarat' => 98.9, 'echo' => 98.0];
+const RTP_BALANCED = ['batjack', 'bonanza', 'bookofbats', 'crypt', 'gummy', 'nighttrain', 'starwing', 'ultraheist', 'vault'];
+function admin_rtp_state(): array {
+    $rep = rtp_report(); $games = [];
+    foreach (BATTY_GAMES as $g) {
+        if (in_array($g, BATTY_HIDDEN_GAMES, true)) continue;
+        $r = $rep[$g] ?? [];
+        $games[] = ['id' => $g, 'name' => BATTY_GAME_NAMES[$g] ?? $g, 'designed' => RTP_DESIGNED[$g] ?? null, 'balanced' => in_array($g, RTP_BALANCED, true),
+            'target' => $r['target'] ?? null, 'custom' => !empty($r['custom']), 'recent' => $r['recent'] ?? null, 'life' => $r['life'] ?? null, 'rounds' => $r['rounds'] ?? 0,
+            'boosted' => !in_array($g, RTP_BOOST_EXCLUDED, true)];
+    }
+    $d = setting('rtp_default');
+    return ['boost' => rtp_boost_pct(), 'boostMax' => RTP_BOOST_MAX, 'boostCap' => RTP_BOOST_CAP, 'default' => $d === null || $d === '' ? RTP_DEFAULT : (float) $d, 'jackpots' => 2.5, 'games' => $games];
+}
+function admin_rtp_set(array $in): array {
+    if (array_key_exists('boost', $in)) {
+        $b = $in['boost']; if (!is_numeric($b) || $b < 0 || $b > RTP_BOOST_MAX) throw new ApiError('The boost is between 0 and ' . RTP_BOOST_MAX . ' points.');
+        set_setting('rtp_boost', round((float) $b, 2));
+    }
+    if (array_key_exists('default', $in)) {
+        $d = $in['default']; if (!is_numeric($d) || $d < 80 || $d > 110) throw new ApiError('The target return is between 80% and 110%.');
+        set_setting('rtp_default', round((float) $d, 2));
+    }
+    if (isset($in['game'])) {
+        $g = $in['game']; if (!in_array($g, RTP_BALANCED, true)) throw new ApiError('That game has fixed maths; use the boost instead.');
+        $v = $in['value'] ?? null;
+        if ($v === null || $v === '') q('DELETE FROM settings WHERE k = ?', ['rtp_' . $g]);
+        else { if (!is_numeric($v) || $v < 80 || $v > 110) throw new ApiError('The target return is between 80% and 110%.'); set_setting('rtp_' . $g, round((float) $v, 2)); }
+    }
+    return admin_rtp_state();
 }
