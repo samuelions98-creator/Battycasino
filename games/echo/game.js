@@ -3,20 +3,20 @@
    line for line to lib/games/echo.php (proved identical by tools/echo-xcheck.js on seeded rounds).
 
    A cave of four glowing crystals plays a pattern; you repeat it. Level 1 is 3 notes and every level adds one, up to
-   level 12 (14 notes). One wrong note ends the round. Each time you repeat a pattern correctly an echo-storm may knock the
+   level 15 (17 notes). One wrong note ends the round. Each time you repeat a pattern correctly an echo-storm may knock the
    bat down anyway: it passes with probability SURVIVE[level] (percent). After every cleared level you choose: bank the
    multiplier, or fly on to a longer pattern with a bigger multiplier.
 
    Skill decides how far you get. Luck is a fixed storm, so the maths is honest for everyone. The multiplier for clearing
-   level L is 96 / (product of the storm odds up to L), rounded DOWN to hundredths, so a player with perfect memory returns
-   at most 96% whatever they decide, and anyone who slips returns less. */
+   level L is 98 / (product of the storm odds up to L), rounded DOWN to hundredths, so a player with perfect memory returns
+   at most 98% whatever they decide, and anyone who slips returns less. */
 (function (root, factory) { const M = factory(); if (typeof module !== 'undefined' && module.exports) module.exports = M; (root.BattyMath = root.BattyMath || {}).echo = M; })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
-  const PADS = 4, LEVELS = 12, START_LEN = 3;
-  const SURVIVE = [93, 90, 88, 86, 84, 82, 80, 78, 76, 74, 72, 70];
+  const PADS = 4, LEVELS = 15, START_LEN = 3;
+  const SURVIVE = [95, 93, 91, 89, 87, 85, 83, 81, 79, 77, 75, 73, 71, 69, 67];
   const len = (level) => START_LEN + level - 1;
-  /* multiplier in hundredths for having cleared `level` levels (index 0..12), rounded down */
-  function mults() { const m = [0]; let p = 1; for (let i = 0; i < LEVELS; i++) { p *= SURVIVE[i] / 100; m.push(Math.floor(96 / p)); } return m; }
+  /* multiplier in hundredths for having cleared `level` levels (index 0..15), rounded down */
+  function mults() { const m = [0]; let p = 1; for (let i = 0; i < LEVELS; i++) { p *= SURVIVE[i] / 100; m.push(Math.floor(98 / p)); } return m; }
   const MULT = mults();
   const win = (stake, m100) => Math.floor(stake * m100 / 100);
   function seq(rng, n) { const s = []; for (let i = 0; i < n; i++) { const v = Math.floor(rng() * PADS); s.push(v < PADS ? v : PADS - 1); } return s; }
@@ -37,7 +37,7 @@
     const n = Object.assign({}, s); n.L++; n.seq = seq(rng, len(n.L)); n.phase = 'input';
     return n;
   }
-  /* the return of "clear k levels with perfect memory, then bank", as a fraction of the stake (always at most 0.96) */
+  /* the return of "clear k levels with perfect memory, then bank", as a fraction of the stake (always at most 0.98) */
   function perfectReturn(k) { let p = 1; for (let i = 0; i < k; i++) p *= SURVIVE[i] / 100; return p * MULT[k] / 100; }
   return { PADS, LEVELS, START_LEN, SURVIVE, MULT, len, win, seq, start, input, next, perfectReturn };
 });
@@ -76,12 +76,12 @@
   function rules() {
     const rows = []; for (let L = 1; L <= M.LEVELS; L++) rows.push('<tr><td>' + L + '</td><td>' + M.len(L) + ' notes</td><td>' + (100 - M.SURVIVE[L - 1]) + '%</td><td>' + xs(M.MULT[L]) + '</td></tr>');
     return '<div class="ec-rules"><p><b>Echo Chamber</b> is a game of memory, and the only game here where skill matters. The cave plays a pattern on four glowing crystals; repeat it note for note.</p>' +
-      '<h3>How a round goes</h3><ul><li>Pick a stake and press <b>Play</b>. Level 1 is 3 notes; every level adds one, up to 14 notes at level 12.</li>' +
+      '<h3>How a round goes</h3><ul><li>Pick a stake and press <b>Play</b>. Level 1 is 3 notes; every level adds one, up to 17 notes at level 15.</li>' +
       '<li>One wrong note and the round is over.</li><li>Every time you repeat a pattern correctly, an <b>echo-storm</b> rolls. It passes most of the time, but it can knock the bat down however well you played. The storm risk is shown before you choose to fly on.</li>' +
       '<li>After each cleared level, <b>cash out</b> the banked multiplier or <b>fly on</b> for a longer pattern and a bigger multiplier.</li>' +
-      '<li>Clear all 12 levels and the win is paid automatically.</li></ul>' +
+      '<li>Clear all 15 levels and the win is paid automatically.</li></ul>' +
       '<h3>Levels</h3><table class="ec-pt"><tr><th>Level</th><th>Pattern</th><th>Storm</th><th>Multiplier</th></tr>' + rows.join('') + '</table>' +
-      '<h3>Fair for everyone</h3><p>Each multiplier is 96 divided by the chance of getting that far through the storms, rounded down. So <b>perfect memory returns at most 96% of your stakes, whatever you decide</b>, and every slip returns less. Skill decides how close to 96% you get; nobody can beat it. The pattern is only revealed when it is played, and every result is decided by the server.</p>' +
+      '<h3>Fair for everyone</h3><p>Each multiplier is 98 divided by the chance of getting that far through the storms, rounded down. So <b>perfect memory returns at most 98% of your stakes, whatever you decide</b>, and every slip returns less. Skill decides how close to 98% you get; nobody can beat it. The pattern is only revealed when it is played, and every result is decided by the server.</p>' +
       '<p>Keys: <b>1</b> to <b>4</b> play the crystals, <b>Space</b> is the main button.</p><p>Batty Bucks are play money. They cannot be bought, sold or cashed out, and have no cash value.</p></div>';
   }
 
@@ -195,7 +195,7 @@
         setMsg('Right notes, but the storm got the bat! Unlucky.', ''); el.bat.classList.add('fall');
       } else {
         el.win.textContent = fmt(w); B.sfx('coin');
-        setMsg((r.over === 'top' ? 'All 12 levels! ' : 'Banked. ') + 'Paid ' + fmt(w) + ' BB', 'gold');
+        setMsg((r.over === 'top' ? 'All 15 levels! ' : 'Banked. ') + 'Paid ' + fmt(w) + ' BB', 'gold');
         if (r.over === 'top') B.fx.rain('coin', 1800);
       }
       if (w > 0) B.wallet.win(ID, w, { silent: true });

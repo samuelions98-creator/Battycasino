@@ -9,7 +9,7 @@ echo json_encode(['MULT' => ec_mults(), 'SURVIVE' => EC_SURVIVE]), "\n";
 for ($i = 0; $i < $N; $i++) {
     $rng = batty_mulberry(1000003 * $i + 11);
     $s = ec_start($rng); $log = [$s['seq']];
-    $cashAt = 1 + (int) floor($rng() * 12); $skill = $rng();   // the player slips sometimes
+    $cashAt = 1 + (int) floor($rng() * EC_LEVELS); $skill = $rng();   // the player slips sometimes
     $stake = [20, 100, 1000, 25000, 777760][$i % 5]; $end = null; $win = 0;
     while (true) {
         $taps = $s['seq'];

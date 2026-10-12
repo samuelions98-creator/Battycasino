@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* Echo Chamber: proves the PHP port (lib/games/echo.php) gives exactly the same tables and rounds as the JavaScript maths
    (games/echo/game.js) from the same seeded RNG (mulberry32 / batty_mulberry), and checks the return exactly:
-   a player with perfect memory who banks after k levels returns at most 96%, for every k.
+   a player with perfect memory who banks after k levels returns at most 98%, for every k.
      node tools/echo-xcheck.js [rounds=20000] */
 'use strict';
 const { execFileSync } = require('child_process');
@@ -17,7 +17,7 @@ if (php[0] !== head) { console.log('TABLES DIFFER\nPHP', php[0], '\nJS ', head);
 for (let i = 0; i < N; i++) {
   const rng = mulberry(1000003 * i + 11);
   let s = M.start(rng); const log = [s.seq];
-  const cashAt = 1 + Math.floor(rng() * 12), skill = rng();
+  const cashAt = 1 + Math.floor(rng() * M.LEVELS), skill = rng();
   const stake = [20, 100, 1000, 25000, 777760][i % 5]; let end = null, win = 0;
   for (;;) {
     const taps = s.seq.slice();
@@ -35,6 +35,6 @@ for (let i = 0; i < N; i++) {
 let worst = 0; const rows = [];
 for (let k = 1; k <= M.LEVELS; k++) { const r = M.perfectReturn(k); rows.push(k + ':' + (r * 100).toFixed(2) + '%'); worst = Math.max(worst, r); }
 console.log('perfect-memory return, bank after k levels:', rows.join('  '));
-console.log(worst <= 0.96 ? 'OK: no strategy beats 96% (best ' + (worst * 100).toFixed(3) + '%)' : 'FAIL: a strategy exceeds 96%');
+console.log(worst <= 0.98 ? 'OK: no strategy beats 98% (best ' + (worst * 100).toFixed(3) + '%)' : 'FAIL: a strategy exceeds 98%');
 console.log(bad ? 'MISMATCH in ' + bad : 'PARITY OK: tables and ' + N.toLocaleString() + ' seeded rounds identical', JSON.stringify(ends), 'sample RTP of this slipping-player mix ' + (paid / staked * 100).toFixed(1) + '%');
-process.exit(bad || worst > 0.96 ? 1 : 0);
+process.exit(bad || worst > 0.98 ? 1 : 0);

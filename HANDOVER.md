@@ -22,7 +22,7 @@ There is no work in progress: `wip/` holds only its deny-all `.htaccess`.
 | Bunky Time | live wheel show | Live (featured) | 96.0% |
 | Bonkers Time | live game show, four bonus scenes | Live (featured) | 96.0% |
 | Bat Derby | live bat racing | Arcade | 96.0% |
-| Echo Chamber | memory skill game, push-your-luck ladder | Arcade | up to 96% with perfect memory |
+| Echo Chamber | memory skill game, push-your-luck ladder | Arcade | up to 98% with perfect memory |
 | Roulette Royale | live European roulette | High Roller (level 5+) | 97.3% |
 | Velvet Baccarat | live baccarat, squeeze, roadmaps | High Roller (level 5+) | Banker 98.9% |
 | Crimson Vault | heist slot, pick-your-vault | High Roller (level 5+) | 96.7% |
@@ -36,6 +36,7 @@ Baccarat (`LIVE_SHARED` in `index.html`).
 - **Bat Pass:** 50 tiers a season. The Free track pays 122,500 BB. The Gold track costs 250,000 BB and pays 225,000 BB
   plus cosmetics and perks, deliberately under its price.
 - **Belfry Shop:** frames, accessories, name styles and effects, plus crates and a Locker; equipped items show on avatars.
+- **Batty Jackpots:** four progressive pools fed by every bet of 100 BB or more (`lib/platform/jackpot.php`, `lib/schema/jackpots.php`); `jp_after_round()` runs from `plat_after_round`. Tune with `JP_TIERS` or the `jp_scale` setting.
 - **Batty Cup:** weekly tournament by best single-round multiplier (`lib/platform/cup.php`, `lib/schema/cup.php`, page `#cup` in `core/platform.js`). Scores are recorded from `plat_after_round`; prizes are paid lazily and exactly once.
 - Server code: `lib/platform/*` and `lib/schema/platform.php`. Client: `core/platform.js` and `core/platform.css`.
 - `plat_safe()` keeps `me` and every game round working even before "Update database" has run.

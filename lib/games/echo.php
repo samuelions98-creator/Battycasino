@@ -2,24 +2,24 @@
 /* Echo Chamber: a memory game with a push-your-luck ladder. Server side; games/echo/game.js has the identical maths
    (proved by tools/echo-xcheck.js on seeded rounds).
 
-   A cave of four glowing crystals plays a pattern; you repeat it. Level 1 is 3 notes, every level adds one, up to level 12
-   (14 notes). Get one note wrong and the round is over. Each time you repeat a pattern correctly, an echo-storm may knock
+   A cave of four glowing crystals plays a pattern; you repeat it. Level 1 is 3 notes, every level adds one, up to level 15
+   (17 notes). Get one note wrong and the round is over. Each time you repeat a pattern correctly, an echo-storm may knock
    the bat down anyway: it passes with probability EC_SURVIVE[level]. After every cleared level you choose: take the
    banked multiplier, or fly on to a longer pattern with a bigger multiplier.
 
    Skill sets how far you get. Luck is a fixed storm, so the maths is honest for everyone: the multiplier for clearing level
-   L is 96 / (product of the storm odds up to L), rounded DOWN to hundredths. So a player with perfect memory returns at most
-   96% whatever they choose, and anyone who slips returns less. The pattern is only sent to the browser when it is shown. */
+   L is 98 / (product of the storm odds up to L), rounded DOWN to hundredths. So a player with perfect memory returns at most
+   98% whatever they choose, and anyone who slips returns less. The pattern is only sent to the browser when it is shown. */
 if (!defined('BATTY')) { http_response_code(403); exit; }
 
-const EC_PADS = 4, EC_LEVELS = 12, EC_START_LEN = 3;
-const EC_SURVIVE = [93, 90, 88, 86, 84, 82, 80, 78, 76, 74, 72, 70];   // storm: percent chance to pass, per level
+const EC_PADS = 4, EC_LEVELS = 15, EC_START_LEN = 3;
+const EC_SURVIVE = [95, 93, 91, 89, 87, 85, 83, 81, 79, 77, 75, 73, 71, 69, 67];   // storm: percent chance to pass, per level
 
 function ec_len(int $level): int { return EC_START_LEN + $level - 1; }
-/* Multiplier in hundredths for having cleared $level levels (index 1..12), rounded down. */
+/* Multiplier in hundredths for having cleared $level levels (index 1..15), rounded down. */
 function ec_mults(): array {
     $m = [0]; $p = 1.0;
-    for ($i = 0; $i < EC_LEVELS; $i++) { $p *= EC_SURVIVE[$i] / 100; $m[] = (int) floor(96 / $p); }
+    for ($i = 0; $i < EC_LEVELS; $i++) { $p *= EC_SURVIVE[$i] / 100; $m[] = (int) floor(98 / $p); }
     return $m;
 }
 function ec_win(int $stake, int $m100): int { return intdiv($stake * $m100, 100); }
@@ -50,7 +50,7 @@ function ec_public(array $r, array $s): array {
 function ec_finish(array &$u, array $r, array $s, int $m100, string $how): array {
     $stake = (int) $r['data']['stake']; $win = ec_win($stake, $m100);
     $f = ['bonus' => $s['L'] >= 3 ? 1 : 0, 'x' => $stake > 0 ? round($win / $stake, 2) : 0];
-    if ($how === 'top') $f['feedLabel'] = 'Echo Chamber: all 12 levels';
+    if ($how === 'top') $f['feedLabel'] = 'Echo Chamber: all 15 levels';
     round_close($u, $r, $win, $f);
     return ['over' => $how, 'win' => $win, 'm' => $m100, 'lvl' => $s['L'], 'expected' => $how === 'miss' ? $s['seq'] : null];
 }

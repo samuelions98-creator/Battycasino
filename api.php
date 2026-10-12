@@ -17,7 +17,7 @@ require __DIR__ . '/lib/bjtable.php';
 require __DIR__ . '/lib/social.php';
 require __DIR__ . '/lib/admin.php';
 /* Platform: Daily Prize Wheel, Bat Pass, Belfry Shop (actions are all named plat_*) */
-foreach (['core', 'wheel', 'pass', 'shop', 'cup'] as $p) require __DIR__ . "/lib/platform/$p.php";
+foreach (['core', 'wheel', 'pass', 'shop', 'cup', 'jackpot'] as $p) require __DIR__ . "/lib/platform/$p.php";
 
 function respond(array $data, int $status = 200): void {
     http_response_code($status);

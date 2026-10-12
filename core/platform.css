@@ -758,3 +758,34 @@ a.bc-btn { display: inline-grid; place-items: center; text-decoration: none; }
   .cp-prizes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .cp-bigx { font-size: 32px; }
 }
+
+
+/* ---------- Batty Jackpots ---------- */
+.pl-lobby .jp-strip { grid-column: 1 / -1; padding: 14px 16px 12px; border-radius: 22px; background: radial-gradient(100% 160% at 50% -40%, rgba(255, 212, 81, .28), transparent 60%), linear-gradient(180deg, #2a1550, #150a2a); border: 1px solid rgba(255, 212, 81, .5); box-shadow: 0 0 30px rgba(255, 212, 81, .12); }
+.jp-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.jp-head b { font-family: var(--f-display); font-weight: 400; font-size: 22px; color: var(--moon); }
+.jp-head span { color: var(--mute); font-size: 13px; flex: 1; min-width: 0; }
+.jp-info { font-weight: 800; font-size: 12px; color: var(--ink); padding: 6px 12px; border-radius: 999px; background: var(--glass); border: 1px solid var(--line); }
+.jp-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.jp-pool { position: relative; display: grid; justify-items: center; gap: 2px; padding: 12px 6px 10px; border-radius: 16px; background: rgba(0, 0, 0, .35); border: 1px solid color-mix(in srgb, var(--jc) 55%, transparent); overflow: hidden; min-width: 0; }
+.jp-pool::before { content: ''; position: absolute; inset: 0; background: radial-gradient(80% 90% at 50% 0%, color-mix(in srgb, var(--jc) 30%, transparent), transparent 70%); pointer-events: none; }
+.jp-gem { width: 26px; height: 26px; color: var(--jc); filter: drop-shadow(0 0 8px var(--jc)); animation: jp-glint 3.2s ease-in-out infinite; }
+.jp-gem svg { width: 100%; height: 100%; display: block; }
+.jp-pool small { font-weight: 800; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--jc); }
+.jp-amt { font-family: var(--f-num); font-weight: 700; font-size: clamp(15px, 2.6vw, 24px); font-variant-numeric: tabular-nums; color: #fff; text-shadow: 0 0 14px var(--jc); max-width: 100%; overflow-wrap: anywhere; text-align: center; line-height: 1.1; }
+.jp-pool.jp-grand { border-width: 2px; }
+.jp-pool.jp-grand .jp-amt { color: var(--moon); }
+.jp-last { margin: 10px 0 0; text-align: center; color: #d9cdee; font-size: 13px; }
+@keyframes jp-glint { 50% { transform: scale(1.12) rotate(6deg); filter: drop-shadow(0 0 14px var(--jc)); } }
+.jp-chip { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 10px; border-radius: 999px; background: rgba(0, 0, 0, .35); border: 1px solid color-mix(in srgb, var(--jc, #ffd451) 60%, transparent); color: var(--ink); font-weight: 800; }
+.jp-chip i { width: 9px; height: 9px; border-radius: 2px; transform: rotate(45deg); background: var(--jc, #ffd451); box-shadow: 0 0 8px var(--jc, #ffd451); }
+.jp-chip small { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--jc, #ffd451); }
+.jp-chip b { font-family: var(--f-num); font-size: 13px; font-variant-numeric: tabular-nums; }
+.jp-rules ul { padding-left: 18px; display: grid; gap: 6px; }
+@media (max-width: 560px) {
+  .jp-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .jp-head b { font-size: 19px; } .jp-head span { flex-basis: 100%; order: 3; }
+  .jp-chip small { display: none; }
+}
+@media (max-width: 420px) { .jp-chip { padding: 0 8px; } }
+@media (prefers-reduced-motion: reduce) { .jp-gem { animation: none; } }

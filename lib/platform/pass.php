@@ -101,6 +101,7 @@ function plat_after_round(array &$u, string $game, int $stake, int $win, array $
     }
     plat_challenges_progress($u, $game, $stake, $win, $x, $f);
     cup_record($u, $game, $stake, $win, $x);   // the Batty Cup (lib/platform/cup.php)
+    jp_after_round($u, $game, $stake);          // the Batty Jackpots (lib/platform/jackpot.php)
 }
 
 /* ---------- challenges ---------- */

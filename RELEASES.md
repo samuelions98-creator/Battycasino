@@ -45,6 +45,7 @@ upload-only zip for any one release.
 | QA | **Final QA and polish** (Bat Derby leaderboard, Bonkers Time frame rate, lobby carousel and big-win show on phones, top bar at 390px, service-worker precache for every game, Live filter lists every live table, Sugar Fang timer fix) | `8370e18` | — | no |
 | 16 | **Unlimited bets** (bet any amount up to your balance in every game: tap a stake to type one or pick MAX; the top chip on every table is yours to set; no table limits; level rewards stop growing at level 100) | see branch | ~150 KB | **yes** (recommended) |
 | 16a | **Top-up fix** ("Finish your current round first" no longer locks players out: unfinished Circus shows and every other left-behind round are settled automatically, and the top-up then goes through) | see branch | small | no |
+| 18 | **Batty Jackpots + a better-paying Echo Chamber** (four progressive pools fed by every bet in every game; Echo Chamber now returns up to 98% with 15 levels and a 25.2× top prize) | see branch | ~40 KB | **yes** |
 | 17 | **Batty Cup + Echo Chamber** (a weekly tournament ranked by best single-round multiplier, with prizes for the top ten; and a memory skill game) | see branch | ~60 KB | **yes** |
 
 ## Returns at a glance
@@ -98,6 +99,19 @@ Players can bet as much as they like, up to their balance, in every game.
   most 96% whatever you decide and every slip returns less (proved by `tools/echo-xcheck.js`, which also proves browser
   and server identical). Leaving mid-game: a banked win is paid, a half-played pattern is lost (refunded at level 1).
 - "Update database" adds the Cup tables.
+
+## Batty Jackpots and a better-paying Echo Chamber (release 18)
+
+- **Batty Jackpots:** Mini, Minor, Major and Grand pools shared by everyone, in every game. Any round with a stake of 100 BB or
+  more feeds them and has a chance to win one (the stake counts up to 100,000 BB, so one giant bet cannot drain the pools).
+  A win pays the whole pool, which restarts from its seed (800 / 6,000 / 40,000 / 500,000). Together they return about 2.5%
+  of counted stakes on top of each game's own return (Mini 1.0%, Minor 0.7%, Major 0.5%, Grand 0.3%). Shown as a strip in
+  the lobby and a chip in every game's top bar; a win gets a full-screen celebration and a feed entry. Tuning is in
+  `JP_TIERS` in `lib/platform/jackpot.php`; the setting `jp_scale` (default 1) divides every hit interval, so 10 makes wins
+  ten times as frequent (for promotions or testing). Jackpot wins are never counted as game wins, so the live balancer is
+  unaffected. "Update database" adds the tables and seeds the pools.
+- **Echo Chamber pays better:** perfect memory now returns up to 98% (was 96%), the ladder is 15 levels (was 12) with a
+  25.20× top prize (was 12.43×), and the early storms are gentler. `tools/echo-xcheck.js` proves no strategy beats 98%.
 
 ## Loose ends cleaned up (final build)
 

@@ -217,6 +217,7 @@ function plat_api(string $a, array $in): array {
         case 'plat_pass_claim': return pass_api_claim($in);
         case 'plat_pass_buy': return pass_api_buy($in);
         case 'plat_cup': return cup_api_state();
+        case 'plat_jackpots': return jp_api_state();
         case 'plat_shop': return shop_api_state();
         case 'plat_shop_buy': return shop_api_buy($in);
         case 'plat_equip': return shop_api_equip($in);

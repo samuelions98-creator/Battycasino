@@ -303,6 +303,13 @@
     if (!live() || !B.me.plat) { chipEls = []; return; }
     const chip = h('button', { class: 'pl-chip' + (inGame ? ' ingame' : ''), type: 'button', id: 'pl-chip', 'aria-label': 'Bat Pass', title: 'Bat Pass', onclick: () => B.go('pass') });
     chipEls = [chip];
+    if (inGame) {
+      const jc = h('button', { class: 'jp-chip', type: 'button', 'aria-label': 'Batty Jackpots', title: 'Batty Jackpots', onclick: () => B.ui.modal('Batty Jackpots', jpRules()) });
+      let ti = 3; const paint = () => { const [t, n, col] = JP_TIERS[ti]; const p = jpPool(t); if (!p || !jc.isConnected) return; jc.style.setProperty('--jc', col); jc.innerHTML = '<i></i><small>' + n + '</small><b>' + fmtShort(p.amount) + '</b>'; };
+      const fmtShort = B.fmtShort;
+      bar.append(jc);
+      const off = jpSub(paint); const cyc = setInterval(() => { if (!jc.isConnected) { clearInterval(cyc); off(); return; } ti = (ti + 1) % 4; paint(); }, 3500);
+    }
     bar.append(chip);
     if (!inGame) {
       const wb = h('button', { class: 'bc-icon pl-barbtn pl-wbtn', type: 'button', id: 'pl-wheelbtn', 'aria-label': 'Daily Prize Wheel', title: 'Daily Prize Wheel', html: WHEEL_ICO, onclick: () => B.go('wheel') });
@@ -1227,6 +1234,61 @@
       '<circle r="22" fill="#ffd76a" stroke="#8a5207" stroke-width="5"/><g transform="translate(-15 -7) scale(.25)"><path d="' + B.batPath + '" fill="#2a1046"/></g>' +
       '<path d="M-14 -118H14L0 -88Z" fill="#ff3d81" stroke="#fff" stroke-width="3" stroke-linejoin="round"/></svg>';
   }
+  /* ---------- the Batty Jackpots: four progressive pools shared by every game ---------- */
+  const JP_TIERS = [['mini', 'Mini', '#5eead4'], ['minor', 'Minor', '#60a5fa'], ['major', 'Major', '#c084fc'], ['grand', 'Grand', '#ffd451']];
+  const jp = { pools: null, hits: [], subs: new Set(), timer: 0, busy: false };
+  async function jpFetch() {
+    if (!live() || jp.busy) return;
+    jp.busy = true;
+    try { const r = await B.api('plat_jackpots', null, { defer: true }); jp.pools = r.pools; jp.hits = r.hits; jp.min = r.minStake; jp.cap = r.capStake; jp.subs.forEach((f) => f()); } catch (e) { /* keep the last numbers */ }
+    jp.busy = false;
+  }
+  function jpSub(fn) {
+    jp.subs.add(fn);
+    if (!jp.timer) { jp.timer = setInterval(jpFetch, 15000); }
+    if (jp.pools) fn(); else jpFetch();
+    return () => { jp.subs.delete(fn); if (!jp.subs.size) { clearInterval(jp.timer); jp.timer = 0; } };
+  }
+  const jpPool = (t) => (jp.pools || []).find((p) => p.tier === t);
+  function jpRules() {
+    return '<div class="jp-rules"><p>Four jackpots grow with every bet in every game. Any round with a stake of <b>' + fmt(jp.min || 100) + ' BB or more</b> feeds them and has a chance to win one.</p>' +
+      '<ul><li>The stake counts up to <b>' + fmt(jp.cap || 100000) + ' BB</b>: bigger bets feed the pools more and have a bigger chance, but one giant bet cannot drain them.</li>' +
+      '<li>Mini hits most often, Grand least. A win pays the <b>whole pool</b>, which then restarts from its seed.</li>' +
+      '<li>It works the same in every slot, arcade game and live show, and it is on top of the game\'s own prizes.</li>' +
+      '<li>Batty Bucks have no cash value. Jackpots are just for glory.</li></ul></div>';
+  }
+  function jpMoney(el, to) {
+    const from = +el.dataset.v || 0;
+    el.dataset.v = to;
+    if (!from || REDUCE || from === to) { el.textContent = fmt(to); return; }
+    B.ui.countUp(el, from, to, 900);
+  }
+  ext.jackpotEvent = function (e) {
+    const t = (e.tier || 'mini'), ratio = { mini: 25, minor: 80, major: 250, grand: 250 }[t] || 25;
+    B.sfx('bonus'); if (B.fx.rain) B.fx.rain('coin', t === 'grand' ? 5000 : 2600);
+    B.ui.celebrate({ amount: e.amount, bet: Math.max(1, Math.round(e.amount / ratio)), title: (e.name || 'JACKPOT').toUpperCase() + ' JACKPOT' });
+    jpFetch();
+  };
+  function jackpotStrip() {
+    const sec = h('section', { class: 'jp-strip', 'aria-label': 'Batty Jackpots' });
+    const head = h('div', { class: 'jp-head' }, h('b', null, 'Batty Jackpots'), h('span', null, 'Win one on any bet of ' + fmt(100) + ' BB or more, in any game'),
+      h('button', { type: 'button', class: 'jp-info', 'aria-label': 'How the jackpots work', onclick: () => B.ui.modal('Batty Jackpots', jpRules()) }, 'How it works'));
+    const row = h('div', { class: 'jp-row' });
+    const cells = {};
+    for (const [t, n, col] of JP_TIERS) {
+      const v = h('b', { class: 'jp-amt' }, '…');
+      cells[t] = v;
+      row.append(h('div', { class: 'jp-pool jp-' + t, style: '--jc:' + col }, h('i', { class: 'jp-gem', 'aria-hidden': 'true', html: '<svg viewBox="0 0 24 24"><path d="M12 2 21 9 12 22 3 9Z" fill="currentColor"/><path d="M3 9h18M8 9l4 13 4-13M8 9l4-7 4 7" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1"/></svg>' }), h('small', null, n), v));
+    }
+    const last = h('p', { class: 'jp-last' });
+    sec.append(head, row, last);
+    const off = jpSub(() => {
+      for (const [t] of JP_TIERS) { const p = jpPool(t); if (p) jpMoney(cells[t], p.amount); }
+      const hh = jp.hits[0];
+      last.innerHTML = hh ? 'Last win: <b>' + esc(hh.who) + '</b> took the <b>' + esc(hh.name) + '</b> for ' + fmt(hh.amount) + ' BB' : 'No jackpot has been won yet. Be the first!';
+    });
+    return { el: sec, off };
+  }
   /* ---------- the Batty Cup (#cup): a weekly tournament ranked by best single-round multiplier ---------- */
   const CUP_GAMES = { bunky: 'Bunky Time', olympus: 'Raging Cocks', fishing: 'Fishing Frenzy', plachinko: 'Plachinko', moonshot: 'Moonshot', ultraheist: 'Bat Bandits', bonanza: 'Sugar Fang', starwing: 'Starwing', circus: 'Batty Circus', crypt: "Batula's Crypt", nighttrain: 'Night Train', gummy: 'Gummy Bats', bookofbats: 'Book of Bats', derby: 'Bat Derby', bonkers: 'Bonkers Time', vault: 'Crimson Vault', echo: 'Echo Chamber' };
   const cupX = (x) => (x >= 1000 ? Math.round(x).toLocaleString('en-GB') : x >= 100 ? x.toFixed(1) : x.toFixed(2)) + '×';
@@ -1297,7 +1359,8 @@
     const passT = h('a', { class: 'pl-tile pl-pt', href: '#pass', id: 'pl-passtile' });
     const shopT = h('a', { class: 'pl-tile pl-st', href: '#shop', id: 'pl-shoptile' });
     const cupT = h('a', { class: 'pl-tile pl-cup', href: '#cup', id: 'pl-cuptile' });
-    sec.append(wheelT, passT, shopT, cupT);
+    const jpStrip = jackpotStrip();
+    sec.append(jpStrip.el, wheelT, passT, shopT, cupT);
     function paint() {
       const p = B.me && B.me.plat; if (!p || dead) return;
       const ready = p.wheelReady, bonus = p.spins;
@@ -1337,6 +1400,6 @@
     refreshStatus(true).then(paint);
     const t = setInterval(() => { refreshStatus(false).then(paint); }, 30000);
     const off = B.wallet.on(() => setTimeout(paint, 50));
-    return () => { dead = true; clearInterval(t); off(); };
+    return () => { dead = true; clearInterval(t); off(); jpStrip.off(); };
   };
 })();
