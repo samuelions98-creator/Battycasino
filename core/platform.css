@@ -789,3 +789,21 @@ a.bc-btn { display: inline-grid; place-items: center; text-decoration: none; }
 }
 @media (max-width: 420px) { .jp-chip { padding: 0 8px; } }
 @media (prefers-reduced-motion: reduce) { .jp-gem { animation: none; } }
+
+
+/* ---------- Happy Hour ---------- */
+.pl-lobby .hh-banner { grid-column: 1 / -1; display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 18px; color: #2a1300; text-decoration: none; background: linear-gradient(100deg, #ffe08a, #ffb02e 55%, #ff7a3d); box-shadow: 0 8px 26px rgba(255, 150, 40, .35); position: relative; overflow: hidden; }
+.pl-lobby .hh-banner::after { content: ''; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, .45) 50%, transparent 70%); transform: translateX(-100%); animation: hh-shine 3.4s ease-in-out infinite; pointer-events: none; }
+@keyframes hh-shine { 60%, 100% { transform: translateX(100%); } }
+.hh-banner[hidden] { display: none !important; }
+.hh-spark { font-size: 30px; line-height: 1; animation: jp-glint 2.4s ease-in-out infinite; }
+.hh-banner > div { flex: 1; min-width: 0; display: grid; gap: 1px; }
+.hh-banner small { font-weight: 800; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; opacity: .75; }
+.hh-banner b { font-family: var(--f-display); font-weight: 400; font-size: 24px; line-height: 1.05; }
+.hh-banner span:not(.hh-spark) { font-weight: 700; font-size: 14px; overflow-wrap: anywhere; }
+.hh-time { font-style: normal; font-family: var(--f-num); font-weight: 700; font-variant-numeric: tabular-nums; padding: 7px 12px; border-radius: 999px; background: rgba(42, 19, 0, .85); color: #ffe08a; white-space: nowrap; }
+.hh-chip { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 10px; border-radius: 999px; background: linear-gradient(100deg, #ffe08a, #ffb02e); color: #2a1300; font-weight: 800; border: 0; }
+.hh-chip[hidden] { display: none !important; }
+.hh-chip i { font-style: normal; } .hh-chip b { font-size: 12px; } .hh-chip small { font-family: var(--f-num); font-size: 12px; font-variant-numeric: tabular-nums; }
+@media (max-width: 560px) { .hh-banner b { font-size: 19px; } .hh-banner { padding: 10px 12px; gap: 10px; } .hh-chip b { display: none; } .hh-time { padding: 5px 9px; font-size: 13px; } }
+@media (prefers-reduced-motion: reduce) { .hh-banner::after, .hh-spark { animation: none; } }

@@ -2,7 +2,7 @@
    Network-first for all local GET assets (especially index.html, CSS and JS) so a new
    deployment cannot be hidden indefinitely by the previous service worker cache.
    API requests are NEVER intercepted; bets and balances always use the server. */
-const V = 'batty-20261012d';
+const V = 'batty-20261012e';
 /* Precached for offline start-up: the shell, every game's JS and CSS and the platform pages, with the exact ?v= tags
    index.html requests (keep them in step when a tag is bumped). Anything else is cached as it is fetched. */
 const SHELL = [
@@ -26,7 +26,7 @@ const SHELL = [
   'games/bonkers/style.css?v=20261011q',
   'games/baccarat/style.css?v=20261011c',
   'games/royale/style.css?v=20261011b',
-  'core/platform.css?v=20261012c',
+  'core/platform.css?v=20261012e',
   'games/bunky/game.js?v=20261011u',
   'games/olympus/game.js?v=20261009b',
   'games/fishing/game.js?v=20261009b',
@@ -51,7 +51,7 @@ const SHELL = [
   'games/circus/math.js?v=R4',
   'games/circus/art.js?v=R4',
   'games/circus/game.js?v=R4',
-  'core/platform.js?v=20261012d'
+  'core/platform.js?v=20261012e'
 ];
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(V).then((cache) => cache.addAll(SHELL)).then(() => self.skipWaiting()));

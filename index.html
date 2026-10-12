@@ -457,7 +457,7 @@ button:disabled { cursor: not-allowed; }
 <link rel="stylesheet" href="games/baccarat/style.css?v=20261011c">
 <link rel="stylesheet" href="games/royale/style.css?v=20261011b">
 <!-- Platform: Daily Prize Wheel, Bat Pass, Belfry Shop -->
-<link rel="stylesheet" href="core/platform.css?v=20261012d">
+<link rel="stylesheet" href="core/platform.css?v=20261012e">
 </head>
 <body>
 <div id="batty-app"></div>
@@ -1619,7 +1619,7 @@ window.Batty = (function () {
     title: 'Leaderboards',
     mount(root) {
       const lb = leaderboardWidget({ board: 'rich' });
-      root.append(h('div', { class: 'pg-wrap' }, h('h1', { class: 'pg-h1' }, 'Leaderboards'), h('p', { class: 'pg-sub' }, 'Weeks run Monday to Sunday, UK time. ', srv.on && srv.me ? h('a', { href: '#cup' }, 'Enter the Batty Cup') : null), lb.el));
+      root.append(h('div', { class: 'pg-wrap' }, h('h1', { class: 'pg-h1' }, 'Leaderboards'), h('p', { class: 'pg-sub' }, 'Weeks run Monday to Sunday, UK time. ', B.online && B.me ? h('a', { href: '#cup' }, 'Enter the Batty Cup') : null), lb.el));
       return { destroy: lb.destroy };
     },
   });
@@ -1754,6 +1754,17 @@ window.Batty = (function () {
           const est = base == null ? null : Math.round((base + (g.boosted ? d.boost : 0) + d.jackpots) * 10) / 10;
           gt.append(h('div', { class: 'tr' }, h('span', null, g.name), tgt, h('span', null, num(g.recent)), h('span', null, num(g.life)), h('span', { class: est != null && est >= 100 ? 'ad-hot' : '' }, est == null ? '–' : est + '%')));
         }
+        const hh = await B.api('admin_happy'); if (dead) return;
+        const hhBox = h('div', { class: 'ad-hh' });
+        hhBox.append(h('b', null, 'Happy Hour events'), h('p', { class: 'pg-sub' }, hh.active ? 'Running now: ' + hh.active.name + ' (' + Math.ceil(hh.active.left / 60) + ' min left). Every player sees a banner and a countdown.' : 'Start a timed, site-wide event. Every player sees a banner and a countdown, and it ends by itself.'));
+        const hhRow = h('div', { class: 'ad-ctl' });
+        for (const id of Object.keys(hh.presets)) {
+          const pr = hh.presets[id], bt = h('button', { class: 'bc-btn' + (hh.active && hh.active.name === pr.name ? '' : ' ghost'), type: 'button', title: pr.blurb }, pr.name + ' · ' + pr.mins + ' min');
+          bt.onclick = async () => { busy(bt, true); try { await B.api('admin_happy_start', { preset: id }); B.ui.toast(pr.name + ' started: ' + pr.blurb); await B.refreshMe(false); rtp(); } catch (e) { B.ui.toast(e.message); busy(bt, false); } };
+          hhRow.append(bt);
+        }
+        if (hh.active) { const st = h('button', { class: 'bc-btn ghost', type: 'button' }, 'Stop it now'); st.onclick = async () => { busy(st, true); try { await B.api('admin_happy_stop'); B.ui.toast('Event stopped'); rtp(); } catch (e) { B.ui.toast(e.message); busy(st, false); } }; hhRow.append(st); }
+        hhBox.append(hhRow, h('p', { class: 'pg-sub' }, 'Happy Hour: +1 point of boost, jackpots ×3, Bat Pass XP ×2. Jackpot Frenzy: jackpots ×10. Double XP: XP ×2. Payday: +2 points of boost. While one runs, the Est. total below rises by its boost.'));
         rtpBox.textContent = '';
         rtpBox.append(h('header', null, h('h2', null, 'Return to player'), h('small', null, 'Make the whole site pay better')),
           h('b', null, 'Return boost'), h('p', { class: 'pg-sub' }, 'Extra percentage points of every stake paid back automatically, in every slot, arcade game and live show (not the table games). 0.5 means 0.5 BB back for every 100 BB staked, counted up to ' + fmt(d.boostCap) + ' BB a round. Max ' + d.boostMax + '.'),
@@ -1761,7 +1772,7 @@ window.Batty = (function () {
           h('b', null, 'Balanced games'), h('p', { class: 'pg-sub' }, 'Nine games steer their own return toward a target by redrawing some outcomes (Bat Jack, Sugar Fang, Book of Bats, the Crypt, Gummy Bats, Night Train, Starwing, Bat Bandits, Crimson Vault). Raise it to make them pay more; it moves gradually as players play.'),
           h('div', { class: 'ad-ctl' }, defIn, defBtn),
           h('div', { class: 'pf-scroll' }, gt),
-          h('p', { class: 'pg-sub' }, 'Est. total = the game’s return plus the boost plus about ' + d.jackpots + ' points from the Batty Jackpots. Keep it under 100% (marked red when it is not), or players can grow their Batty Bucks without limit by playing.'));
+          h('p', { class: 'pg-sub' }, 'Est. total = the game’s return plus the boost plus about ' + d.jackpots + ' points from the Batty Jackpots. Keep it under 100% (marked red when it is not), or players can grow their Batty Bucks without limit by playing.'), hhBox);
       }
       /* site settings */
       const annIn = h('input', { id: 'ad-ann', maxlength: '200', placeholder: 'Shown at the top of the lobby. Leave empty for none.' });
@@ -1866,7 +1877,7 @@ window.Batty = (function () {
 <script src="games/circus/art.js?v=R4"></script>
 <script src="games/circus/game.js?v=R4"></script>
 <!-- Platform: Daily Prize Wheel, Bat Pass, Belfry Shop (online mode only) -->
-<script src="core/platform.js?v=20261012d"></script>
+<script src="core/platform.js?v=20261012e"></script>
 <script>
 // This should never occur with a complete deployment; make a partial FTP upload obvious.
 if (!Batty.games.circus) {

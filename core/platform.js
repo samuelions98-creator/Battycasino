@@ -34,7 +34,7 @@
     o = o || {};
     try {
       const r = await B.api(a, data, { defer: !!o.defer });
-      if (r.plat && B.me) { B.me.plat = r.plat; paintChips(); }
+      if (r.plat && B.me) { B.me.plat = r.plat; B.me.plat._t = Date.now(); paintChips(); }
       if (!o.defer) B.wallet.sync();
       return r;
     } catch (e) {
@@ -303,6 +303,9 @@
     if (!live() || !B.me.plat) { chipEls = []; return; }
     const chip = h('button', { class: 'pl-chip' + (inGame ? ' ingame' : ''), type: 'button', id: 'pl-chip', 'aria-label': 'Bat Pass', title: 'Bat Pass', onclick: () => B.go('pass') });
     chipEls = [chip];
+    const hc = h('button', { class: 'hh-chip', type: 'button', hidden: true, 'aria-label': 'Live event', onclick: () => { const e = B.me.plat && B.me.plat.happy; if (e) B.ui.toast(e.name + ': ' + hhText(e)); } });
+    hc.update = () => { const e = B.me.plat && B.me.plat.happy, left = hhLeft(); if (!e || left <= 0) { hc.hidden = true; return; } hc.hidden = false; hc.innerHTML = '<i>✦</i><b>' + esc(e.name) + '</b><small>' + dur(left) + '</small>'; };
+    bar.append(hc); chipEls.push(hc); hc.update(); const hct = setInterval(() => { if (!hc.isConnected) { clearInterval(hct); return; } hc.update(); }, 1000);
     if (inGame) {
       const jc = h('button', { class: 'jp-chip', type: 'button', 'aria-label': 'Batty Jackpots', title: 'Batty Jackpots', onclick: () => B.ui.modal('Batty Jackpots', jpRules()) });
       let ti = 3; const paint = () => { const [t, n, col] = JP_TIERS[ti]; const p = jpPool(t); if (!p || !jc.isConnected) return; jc.style.setProperty('--jc', col); jc.innerHTML = '<i></i><small>' + n + '</small><b>' + fmtShort(p.amount) + '</b>'; };
@@ -333,7 +336,7 @@
         el.classList.toggle('ready', ready);
         el.querySelector('.dot') && el.querySelector('.dot').remove();
         if (ready) el.insertAdjacentHTML('beforeend', '<i class="dot"></i>');
-      }
+      } else if (el.update) el.update();
     }
   }
   /* keep the chip fresh while playing */
@@ -1234,6 +1237,29 @@
       '<circle r="22" fill="#ffd76a" stroke="#8a5207" stroke-width="5"/><g transform="translate(-15 -7) scale(.25)"><path d="' + B.batPath + '" fill="#2a1046"/></g>' +
       '<path d="M-14 -118H14L0 -88Z" fill="#ff3d81" stroke="#fff" stroke-width="3" stroke-linejoin="round"/></svg>';
   }
+  /* ---------- Happy Hour: a timed site-wide event the admin starts (banner in the lobby, chip in the top bar) ---------- */
+  const hhLeft = () => { const p = B.me && B.me.plat, e = p && p.happy; return e ? Math.max(0, e.left - (Date.now() - (p._t || Date.now())) / 1000) : 0; };
+  function hhText(e) {
+    const bits = [];
+    if (e.boost > 0) bits.push('+' + e.boost + '% of every stake back');
+    if (e.jp > 1) bits.push('jackpots ×' + e.jp);
+    if (e.xp > 1) bits.push('Bat Pass XP ×' + e.xp);
+    return bits.join(' · ');
+  }
+  function happyBanner() {
+    const el = h('a', { class: 'hh-banner', href: '#', hidden: true, 'aria-live': 'polite' });
+    el.addEventListener('click', (ev) => { ev.preventDefault(); B.go(''); });
+    const paint = () => {
+      const p = B.me && B.me.plat, e = p && p.happy, left = hhLeft();
+      if (!e || left <= 0) { el.hidden = true; return; }
+      el.hidden = false;
+      el.innerHTML = '<span class="hh-spark" aria-hidden="true">✦</span><div><small>Live now</small><b>' + esc(e.name) + '</b><span>' + esc(hhText(e)) + '</span></div><em class="hh-time">' + dur(left) + ' left</em>';
+    };
+    paint();
+    const t = setInterval(() => { if (!el.isConnected) { clearInterval(t); return; } paint(); }, 1000);
+    return { el, paint };
+  }
+
   /* ---------- the Batty Jackpots: four progressive pools shared by every game ---------- */
   const JP_TIERS = [['mini', 'Mini', '#5eead4'], ['minor', 'Minor', '#60a5fa'], ['major', 'Major', '#c084fc'], ['grand', 'Grand', '#ffd451']];
   const jp = { pools: null, hits: [], subs: new Set(), timer: 0, busy: false };
@@ -1332,7 +1358,7 @@
           board.append(h('div', { class: 'ol-row cp-row' + (r.rank <= 3 ? ' top' + r.rank : '') + (me ? ' me' : '') },
             h('span', { class: 'rk' }, String(r.rank)), h('span', { class: 'av', html: B.avatar(r.avatar, 30) }),
             h('span', { class: 'who' }, h('a', { href: '#profile/' + encodeURIComponent(r.name) }, r.name), h('small', null, fmt(r.win) + ' BB from ' + fmt(r.stake) + ' on ' + (CUP_GAMES[r.game] || r.game))),
-            h('span', { class: 'cp-v' }, h('b', { class: 'v' }, cupX(r.x)), r.prize ? h('small', null, coinSvg() + fmt(r.prize)) : null)));
+            h('span', { class: 'cp-v' }, h('b', { class: 'v' }, cupX(r.x)), r.prize ? h('small', { html: coinSvg() + fmt(r.prize) }) : null)));
         }
       }
       async function load() {
@@ -1361,7 +1387,8 @@
     const shopT = h('a', { class: 'pl-tile pl-st', href: '#shop', id: 'pl-shoptile' });
     const cupT = h('a', { class: 'pl-tile pl-cup', href: '#cup', id: 'pl-cuptile' });
     const jpStrip = jackpotStrip();
-    sec.append(jpStrip.el, wheelT, passT, shopT, cupT);
+    const hhB = happyBanner();
+    sec.append(hhB.el, jpStrip.el, wheelT, passT, shopT, cupT);
     function paint() {
       const p = B.me && B.me.plat; if (!p || dead) return;
       const ready = p.wheelReady, bonus = p.spins;

@@ -19,7 +19,11 @@ const JP_TIERS = [   // listed rarest first: the draw checks them in this order
     'minor' => ['name' => 'Minor', 'seed' => 6000, 'rate' => 0.004, 'hit' => 2000000],
     'mini' => ['name' => 'Mini', 'seed' => 800, 'rate' => 0.006, 'hit' => 200000],
 ];
-function jp_scale(): float { $s = (float) setting('jp_scale', 1); return $s >= 1 ? $s : 1.0; }
+function jp_scale(): float {
+    $s = (float) setting('jp_scale', 1); $s = $s >= 1 ? $s : 1.0;
+    if (function_exists('happy_active') && ($e = happy_active())) $s *= max(1.0, (float) $e['jp']);   // Happy Hour
+    return $s;
+}
 
 /* Called for every finished round, inside the transaction that holds the player's row. Pays a win straight into $u. */
 function jp_after_round(array &$u, string $game, int $stake): void {

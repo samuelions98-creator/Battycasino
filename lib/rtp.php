@@ -29,10 +29,15 @@ const RTP_BOOST_DEFAULT = 0.5;
 const RTP_BOOST_MAX = 3.0;
 const RTP_BOOST_CAP = 100000;
 const RTP_BOOST_EXCLUDED = ['batjack', 'baccarat', 'royale', 'roulette'];
-function rtp_boost_pct(): float {
+function rtp_boost_base(): float {   // the setting alone (what the Admin page edits)
     $v = setting('rtp_boost');
     $b = $v === null || $v === '' ? RTP_BOOST_DEFAULT : (float) $v;
     return max(0.0, min(RTP_BOOST_MAX, $b));
+}
+function rtp_boost_pct(): float {   // what is paid right now: the setting plus any running Happy Hour
+    $b = rtp_boost_base();
+    if (function_exists('happy_active') && ($e = happy_active())) $b += (float) $e['boost'];   // Happy Hour (lib/platform/happy.php)
+    return $b;
 }
 /* Called for every settled round (from after_round). The fractional BB is paid by chance, so it is exact on average. */
 function rtp_boost_apply(array &$u, string $game, int $stake): void {

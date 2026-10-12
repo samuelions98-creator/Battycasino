@@ -68,6 +68,9 @@ function admin_api(string $a, array $in): array {
             q("UPDATE users SET $field = ? WHERE id = ?", [!empty($in['on']) ? 1 : 0, $id]);
             return ['ok' => true];
         }
+        case 'admin_happy': return ['active' => happy_public(), 'presets' => HAPPY_PRESETS];
+        case 'admin_happy_start': { $p = $in['preset'] ?? ''; $m = (int) ($in['mins'] ?? (HAPPY_PRESETS[$p]['mins'] ?? 60)); return ['active' => happy_start((string) $p, $m), 'presets' => HAPPY_PRESETS]; }
+        case 'admin_happy_stop': happy_stop(); return ['active' => null, 'presets' => HAPPY_PRESETS];
         case 'admin_rtp': return admin_rtp_state();
         case 'admin_rtp_set': return admin_rtp_set($in);
         case 'admin_password': {
@@ -122,7 +125,7 @@ function admin_rtp_state(): array {
             'boosted' => !in_array($g, RTP_BOOST_EXCLUDED, true)];
     }
     $d = setting('rtp_default');
-    return ['boost' => rtp_boost_pct(), 'boostMax' => RTP_BOOST_MAX, 'boostCap' => RTP_BOOST_CAP, 'default' => $d === null || $d === '' ? RTP_DEFAULT : (float) $d, 'jackpots' => 2.5, 'games' => $games];
+    return ['boost' => rtp_boost_base(), 'boostMax' => RTP_BOOST_MAX, 'boostCap' => RTP_BOOST_CAP, 'default' => $d === null || $d === '' ? RTP_DEFAULT : (float) $d, 'jackpots' => 2.5, 'games' => $games];
 }
 function admin_rtp_set(array $in): array {
     if (array_key_exists('boost', $in)) {

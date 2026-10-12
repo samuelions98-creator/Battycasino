@@ -97,7 +97,7 @@ function plat_after_round(array &$u, string $game, int $stake, int $win, array $
         $p = q1('SELECT boost_until FROM plat_profile WHERE user_id = ?', [$u['id']]);
         $boost = $p && $p['boost_until'] && strtotime($p['boost_until'] . ' UTC') > plat_time();
         q('UPDATE plat_pass SET day = ?, day_xp = ? WHERE user_id = ? AND season = ?', [$day, $dayXp + $base, $u['id'], $r['season']]);
-        pass_add_xp($u, $boost ? $base * 2 : $base, 'play');
+        pass_add_xp($u, (int) round(($boost ? $base * 2 : $base) * happy_xp_mult()), 'play');
     }
     plat_challenges_progress($u, $game, $stake, $win, $x, $f);
     cup_record($u, $game, $stake, $win, $x);   // the Batty Cup (lib/platform/cup.php)

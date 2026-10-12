@@ -45,6 +45,7 @@ upload-only zip for any one release.
 | QA | **Final QA and polish** (Bat Derby leaderboard, Bonkers Time frame rate, lobby carousel and big-win show on phones, top bar at 390px, service-worker precache for every game, Live filter lists every live table, Sugar Fang timer fix) | `8370e18` | — | no |
 | 16 | **Unlimited bets** (bet any amount up to your balance in every game: tap a stake to type one or pick MAX; the top chip on every table is yours to set; no table limits; level rewards stop growing at level 100) | see branch | ~150 KB | **yes** (recommended) |
 | 16a | **Top-up fix** ("Finish your current round first" no longer locks players out: unfinished Circus shows and every other left-behind round are settled automatically, and the top-up then goes through) | see branch | small | no |
+| 20 | **Happy Hour events + bug fixes** (timed site-wide events started from Admin: extra payouts, jackpots hitting more often, double Bat Pass XP, with a lobby banner and a countdown in the top bar; fixes the Leaderboards page failing to load and the Batty Cup board showing raw code) | see branch | ~20 KB | no |
 | 19 | **Adjustable return to player** (new Admin panel: a Return Boost that pays extra % of every stake back in all slots, arcade and live games, plus editable target returns for the nine self-balancing games) | see branch | ~25 KB | no |
 | 18 | **Batty Jackpots + a better-paying Echo Chamber** (four progressive pools fed by every bet in every game; Echo Chamber now returns up to 98% with 15 levels and a 25.2× top prize) | see branch | ~40 KB | **yes** |
 | 17 | **Batty Cup + Echo Chamber** (a weekly tournament ranked by best single-round multiplier, with prizes for the top ten; and a memory skill game) | see branch | ~60 KB | **yes** |
@@ -126,6 +127,16 @@ Admin → **Return to player**:
 - The table shows each game's target, recent and lifetime return, and an estimated total (game + boost + about 2.5 points of
   Batty Jackpots), in red at 100% or more. Keep the total under 100% or players can grow their Batty Bucks without limit.
   Fixed-maths games (Olympus, Fishing Frenzy, Plachinko, Moonshot, Circus and the live shows) are raised with the boost.
+
+## Happy Hour events and fixes (release 20)
+
+- **Happy Hour** (Admin → Return to player → Happy Hour events): start a timed, site-wide event with one tap. Presets: Happy Hour
+  (+1 point of Return Boost, jackpots ×3, Bat Pass XP ×2, 60 min), Jackpot Frenzy (jackpots ×10, 30 min), Double XP (XP ×2,
+  120 min) and Payday (+2 points of boost, 30 min). Every player sees a banner in the lobby and a countdown chip in the top
+  bar; it ends by itself and can be stopped early. The Admin boost box edits only the permanent setting. Presets are
+  `HAPPY_PRESETS` in `lib/platform/happy.php`; the running event is the `happy` setting.
+- **Fixed:** the Leaderboards page showed "This page failed to load" (a variable I used was not visible there; introduced in
+  release 17), and the Batty Cup board printed prize amounts as raw code.
 
 ## Loose ends cleaned up (final build)
 

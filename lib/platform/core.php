@@ -203,6 +203,7 @@ function plat_status(array $u): array {
         'season' => $season['n'], 'seasonName' => $season['name'], 'seasonEnds' => $season['endsIn'],
         'tier' => $tier, 'xp' => $xp, 'tierXp' => PASS_TIER_XP, 'gold' => $gold, 'claimable' => max(0, $claimable),
         'boostIn' => max(0, $boost),
+        'happy' => happy_public(),
     ];
 }
 
