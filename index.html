@@ -648,7 +648,7 @@ window.Batty = (function () {
     if (realBal() >= 1000) return false;
     if (srv.on) {
       if (!srv.me) return false;
-      try { await api('rescue'); shown = realBal(); emit(); sfx('coin'); ui.toast('Emergency bat-signal answered: +5,000 Batty Bucks'); return true; }
+      try { const j = await api('rescue'); shown = realBal(); emit(); sfx('coin'); ui.toast(j && j.message ? j.message : 'Emergency bat-signal answered: +5,000 Batty Bucks'); return true; }
       catch (e) { ui.toast(e.message); return false; }
     }
     state.bal += 5000; shown = state.bal; emit();

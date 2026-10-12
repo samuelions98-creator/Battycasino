@@ -304,6 +304,26 @@ function cc_store(array &$u, array $r, array $s): array {
     $r['data'] = $s;
     return cc_public($r);
 }
+/* The player left mid-show (closed the tab, lost signal): play the rest of the show for them, making each choice at
+   random, and pay what it wins. A round saved by the old Circus, which this one can't continue, gets its stake back. */
+function cc_auto(array $s, Closure $rng): array {
+    switch ($s['phase']) {
+        case 'cannon': return ['fire', null];
+        case 'decide': return ['collect', null];
+        case 'elephant': return ['spin', null];
+        case 'fire': $free = array_values(array_diff(range(0, CC_FIRE_TORCHES - 1), $s['act']['picked'])); return ['pick', $free[cc_ri($rng, count($free))]];
+        default: return ['pick', cc_ri($rng, 3)];   // strong, bear, jester
+    }
+}
+function cc_settle_open(array &$u): void {
+    foreach (q("SELECT * FROM rounds WHERE user_id = ? AND game = 'circus' AND state = 'open' ORDER BY id FOR UPDATE", [$u['id']])->fetchAll() as $row) {
+        $r = cc_load($row);
+        if (!is_array($r['data']) || ($r['data']['v'] ?? 0) !== 1) { round_close($u, $r, (int) $r['stake'], []); continue; }
+        $s = $r['data']; $rng = batty_rng();
+        for ($i = 0; $i < 200 && $s['phase'] !== 'done'; $i++) { [$a, $c] = cc_auto($s, $rng); $s = cc_step($s, $a, $c, $rng); }
+        cc_store($u, $r, $s);
+    }
+}
 function cc_load(array $row): array { $row['data'] = json_decode((string) $row['data'], true); return $row; }
 function play_circus(array &$u, string $op, array $in): array {
     if ($op === 'state') {

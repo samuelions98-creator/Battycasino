@@ -44,6 +44,7 @@ upload-only zip for any one release.
 | 15 | **Crimson Vault** (High Roller heist slot: 5×4, 20 lines, pick-your-vault free spins, 100× and 300× buys; level 5+; 96.7%) | `39bcff9` | 81 KB | no |
 | QA | **Final QA and polish** (Bat Derby leaderboard, Bonkers Time frame rate, lobby carousel and big-win show on phones, top bar at 390px, service-worker precache for every game, Live filter lists every live table, Sugar Fang timer fix) | `8370e18` | — | no |
 | 16 | **Unlimited bets** (bet any amount up to your balance in every game: tap a stake to type one or pick MAX; the top chip on every table is yours to set; no table limits; level rewards stop growing at level 100) | see branch | ~150 KB | **yes** (recommended) |
+| 16a | **Top-up fix** ("Finish your current round first" no longer locks players out: unfinished Circus shows and every other left-behind round are settled automatically, and the top-up then goes through) | see branch | small | no |
 
 ## Returns at a glance
 

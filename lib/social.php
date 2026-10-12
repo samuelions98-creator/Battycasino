@@ -104,8 +104,16 @@ function api_rescue(): array {
     $u0 = require_user();
     return tx(function () use ($u0) {
         $u = lock_user((int) $u0['id']);
-        if ($u['balance'] >= 1000) throw new ApiError('Top-ups are for players under 1,000 Batty Bucks.', 409);
-        if ((int) qv("SELECT COUNT(*) FROM rounds WHERE user_id = ? AND state = 'open'", [$u['id']])) throw new ApiError('Finish your current round first.', 409);
+        $before = $u['balance'];
+        if ($before >= 1000) throw new ApiError('Top-ups are for players under 1,000 Batty Bucks.', 409);
+        /* rounds left hanging (a closed tab mid-bonus, a live bet nobody came back for) are settled first */
+        settle_everything($u);
+        if ($u['balance'] >= 1000) {
+            save_user($u);
+            return ['amount' => 0, 'settled' => $u['balance'] - $before, 'bal' => $u['balance'], 'ver' => $u['ver'],
+                'message' => 'Your unfinished rounds have been settled: you now have ' . number_format($u['balance']) . ' Batty Bucks.'];
+        }
+        if ((int) qv("SELECT COUNT(*) FROM rounds WHERE user_id = ? AND state = 'open'", [$u['id']])) throw new ApiError('You have a live bet still in play. The top-up unlocks as soon as it settles.', 409);
         if ($u['last_rescue'] && strtotime($u['last_rescue'] . ' UTC') + 300 > time()) throw new ApiError('The bat-signal recharges every 5 minutes. Grab your hourly bonus in the meantime.', 409);
         credit($u, 5000, 'rescue', null, null, 'Emergency top-up');
         q('UPDATE users SET last_rescue = ? WHERE id = ?', [now_sql(), $u['id']]);
