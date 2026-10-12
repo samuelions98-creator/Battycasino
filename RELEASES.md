@@ -45,6 +45,7 @@ upload-only zip for any one release.
 | QA | **Final QA and polish** (Bat Derby leaderboard, Bonkers Time frame rate, lobby carousel and big-win show on phones, top bar at 390px, service-worker precache for every game, Live filter lists every live table, Sugar Fang timer fix) | `8370e18` | — | no |
 | 16 | **Unlimited bets** (bet any amount up to your balance in every game: tap a stake to type one or pick MAX; the top chip on every table is yours to set; no table limits; level rewards stop growing at level 100) | see branch | ~150 KB | **yes** (recommended) |
 | 16a | **Top-up fix** ("Finish your current round first" no longer locks players out: unfinished Circus shows and every other left-behind round are settled automatically, and the top-up then goes through) | see branch | small | no |
+| 17 | **Batty Cup + Echo Chamber** (a weekly tournament ranked by best single-round multiplier, with prizes for the top ten; and a memory skill game) | see branch | ~60 KB | **yes** |
 
 ## Returns at a glance
 
@@ -82,6 +83,21 @@ Players can bet as much as they like, up to their balance, in every game.
   site works before it, but run it anyway).
 - Maths unchanged: every parity check still passes. Baccarat now also accepts a 3,000 BB spot (whole thousands from
   2,000), on both browser and server.
+
+## Batty Cup and Echo Chamber (release 17)
+
+- **The Batty Cup** (`#cup`, a tile in the lobby): every week (Monday to Sunday, UK time) players are ranked by their best
+  single round as a multiple of the stake, so a 100 BB stake can beat a 1,000,000 BB one. Stakes of 100 BB or more count;
+  the table games are excluded. The server records scores from the round's own result. The top ten win 250,000 /
+  120,000 / 60,000 / 30,000 / 20,000 / 15,000 / 12,000 / 10,000 / 8,000 / 5,000 BB, paid automatically the first time
+  anyone opens the Cup after the week ends (each prize is guarded by a primary key, so it is paid exactly once).
+  Prizes are `CUP_PRIZES` in `lib/platform/cup.php`.
+- **Echo Chamber** (Arcade shelf): a memory game. Repeat a growing pattern on four crystals (3 to 14 notes, 12 levels). An
+  echo-storm can knock the bat down after any correct level, and after each level you choose to cash out or fly on. The
+  multiplier for each level is 96 divided by the chance of getting that far, rounded down, so perfect memory returns at
+  most 96% whatever you decide and every slip returns less (proved by `tools/echo-xcheck.js`, which also proves browser
+  and server identical). Leaving mid-game: a banked win is paid, a half-played pattern is lost (refunded at level 1).
+- "Update database" adds the Cup tables.
 
 ## Loose ends cleaned up (final build)
 

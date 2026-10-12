@@ -708,3 +708,53 @@ a.bc-btn { display: inline-grid; place-items: center; text-decoration: none; }
   .fx-storm b svg { opacity: .8; }
   .sh-card:hover, .pl-tile:hover, .lk-tile:hover, .sh-deal:hover, .sh-cratebanner:hover { transform: none; }
 }
+
+
+/* ---------- the Batty Cup ---------- */
+.pl-lobby .pl-cup { grid-column: 1 / -1; display: flex; align-items: center; gap: 16px; background: radial-gradient(120% 140% at 0% 0%, rgba(255, 215, 106, .22), transparent 55%), linear-gradient(135deg, #2c1650, #1a0b2e); border: 1px solid rgba(255, 215, 106, .35); }
+.pl-cup-art { flex: none; width: 70px; height: 70px; filter: drop-shadow(0 6px 14px rgba(255, 190, 40, .45)); }
+.pl-cup-art svg, .cp-art svg { width: 100%; height: 100%; display: block; }
+.pl-cup-txt { min-width: 0; display: grid; gap: 3px; justify-items: start; }
+.pl-cup-txt b { font-family: var(--f-display); font-weight: 400; font-size: 22px; color: var(--moon); overflow-wrap: anywhere; }
+.pl-cup-txt span { color: #d9cdee; font-size: 13.5px; }
+.cp-page { gap: 16px; }
+.cp-hero { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 18px; align-items: center; padding: 18px; border-radius: 22px; background: radial-gradient(120% 140% at 0% 0%, rgba(255, 215, 106, .24), transparent 55%), linear-gradient(135deg, #2c1650, #170c2b); border: 1px solid rgba(255, 215, 106, .4); }
+.cp-art { width: 96px; height: 96px; filter: drop-shadow(0 8px 18px rgba(255, 190, 40, .5)); }
+.cp-txt small, .cp-mine small, .cp-last small { display: block; color: var(--mute); font-weight: 800; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; }
+.cp-txt p { margin: 6px 0 0; color: #d9cdee; }
+.cp-time { color: var(--moon); font-variant-numeric: tabular-nums; }
+.cp-prizes { grid-column: 1 / -1; list-style: none; margin: 6px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.cp-prizes li { display: grid; gap: 2px; padding: 10px; border-radius: 14px; background: rgba(0, 0, 0, .3); border: 1px solid var(--line); text-align: center; min-width: 0; }
+.cp-prizes li b { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--mute); }
+.cp-prizes li span { font-family: var(--f-num); font-weight: 700; font-variant-numeric: tabular-nums; font-size: 15px; overflow-wrap: anywhere; }
+.cp-prizes li .pl-coin { display: inline-block; width: 15px; height: 15px; vertical-align: -2px; margin-right: 4px; }
+.cp-prizes .p1 { border-color: rgba(255, 215, 106, .6); background: rgba(255, 215, 106, .12); }
+.cp-prizes .p1 b { color: var(--moon); }
+.cp-mine { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 16px 18px; border-radius: 18px; background: var(--glass); border: 1px solid var(--line); }
+.cp-mine.in { border-color: rgba(255, 215, 106, .45); }
+.cp-mine > div { display: grid; gap: 2px; min-width: 0; }
+.cp-mine span { color: #d9cdee; font-size: 13.5px; }
+.cp-bigx { font-family: var(--f-display); font-weight: 400; font-size: 38px; color: var(--moon); line-height: 1.05; }
+.cp-rank { text-align: right; justify-items: end; }
+.cp-rank b { font-family: var(--f-display); font-weight: 400; font-size: 30px; }
+.cp-last { padding: 14px 16px; border-radius: 16px; background: rgba(0, 0, 0, .25); border: 1px solid var(--line); }
+.cp-last ol { list-style: none; margin: 8px 0 0; padding: 0; display: flex; gap: 8px 18px; flex-wrap: wrap; }
+.cp-last li { display: flex; align-items: center; gap: 6px; font-size: 14px; }
+.cp-last li i { font-style: normal; color: var(--moon); font-weight: 700; }
+.cp-row .who { min-width: 0; }
+.cp-row .who small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cp-v { display: grid; justify-items: end; gap: 1px; }
+.cp-v small { color: var(--mute); font-size: 11px; display: inline-flex; align-items: center; gap: 4px; }
+.cp-v small .pl-coin { width: 12px; height: 12px; display: inline-block; }
+.cp-how { padding: 12px 16px; border-radius: 14px; background: rgba(0, 0, 0, .2); border: 1px solid var(--line); color: #d9cdee; font-size: 14px; }
+.cp-how summary { cursor: pointer; font-weight: 800; color: var(--ink); }
+.cp-how ul { margin: 10px 0 0; padding-left: 18px; display: grid; gap: 6px; }
+@media (max-width: 560px) {
+  .pl-lobby .pl-cup { gap: 12px; }
+  .pl-cup-art { width: 54px; height: 54px; }
+  .pl-cup-txt b { font-size: 18px; }
+  .cp-hero { grid-template-columns: minmax(0, 1fr); padding: 14px; justify-items: start; }
+  .cp-art { width: 64px; height: 64px; }
+  .cp-prizes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cp-bigx { font-size: 32px; }
+}

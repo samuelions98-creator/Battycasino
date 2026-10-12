@@ -1227,6 +1227,66 @@
       '<circle r="22" fill="#ffd76a" stroke="#8a5207" stroke-width="5"/><g transform="translate(-15 -7) scale(.25)"><path d="' + B.batPath + '" fill="#2a1046"/></g>' +
       '<path d="M-14 -118H14L0 -88Z" fill="#ff3d81" stroke="#fff" stroke-width="3" stroke-linejoin="round"/></svg>';
   }
+  /* ---------- the Batty Cup (#cup): a weekly tournament ranked by best single-round multiplier ---------- */
+  const CUP_GAMES = { bunky: 'Bunky Time', olympus: 'Raging Cocks', fishing: 'Fishing Frenzy', plachinko: 'Plachinko', moonshot: 'Moonshot', ultraheist: 'Bat Bandits', bonanza: 'Sugar Fang', starwing: 'Starwing', circus: 'Batty Circus', crypt: "Batula's Crypt", nighttrain: 'Night Train', gummy: 'Gummy Bats', bookofbats: 'Book of Bats', derby: 'Bat Derby', bonkers: 'Bonkers Time', vault: 'Crimson Vault', echo: 'Echo Chamber' };
+  const cupX = (x) => (x >= 1000 ? Math.round(x).toLocaleString('en-GB') : x >= 100 ? x.toFixed(1) : x.toFixed(2)) + '×';
+  const CUP_ORD = ['', '1st', '2nd', '3rd'];
+  const cupPlace = (n) => CUP_ORD[n] || n + 'th';
+  const CUP_ART = '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M16 8h32v16c0 10-7 18-16 18S16 34 16 24z" fill="#ffd76a" stroke="#8a5207" stroke-width="3" stroke-linejoin="round"/><path d="M16 14H7c0 11 4 17 11 18M48 14h9c0 11-4 17-11 18" fill="none" stroke="#e2a325" stroke-width="3.5" stroke-linecap="round"/><path d="M28 42h8v8h-8z" fill="#e2a325"/><path d="M20 52h24v6H20z" fill="#8a5207"/><g transform="translate(21 13) scale(.3)"><path d="' + B.batPath + '" fill="#2a1046"/></g></svg>';
+  B.registerPage('cup', {
+    title: 'The Batty Cup', auth: true,
+    mount(root) {
+      if (!live()) { root.append(h('div', { class: 'pg-wrap' }, h('h1', { class: 'pg-h1' }, 'The Batty Cup'), h('p', null, 'The Batty Cup needs an online account.'))); return null; }
+      let dead = false, st = null, left = 0, tick = 0;
+      const hero = h('section', { class: 'cp-hero' });
+      const mine = h('section', { class: 'cp-mine' });
+      const last = h('section', { class: 'cp-last', hidden: true });
+      const board = h('div', { class: 'cp-board' });
+      const how = h('details', { class: 'cp-how' }, h('summary', null, 'How the Cup works'),
+        h('ul', null,
+          h('li', null, 'Every week, Monday to Sunday (UK time), the Cup ranks players by their best single round, as a multiple of the stake.'),
+          h('li', null, 'It is the multiplier that counts, not the amount, so a 100 BB stake can beat a 1,000,000 BB stake.'),
+          h('li', null, 'Rounds count from a stake of 100 BB, in any slot, arcade game or live show (not the table games).'),
+          h('li', null, 'Ties go to whoever got there first. The top ten win Batty Bucks, paid automatically when the week ends.'),
+          h('li', null, 'Batty Bucks have no cash value. The Cup is just for glory.')));
+      root.append(h('div', { class: 'pg-wrap cp-page' }, hero, mine, last, board, how));
+      const timeStr = () => dur(left);
+      function paint() {
+        hero.innerHTML = '<div class="cp-art">' + CUP_ART + '</div><div class="cp-txt"><small>Weekly tournament</small><h1 class="pg-h1">The Batty Cup</h1><p>Best single-round multiplier this week wins. Closes in <b class="cp-time">' + timeStr() + '</b>.</p></div>' +
+          '<ol class="cp-prizes">' + st.prizes.slice(0, 3).map((p, i) => '<li class="p' + (i + 1) + '"><b>' + cupPlace(i + 1) + '</b><span>' + coinSvg() + fmt(p) + '</span></li>').join('') + '<li class="more"><b>4th to 10th</b><span>' + coinSvg() + fmt(st.prizes[3]) + ' down to ' + fmt(st.prizes[9]) + '</span></li></ol>';
+        const m = st.mine;
+        mine.className = 'cp-mine' + (m ? ' in' : '');
+        mine.innerHTML = m
+          ? '<div><small>Your best this week</small><b class="cp-bigx">' + cupX(m.x) + '</b><span>' + fmt(m.win) + ' BB from a ' + fmt(m.stake) + ' BB stake on ' + esc(CUP_GAMES[m.game] || m.game) + '</span></div><div class="cp-rank"><small>Your place</small><b>' + (m.rank <= 3 ? cupPlace(m.rank) : '#' + fmt(m.rank)) + '</b>' + (m.rank <= 10 ? '<em class="pl-pill">In the prizes</em>' : '<span>Beat ' + cupX(st.rows.length >= 10 ? st.rows[9].x : 1) + ' for a prize</span>') + '</div>'
+          : '<div><small>You are not on the board yet</small><b class="cp-bigx">—</b><span>Play any slot, arcade game or live show with at least ' + fmt(st.minStake) + ' BB and land a win.</span></div><a class="bc-btn" href="#">Find a game</a>';
+        const pl = st.last;
+        last.hidden = !pl;
+        if (pl) last.innerHTML = '<small>Last week' + (pl.mine ? ': you finished ' + cupPlace(pl.mine.place) + ' and won ' + fmt(pl.mine.amount) + ' BB!' : '') + '</small><ol>' + pl.podium.map((r) => '<li><span class="av">' + B.avatar(r.avatar, 26) + '</span><b>' + cupPlace(r.place) + '</b> ' + esc(r.name) + ' <i>' + cupX(r.x) + '</i></li>').join('') + '</ol>';
+        board.textContent = '';
+        if (!st.rows.length) board.append(h('p', { class: 'ol-empty' }, 'Nobody is on the board yet. The first big win takes the lead.'));
+        for (const r of st.rows) {
+          const me = B.me && r.id === B.me.id;
+          board.append(h('div', { class: 'ol-row cp-row' + (r.rank <= 3 ? ' top' + r.rank : '') + (me ? ' me' : '') },
+            h('span', { class: 'rk' }, String(r.rank)), h('span', { class: 'av', html: B.avatar(r.avatar, 30) }),
+            h('span', { class: 'who' }, h('a', { href: '#profile/' + encodeURIComponent(r.name) }, r.name), h('small', null, fmt(r.win) + ' BB from ' + fmt(r.stake) + ' on ' + (CUP_GAMES[r.game] || r.game))),
+            h('span', { class: 'cp-v' }, h('b', { class: 'v' }, cupX(r.x)), r.prize ? h('small', null, coinSvg() + fmt(r.prize)) : null)));
+        }
+      }
+      async function load() {
+        try {
+          const r = await call('plat_cup', null, { quiet: true });
+          if (dead) return;
+          st = r; left = r.endsIn; paint();
+          if (r.paidNow && r.last && r.last.mine) { B.sfx('coin'); B.ui.toast('The Batty Cup paid you ' + fmt(r.last.mine.amount) + ' BB for finishing ' + cupPlace(r.last.mine.place) + '!'); }
+        } catch (e) { if (!dead) board.textContent = e.message; }
+      }
+      load();
+      const poll = setInterval(load, 20000);
+      tick = setInterval(() => { left = Math.max(0, left - 1); const t = hero.querySelector('.cp-time'); if (t) t.textContent = timeStr(); }, 1000);
+      return { destroy() { dead = true; clearInterval(poll); clearInterval(tick); } };
+    },
+  });
+
   ext.lobbyPlatform = function (box) {
     if (!live()) return () => {};
     let dead = false;
@@ -1236,7 +1296,8 @@
     const wheelT = h('a', { class: 'pl-tile pl-wt', href: '#wheel', id: 'pl-wheeltile' });
     const passT = h('a', { class: 'pl-tile pl-pt', href: '#pass', id: 'pl-passtile' });
     const shopT = h('a', { class: 'pl-tile pl-st', href: '#shop', id: 'pl-shoptile' });
-    sec.append(wheelT, passT, shopT);
+    const cupT = h('a', { class: 'pl-tile pl-cup', href: '#cup', id: 'pl-cuptile' });
+    sec.append(wheelT, passT, shopT, cupT);
     function paint() {
       const p = B.me && B.me.plat; if (!p || dead) return;
       const ready = p.wheelReady, bonus = p.spins;
@@ -1251,6 +1312,15 @@
         '<div class="pl-pt-bar"><i style="width:' + (into * 100).toFixed(1) + '%"></i></div><div class="pl-pt-foot"><span>' + (p.tier >= 50 ? 'Season complete' : fmt(p.xp % p.tierXp) + ' / ' + fmt(p.tierXp) + ' XP to tier ' + (p.tier + 1)) + '</span>' +
         (p.claimable ? '<em class="pl-pill">' + plural(p.claimable, 'reward') + ' to claim</em>' : p.boostIn > 0 ? '<em class="pl-pill teal">2× XP · ' + dur(p.boostIn) + '</em>' : '<em class="pl-pill dim">Open</em>') + '</div>';
     }
+    async function paintCup() {
+      cupT.innerHTML = '<div class="pl-cup-art">' + CUP_ART + '</div><div class="pl-cup-txt"><small>The Batty Cup · weekly</small><b>Best multiplier wins</b><span>Top ten share the prizes.</span><em class="pl-cta">See the board</em></div>';
+      try {
+        const r = await B.api('plat_cup', null, { defer: true });
+        if (dead) return;
+        const m = r.mine;
+        cupT.querySelector('.pl-cup-txt').innerHTML = '<small>The Batty Cup · ends in ' + dur(r.endsIn) + '</small><b>' + (m ? 'You are ' + (m.rank <= 3 ? cupPlace(m.rank) : '#' + fmt(m.rank)) + ' with ' + cupX(m.x) : 'Best multiplier wins') + '</b><span>' + (r.rows[0] ? 'Leader: ' + esc(r.rows[0].name) + ' on ' + cupX(r.rows[0].x) : 'Be the first on the board.') + ' First prize ' + fmt(r.prizes[0]) + ' BB.</span><em class="pl-cta' + (m ? ' ghost' : '') + '">' + (m ? 'Climb the board' : 'Enter now') + '</em>';
+      } catch (e) { /* the tile keeps its generic text */ }
+    }
     async function paintShop() {
       try {
         const d = await shopData(false);
@@ -1262,7 +1332,7 @@
         shopT.innerHTML = '<div class="pl-st-txt"><small>The Belfry Shop</small><b>Hats, frames and finery</b><em class="pl-cta ghost">Browse</em></div>';
       }
     }
-    paint(); paintShop();
+    paint(); paintShop(); paintCup();
     shopT.innerHTML = '<div class="pl-st-txt"><small>The Belfry Shop</small><b>Deal of the Night</b></div>';
     refreshStatus(true).then(paint);
     const t = setInterval(() => { refreshStatus(false).then(paint); }, 30000);

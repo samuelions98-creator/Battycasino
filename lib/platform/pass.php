@@ -100,6 +100,7 @@ function plat_after_round(array &$u, string $game, int $stake, int $win, array $
         pass_add_xp($u, $boost ? $base * 2 : $base, 'play');
     }
     plat_challenges_progress($u, $game, $stake, $win, $x, $f);
+    cup_record($u, $game, $stake, $win, $x);   // the Batty Cup (lib/platform/cup.php)
 }
 
 /* ---------- challenges ---------- */

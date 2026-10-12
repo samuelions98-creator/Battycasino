@@ -452,10 +452,11 @@ button:disabled { cursor: not-allowed; }
 <link rel="stylesheet" href="games/derby/style.css?v=20261011q">
 <link rel="stylesheet" href="games/bonkers/style.css?v=20261011q">
 <link rel="stylesheet" href="games/vault/style.css?v=20261011h">
+<link rel="stylesheet" href="games/echo/style.css?v=20261012a">
 <link rel="stylesheet" href="games/baccarat/style.css?v=20261011c">
 <link rel="stylesheet" href="games/royale/style.css?v=20261011b">
 <!-- Platform: Daily Prize Wheel, Bat Pass, Belfry Shop -->
-<link rel="stylesheet" href="core/platform.css?v=20261011f">
+<link rel="stylesheet" href="core/platform.css?v=20261012a">
 </head>
 <body>
 <div id="batty-app"></div>
@@ -1051,7 +1052,7 @@ window.Batty = (function () {
   }
 
   /* ---------- registry, shell, lobby ---------- */
-  const ORDER = ['circus', 'bonkers', 'crypt', 'nighttrain', 'gummy', 'bookofbats', 'derby', 'bunky', 'olympus', 'fishing', 'plachinko', 'moonshot', 'ultraheist', 'batjack', 'bonanza', 'starwing', 'vault', 'baccarat', 'royale'];
+  const ORDER = ['circus', 'bonkers', 'crypt', 'nighttrain', 'gummy', 'bookofbats', 'derby', 'bunky', 'olympus', 'fishing', 'plachinko', 'moonshot', 'ultraheist', 'batjack', 'bonanza', 'starwing', 'vault', 'baccarat', 'royale', 'echo'];
   const games = {}, pages = {};
   let app, bar, stage, current = null, curPage = null, balEl, lvlEl, booted = false;
   const ext = { settings: settingsModal }; // filled in by the online features: authCard, lobbyTop, lobbyBottom; core/platform.js: lobbyPlatform, barPlatform, avatarParts, passEvent
@@ -1134,7 +1135,7 @@ window.Batty = (function () {
 
   /* ---------- lobby sections ----------
      A game picks its shelf with def.section ('slots' | 'live' | 'tables' | 'arcade' | 'highroller'); older games fall back to this map. */
-  const SECTION_OF = { bunky: 'live', bonkers: 'live', moonshot: 'live', batjack: 'tables', baccarat: 'highroller', royale: 'highroller', vault: 'highroller', plachinko: 'arcade', derby: 'arcade' };
+  const SECTION_OF = { bunky: 'live', bonkers: 'live', moonshot: 'live', batjack: 'tables', baccarat: 'highroller', royale: 'highroller', vault: 'highroller', plachinko: 'arcade', derby: 'arcade', echo: 'arcade' };
   const secOf = (g) => g.section || SECTION_OF[g.id] || (/table/i.test(g.tag || '') ? 'tables' : 'slots');
   const HR_LEVEL = 5;
   const SHELVES = [
@@ -1455,8 +1456,8 @@ window.Batty = (function () {
 (function () {
   'use strict';
   const B = Batty, h = B.h, fmt = B.fmt;
-  const GN = { bunky: 'Bunky Time', olympus: 'Raging Cocks of Olympus 2', fishing: 'Fishing Frenzy', plachinko: 'Plachinko', moonshot: "Batty's Moonshot", ultraheist: 'Bat Bandits UltraNudge', batjack: 'Bat Jack', bonanza: 'Sugar Fang Bonanza', starwing: 'Starwing', circus: 'Batty Circus', crypt: "Count Batula's Crypt", nighttrain: 'Night Train', gummy: 'Gummy Bats', bookofbats: 'Book of Bats', derby: 'Bat Derby', bonkers: 'Bonkers Time', vault: 'Crimson Vault', baccarat: 'Velvet Baccarat', royale: 'Roulette Royale' };
-  const GS = { bunky: 'Bunky Time', olympus: 'Raging Cocks', fishing: 'Fishing Frenzy', plachinko: 'Plachinko', moonshot: 'Moonshot', ultraheist: 'Bat Bandits', batjack: 'Bat Jack', bonanza: 'Sugar Fang', starwing: 'Starwing', circus: 'Batty Circus', crypt: "Batula's Crypt", nighttrain: 'Night Train', gummy: 'Gummy Bats', bookofbats: 'Book of Bats', derby: 'Bat Derby', bonkers: 'Bonkers Time', vault: 'Crimson Vault', baccarat: 'Velvet Baccarat', royale: 'Roulette Royale' };
+  const GN = { bunky: 'Bunky Time', olympus: 'Raging Cocks of Olympus 2', fishing: 'Fishing Frenzy', plachinko: 'Plachinko', moonshot: "Batty's Moonshot", ultraheist: 'Bat Bandits UltraNudge', batjack: 'Bat Jack', bonanza: 'Sugar Fang Bonanza', starwing: 'Starwing', circus: 'Batty Circus', crypt: "Count Batula's Crypt", nighttrain: 'Night Train', gummy: 'Gummy Bats', bookofbats: 'Book of Bats', derby: 'Bat Derby', bonkers: 'Bonkers Time', vault: 'Crimson Vault', baccarat: 'Velvet Baccarat', royale: 'Roulette Royale', echo: 'Echo Chamber' };
+  const GS = { bunky: 'Bunky Time', olympus: 'Raging Cocks', fishing: 'Fishing Frenzy', plachinko: 'Plachinko', moonshot: 'Moonshot', ultraheist: 'Bat Bandits', batjack: 'Bat Jack', bonanza: 'Sugar Fang', starwing: 'Starwing', circus: 'Batty Circus', crypt: "Batula's Crypt", nighttrain: 'Night Train', gummy: 'Gummy Bats', bookofbats: 'Book of Bats', derby: 'Bat Derby', bonkers: 'Bonkers Time', vault: 'Crimson Vault', baccarat: 'Velvet Baccarat', royale: 'Roulette Royale', echo: 'Echo Chamber' };
   const xs = (x) => (x >= 100 ? fmt(x) : (Math.round(x * 100) / 100).toFixed(x >= 10 ? 1 : 2)) + '×';
   const ago = (t) => { const s = Math.max(0, Math.round(Date.now() / 1000 - t)); return s < 60 ? 'just now' : s < 3600 ? Math.floor(s / 60) + ' min ago' : s < 86400 ? Math.floor(s / 3600) + ' h ago' : Math.floor(s / 86400) + ' d ago'; };
   const date = (t) => new Date(t * 1000).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -1616,7 +1617,7 @@ window.Batty = (function () {
     title: 'Leaderboards',
     mount(root) {
       const lb = leaderboardWidget({ board: 'rich' });
-      root.append(h('div', { class: 'pg-wrap' }, h('h1', { class: 'pg-h1' }, 'Leaderboards'), h('p', { class: 'pg-sub' }, 'Weeks run Monday to Sunday, UK time.'), lb.el));
+      root.append(h('div', { class: 'pg-wrap' }, h('h1', { class: 'pg-h1' }, 'Leaderboards'), h('p', { class: 'pg-sub' }, 'Weeks run Monday to Sunday, UK time. ', srv.on && srv.me ? h('a', { href: '#cup' }, 'Enter the Batty Cup') : null), lb.el));
       return { destroy: lb.destroy };
     },
   });
@@ -1824,13 +1825,14 @@ window.Batty = (function () {
 <script src="games/derby/game.js?v=20261011u"></script>
 <script src="games/bonkers/game.js?v=20261011u"></script>
 <script src="games/vault/game.js?v=20261011u"></script>
+<script src="games/echo/game.js?v=20261012a"></script>
 <script src="games/baccarat/game.js?v=20261011u"></script>
 <script src="games/royale/game.js?v=20261011u"></script>
 <script src="games/circus/math.js?v=R4"></script>
 <script src="games/circus/art.js?v=R4"></script>
 <script src="games/circus/game.js?v=R4"></script>
 <!-- Platform: Daily Prize Wheel, Bat Pass, Belfry Shop (online mode only) -->
-<script src="core/platform.js?v=20261011f"></script>
+<script src="core/platform.js?v=20261012a"></script>
 <script>
 // This should never occur with a complete deployment; make a partial FTP upload obvious.
 if (!Batty.games.circus) {
