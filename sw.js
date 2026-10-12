@@ -2,7 +2,7 @@
    Network-first for all local GET assets (especially index.html, CSS and JS) so a new
    deployment cannot be hidden indefinitely by the previous service worker cache.
    API requests are NEVER intercepted; bets and balances always use the server. */
-const V = 'batty-20261012e';
+const V = 'batty-20261012f';
 /* Precached for offline start-up: the shell, every game's JS and CSS and the platform pages, with the exact ?v= tags
    index.html requests (keep them in step when a tag is bumped). Anything else is cached as it is fetched. */
 const SHELL = [
@@ -46,8 +46,10 @@ const SHELL = [
   'games/royale/game.js?v=20261011u',
   'games/vault/style.css?v=20261011h',
   'games/echo/style.css?v=20261012c',
+  'games/mines/style.css?v=20261012f',
   'games/vault/game.js?v=20261011u',
   'games/echo/game.js?v=20261012c',
+  'games/mines/game.js?v=20261012f',
   'games/circus/math.js?v=R4',
   'games/circus/art.js?v=R4',
   'games/circus/game.js?v=R4',

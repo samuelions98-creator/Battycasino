@@ -43,6 +43,7 @@ function resolve_open(array &$u, string $game): void {
     if ($game === 'bookofbats') { bob_settle_open($u); return; }   // a held (gambleable) win is paid, never lost
     if ($game === 'crypt') { cr_settle_open($u); return; }        // held free spins are played and paid, never lost
     if ($game === 'vault') { vault_settle_open($u); return; }        // an unpicked vault is opened at random and paid, never lost
+    if ($game === 'mines') { mines_settle_open($u); return; }          // banked crystals are paid, an untouched board is refunded
     if ($game === 'echo') { echo_settle_open($u); return; }            // a banked win is paid, a half-played pattern is lost
     if ($game === 'circus') { cc_settle_open($u); return; }          // an unfinished show is played out and paid, never lost
     while ($r = round_get_open($u, $game)) {
@@ -66,7 +67,7 @@ function resolve_stale(int $uid): void {
    a vault pick, a Circus show, a Bat Jack hand) are played out and paid; live bets whose result is out are paid. Live
    bets still in play are left alone. Call inside a transaction holding the player's lock. */
 function settle_everything(array &$u): void {
-    foreach (['bunky', 'fishing', 'moonshot', 'batjack', 'bookofbats', 'crypt', 'vault', 'circus', 'echo'] as $g) resolve_open($u, $g);
+    foreach (['bunky', 'fishing', 'moonshot', 'batjack', 'bookofbats', 'crypt', 'vault', 'circus', 'echo', 'mines'] as $g) resolve_open($u, $g);
     $now = microtime(true);
     derby_tidy($u, $now); bnk_tidy($u, null, $now); ry_tidy($u, null, $now); bac_tidy($u, null, $now); rl_tidy($u, null, $now);
 }

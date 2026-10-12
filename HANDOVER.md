@@ -7,7 +7,7 @@ There is no work in progress: `wip/` holds only its deny-all `.htaccess`.
 
 ## 1. What's in the build
 
-### Games (20)
+### Games (21)
 | Game | Kind | Shelf | Return |
 |---|---|---|---|
 | Batty's Moonshot | crash, live | Live | existing |
@@ -22,6 +22,7 @@ There is no work in progress: `wip/` holds only its deny-all `.htaccess`.
 | Bunky Time | live wheel show | Live (featured) | 96.0% |
 | Bonkers Time | live game show, four bonus scenes | Live (featured) | 96.0% |
 | Bat Derby | live bat racing | Arcade | 96.0% |
+| Crypt Sweeper | skulls-and-crystals flip game, cash out any time | Arcade | 96.5% |
 | Echo Chamber | memory skill game, push-your-luck ladder | Arcade | up to 98% with perfect memory |
 | Roulette Royale | live European roulette | High Roller (level 5+) | 97.3% |
 | Velvet Baccarat | live baccarat, squeeze, roadmaps | High Roller (level 5+) | Banker 98.9% |

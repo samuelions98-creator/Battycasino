@@ -1317,7 +1317,7 @@
     return { el: sec, off };
   }
   /* ---------- the Batty Cup (#cup): a weekly tournament ranked by best single-round multiplier ---------- */
-  const CUP_GAMES = { bunky: 'Bunky Time', olympus: 'Raging Cocks', fishing: 'Fishing Frenzy', plachinko: 'Plachinko', moonshot: 'Moonshot', ultraheist: 'Bat Bandits', bonanza: 'Sugar Fang', starwing: 'Starwing', circus: 'Batty Circus', crypt: "Batula's Crypt", nighttrain: 'Night Train', gummy: 'Gummy Bats', bookofbats: 'Book of Bats', derby: 'Bat Derby', bonkers: 'Bonkers Time', vault: 'Crimson Vault', echo: 'Echo Chamber' };
+  const CUP_GAMES = { bunky: 'Bunky Time', olympus: 'Raging Cocks', fishing: 'Fishing Frenzy', plachinko: 'Plachinko', moonshot: 'Moonshot', ultraheist: 'Bat Bandits', bonanza: 'Sugar Fang', starwing: 'Starwing', circus: 'Batty Circus', crypt: "Batula's Crypt", nighttrain: 'Night Train', gummy: 'Gummy Bats', bookofbats: 'Book of Bats', derby: 'Bat Derby', bonkers: 'Bonkers Time', vault: 'Crimson Vault', echo: 'Echo Chamber', mines: 'Crypt Sweeper' };
   const cupX = (x) => (x >= 1000 ? Math.round(x).toLocaleString('en-GB') : x >= 100 ? x.toFixed(1) : x.toFixed(2)) + '×';
   const CUP_ORD = ['', '1st', '2nd', '3rd'];
   const cupPlace = (n) => CUP_ORD[n] || n + 'th';

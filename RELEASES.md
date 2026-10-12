@@ -45,6 +45,7 @@ upload-only zip for any one release.
 | QA | **Final QA and polish** (Bat Derby leaderboard, Bonkers Time frame rate, lobby carousel and big-win show on phones, top bar at 390px, service-worker precache for every game, Live filter lists every live table, Sugar Fang timer fix) | `8370e18` | — | no |
 | 16 | **Unlimited bets** (bet any amount up to your balance in every game: tap a stake to type one or pick MAX; the top chip on every table is yours to set; no table limits; level rewards stop growing at level 100) | see branch | ~150 KB | **yes** (recommended) |
 | 16a | **Top-up fix** ("Finish your current round first" no longer locks players out: unfinished Circus shows and every other left-behind round are settled automatically, and the top-up then goes through) | see branch | small | no |
+| 21 | **Crypt Sweeper** (new arcade game: flip crystals on a 5×5 crypt floor, choose 1 to 24 skulls, cash out any time; 96.5% whatever you choose) | see branch | ~40 KB | no |
 | 20 | **Happy Hour events + bug fixes** (timed site-wide events started from Admin: extra payouts, jackpots hitting more often, double Bat Pass XP, with a lobby banner and a countdown in the top bar; fixes the Leaderboards page failing to load and the Batty Cup board showing raw code) | see branch | ~20 KB | no |
 | 19 | **Adjustable return to player** (new Admin panel: a Return Boost that pays extra % of every stake back in all slots, arcade and live games, plus editable target returns for the nine self-balancing games) | see branch | ~25 KB | no |
 | 18 | **Batty Jackpots + a better-paying Echo Chamber** (four progressive pools fed by every bet in every game; Echo Chamber now returns up to 98% with 15 levels and a 25.2× top prize) | see branch | ~40 KB | **yes** |
@@ -127,6 +128,17 @@ Admin → **Return to player**:
 - The table shows each game's target, recent and lifetime return, and an estimated total (game + boost + about 2.5 points of
   Batty Jackpots), in red at 100% or more. Keep the total under 100% or players can grow their Batty Bucks without limit.
   Fixed-maths games (Olympus, Fishing Frenzy, Plachinko, Moonshot, Circus and the live shows) are raised with the boost.
+
+## Crypt Sweeper (release 21)
+
+A new Arcade game. A 5×5 crypt floor hides 1 to 24 skulls (the player's choice); every other slab hides a crystal. Flip slabs one
+at a time: each crystal raises the multiplier, a skull ends the round, and the player can cash out at any point. The multiplier
+after k crystals is `floor(193 × C(25,k) / (2 × C(25−skulls,k)))` hundredths, i.e. 96.5 ÷ the chance of surviving k flips, so the
+expected return is at most 96.5% whenever the player stops and however many skulls they choose (proved by `tools/mines-xcheck.js`,
+which also proves browser and server identical on seeded placements). A round that would pass 10,000× is paid at that cap and
+ends. Skull positions are drawn by the server when the round starts and stay hidden. Leaving mid-round pays the banked crystals;
+an untouched board is refunded. Practice mode runs the same maths in the browser. Return boost, jackpots and Happy Hour apply as
+in every other game.
 
 ## Happy Hour events and fixes (release 20)
 
